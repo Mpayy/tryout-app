@@ -7,11 +7,12 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasRoles;
 
     /**
      * The attributes that are mass assignable.
@@ -22,6 +23,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'is_active',
+        'is_profile_complete',
+        'is_approved'
     ];
 
     /**
@@ -45,5 +49,45 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function profileSiswa()
+    {
+        return $this->hasOne(ProfileSiswa::class, 'user_id', 'id');
+    }
+
+    public function profileGuru()
+    {
+        return $this->hasOne(ProfileGuru::class, 'user_id', 'id');
+    }
+
+    public function soal()
+    {
+        return $this->hasMany(Soal::class, 'guru_id', 'id');
+    }
+
+    public function paketUjian()
+    {
+        return $this->hasMany(PaketUjian::class, 'guru_id', 'id');
+    }
+
+    public function sesiUjian()
+    {
+        return $this->hasMany(SesiUjian::class, 'siswa_id', 'id');
+    }
+
+    public function isAdmin()
+    {
+        return $this->role === 'admin';
+    }
+
+    public function isGuru()
+    {
+        return $this->role === 'guru';
+    }
+
+    public function isSiswa()
+    {
+        return $this->role === 'siswa';
     }
 }
