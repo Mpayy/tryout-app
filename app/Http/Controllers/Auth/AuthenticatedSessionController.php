@@ -21,6 +21,10 @@ class AuthenticatedSessionController extends Controller
 
     /**
      * Handle an incoming authentication request.
+     *
+     * FIX #5: Tambahkan fallback return jika user tidak punya role yang dikenal.
+     * Tanpa ini, user tanpa role yang berhasil login akan menyebabkan PHP error
+     * karena method tidak me-return RedirectResponse.
      */
     public function store(LoginRequest $request): RedirectResponse
     {
@@ -28,17 +32,29 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        // return redirect()->intended(route('dashboard', absolute: false));
-        
         $user = $request->user();
 
+        // Redirect sesuai role via Spatie hasRole()
         if ($user->hasRole('admin')) {
             return redirect()->route('admin.dashboard');
-        } elseif ($user->hasRole('guru')) {
+        }
+
+        if ($user->hasRole('guru')) {
             return redirect()->route('guru.dashboard');
-        } elseif ($user->hasRole('siswa')) {
+        }
+
+        if ($user->hasRole('siswa')) {
             return redirect()->route('siswa.dashboard');
         }
+
+        // FIX #5: Fallback — user login tapi tidak punya role yang dikenal.
+        // Log out dan kembalikan ke login dengan pesan error yang jelas.
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('login')
+            ->withErrors(['email' => 'Akun Anda belum memiliki hak akses. Hubungi administrator.']);
     }
 
     /**

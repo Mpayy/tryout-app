@@ -1,177 +1,159 @@
 <x-app-layout>
     <x-slot name="header">
-        Bank Soal: Input Massal (Bulk Mode)
+        <div class="flex justify-between items-center">
+            <h2 class="font-bold text-2xl text-gray-800 leading-tight">
+                <i class="bi bi-journal-text text-indigo-500 mr-2"></i> Bank Soal
+            </h2>
+            <div class="text-sm text-gray-500 font-medium">
+                Manajemen <span class="text-indigo-600">/</span> Bank Soal
+            </div>
+        </div>
     </x-slot>
 
-    <!-- AREA ATAMA CARD DAISYUI -->
-    <div class="card bg-white shadow-sm border border-gray-100 rounded-xl mb-6">
-        <div class="card-body p-6">
+    <div class="py-6">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
             
-            <!-- HEADER INFO & UTILITY BUTTONS -->
-            <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6 border-b border-gray-100 pb-4">
-                <div>
-                    <h2 class="text-xl font-bold text-gray-800">Manajemen Pertanyaan & Pilihan Jawaban</h2>
+            <!-- 1. STATISTIK RINGKAS (DAISYUI STATS) -->
+            <div class="stats shadow-xl border border-gray-100 w-full bg-white rounded-2xl overflow-hidden">
+                <div class="stat hover:bg-gray-50 transition duration-300">
+                    <div class="stat-figure text-indigo-500">
+                        <div class="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center">
+                            <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="stat-title text-gray-500 font-semibold tracking-wide">Total Soal Terinput</div>
+                    <div class="stat-value text-indigo-700 text-4xl mt-2 font-black">{{ $soals->total() }}</div>
+                    <div class="stat-desc mt-2 text-indigo-500 font-medium flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                        Target minimal: 30 soal
+                    </div>
+                </div>
+                
+                <div class="stat hover:bg-gray-50 transition duration-300">
+                    <div class="stat-figure text-emerald-500">
+                        <div class="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center">
+                            <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="stat-title text-gray-500 font-semibold tracking-wide">Mata Pelajaran</div>
+                    <div class="stat-value text-emerald-700 text-2xl mt-2 truncate max-w-[250px]">
+                        Semua Mapel
+                    </div>
+                    <div class="stat-desc mt-2 font-semibold text-emerald-500">
+                        Total yang Anda ajar
+                    </div>
                 </div>
             </div>
 
-            <!-- FORM UTAMA UNTUK BULK DATA -->
-            <form action="
-            {{-- {{ route('admin.soal.bulk-store', $mapel->id) }} --}}
-             " method="POST">
-                @csrf
-                <select name="mapel_id" id="mapel_id" class="select select-bordered w-full max-w-xs">
-                    <option value="">Pilih Mata Pelajaran</option>
-                    @foreach ($mapels as $mapel)
-                        <option value="{{ $mapel->id }}">{{ $mapel->nama }}</option>
-                    @endforeach
-                </select>
-                <!-- TABEL MATRIKS SOAL DYNAMIC -->
-                <div class="overflow-x-auto w-full border border-gray-200/70 rounded-xl">
-                    <table class="table w-full text-gray-700" id="table-soal">
-                        <!-- Head Tabel -->
-                        <thead class="bg-gray-50 text-gray-600 font-semibold text-sm border-b border-gray-200">
-                            <tr>
-                                <th class="w-12 text-center py-4">No</th>
-                                <th class="w-1/3 min-w-[300px]">Pertanyaan (Input Teks)</th>
-                                <th class="min-w-[150px]">Opsi A</th>
-                                <th class="min-w-[150px]">Opsi B</th>
-                                <th class="min-w-[150px]">Opsi C</th>
-                                <th class="min-w-[150px]">Opsi D</th>
-                                <th class="w-40 min-w-[130px] text-center">Jawaban Benar</th>
-                                <th class="w-16 text-center">Aksi</th>
-                            </tr>
-                        </thead>
+            <!-- 2. AREA UTAMA DAFTAR SOAL -->
+            <div class="card bg-white shadow-xl border border-gray-100 rounded-2xl overflow-hidden">
+                <div class="card-body p-0">
+                    
+                    <!-- HEADER & TOMBOL AKSI -->
+                    <div class="bg-gray-50/50 p-6 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-800">Daftar Butir Pertanyaan</h3>
+                            <p class="text-sm text-gray-500 mt-1">Kumpulan soal yang siap digunakan dalam paket ujian.</p>
+                        </div>
                         
-                        <!-- Body Tempat Suntik Baris Soal (Default Berisi 1 Baris Kosong) -->
-                        <tbody id="container-soal" class="divide-y divide-gray-100">
-                            <tr class="hover:bg-gray-50/40 transition dynamic-row" data-index="0">
-                                <td class="text-center font-medium text-gray-400 row-number">1</td>
-                                <td>
-                                    <!-- Textarea fleksibel agar muat tulisan panjang -->
-                                    <textarea name="soal[0][pertanyaan]" rows="2" class="textarea textarea-bordered w-full resize-y text-sm focus:outline-teal-600 min-h-[3.5rem]" placeholder="Ketik butir soal ujian disini..." required></textarea>
-                                </td>
-                                <td>
-                                    <input type="text" name="soal[0][opsi][A]" class="input input-bordered input-sm w-full focus:outline-teal-600" placeholder="Pilihan A" required />
-                                </td>
-                                <td>
-                                    <input type="text" name="soal[0][opsi][B]" class="input input-bordered input-sm w-full focus:outline-teal-600" placeholder="Pilihan B" required />
-                                </td>
-                                <td>
-                                    <input type="text" name="soal[0][opsi][C]" class="input input-bordered input-sm w-full focus:outline-teal-600" placeholder="Pilihan C" required />
-                                </td>
-                                <td>
-                                    <input type="text" name="soal[0][opsi][D]" class="input input-bordered input-sm w-full focus:outline-teal-600" placeholder="Pilihan D" required />
-                                </td>
-                                <td class="text-center">
-                                    <select name="soal[0][jawaban_benar]" class="select select-bordered w-full text-center font-semibold text-gray-700 focus:outline-teal-600" required>
-                                        <option value="A">A</option>
-                                        <option value="B">B</option>
-                                        <option value="C">C</option>
-                                        <option value="D">D</option>
-                                    </select>
-                                </td>
-                                <td class="text-center">
-                                    <button type="button" onclick="deleteRow(this)" class="btn btn-ghost btn-xs text-gray-400 hover:text-red-500">
-                                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-4v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                                    </button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- CONTROL BUTTONS (BAGIAN BAWAH) -->
-                <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mt-6 border-t border-gray-100 pt-4">
-                    <!-- Tombol Tambah Baris Dinamis -->
-                    <button type="button" onclick="addRow()" class="btn btn-outline border-teal-600 text-teal-600 hover:bg-teal-50 hover:border-teal-600 gap-2 w-full sm:w-auto">
-                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                        Tambah Baris Baru
-                    </button>
-
-                    <!-- Aksi Simpan Masal / Batal -->
-                    <div class="flex gap-2 w-full sm:w-auto justify-end">
-                        <a href="{{ route('admin.users.index') }}" class="btn btn-ghost border-gray-200 w-1/2 sm:w-auto">Batal</a>
-                        <button type="submit" class="btn btn-primary px-8 w-1/2 sm:w-auto">Simpan Perubahan (Bulk)</button>
+                        <div class="flex gap-2">
+                            <a href="{{ route('guru.soal.create') }}" class="btn bg-indigo-600 hover:bg-indigo-700 text-white border-none shadow-lg shadow-indigo-200 gap-2 rounded-xl">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                Tambah Soal
+                            </a>
+                        </div>
                     </div>
-                </div>
-            </form>
 
+                    <!-- AREA TABEL DAFTAR SOAL -->
+                    <div class="overflow-x-auto w-full">
+                        <table class="table w-full text-gray-700">
+                            <thead class="bg-white text-gray-600 font-semibold text-sm border-b-2 border-gray-100">
+                                <tr>
+                                    <th class="w-16 text-center py-5">No</th>
+                                    <th>Mata Pelajaran</th>
+                                    <th>Pertanyaan</th>
+                                    <th class="w-32 text-center">Kunci</th>
+                                    <th class="w-24 text-center">Kesulitan</th>
+                                    <th class="w-32 text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                @forelse($soals as $index => $soal)
+                                <tr class="hover:bg-indigo-50/30 transition duration-200">
+                                    <td class="text-center font-medium text-gray-400">
+                                        {{ $soals->firstItem() + $index }}
+                                    </td>
+                                    
+                                    <td>
+                                        <div class="badge badge-ghost font-medium px-3 py-3 rounded-lg bg-gray-100 text-gray-600 border-none">
+                                            {{ $soal->mataPelajaran->nama ?? '-' }}
+                                        </div>
+                                    </td>
+
+                                    <td class="font-medium text-gray-800 max-w-md">
+                                        <div class="line-clamp-2 leading-relaxed">
+                                            {{ strip_tags($soal->konten) }}
+                                        </div>
+                                    </td>
+                                    
+                                    <td class="text-center">
+                                        <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 font-bold border border-emerald-200 shadow-sm">
+                                            {{ $soal->jawabanBenar->label ?? '-' }}
+                                        </span>
+                                    </td>
+
+                                    <td class="text-center">
+                                        @if($soal->tingkat_kesulitan == 'mudah')
+                                            <span class="badge bg-green-100 text-green-700 border-none font-semibold px-3 py-2 rounded-md">Mudah</span>
+                                        @elseif($soal->tingkat_kesulitan == 'sulit')
+                                            <span class="badge bg-red-100 text-red-700 border-none font-semibold px-3 py-2 rounded-md">Sulit</span>
+                                        @else
+                                            <span class="badge bg-yellow-100 text-yellow-700 border-none font-semibold px-3 py-2 rounded-md">Sedang</span>
+                                        @endif
+                                    </td>
+                                    
+                                    <td class="text-center">
+                                        <div class="flex justify-center gap-2">
+                                            <form action="{{ route('guru.soal.destroy', $soal->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus soal ini?')">
+                                                @csrf @method('DELETE')
+                                                <button type="submit" class="btn btn-circle btn-ghost btn-sm text-gray-400 hover:text-red-500 hover:bg-red-50 transition">
+                                                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-4v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="6" class="text-center py-12">
+                                        <div class="flex flex-col items-center justify-center space-y-3">
+                                            <div class="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-2">
+                                                <svg class="w-10 h-10 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                </svg>
+                                            </div>
+                                            <h4 class="text-lg font-bold text-gray-700">Belum ada soal</h4>
+                                            <p class="text-gray-500 max-w-sm text-center">Anda belum membuat soal ujian. Silakan klik tombol "Tambah Soal" di kanan atas untuk mulai menyusun bank soal.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- PAGINATION -->
+                    @if($soals->hasPages())
+                    <div class="p-6 border-t border-gray-100 bg-gray-50/30">
+                        {{ $soals->links() }}
+                    </div>
+                    @endif
+                </div>
+            </div>
         </div>
     </div>
-
-    <!-- ========================================== -->
-    <!-- JAVASCRIPT LOGIC UNTUK MANIPULASI BARIS TABEL -->
-    <!-- ========================================== -->
-    <script>
-        let rowIndex = 1; // Mulai dari index 1 karena index 0 sudah ada di HTML bawaan
-
-        // Fungsi Menambah Baris Baru Secara Instan
-        function addRow() {
-            const container = document.getElementById('container-soal');
-            const newRow = document.createElement('tr');
-            newRow.className = "hover:bg-gray-50/40 transition dynamic-row";
-            newRow.setAttribute('data-index', rowIndex);
-
-            newRow.innerHTML = `
-                <td class="text-center font-medium text-gray-400 row-number"></td>
-                <td>
-                    <textarea name="soal[${rowIndex}][pertanyaan]" rows="2" class="textarea textarea-bordered w-full resize-y text-sm focus:outline-teal-600 min-h-[3.5rem]" placeholder="Ketik butir soal ujian disini..." required></textarea>
-                </td>
-                <td>
-                    <input type="text" name="soal[${rowIndex}][opsi][A]" class="input input-bordered input-sm w-full focus:outline-teal-600" placeholder="Pilihan A" required />
-                </td>
-                <td>
-                    <input type="text" name="soal[${rowIndex}][opsi][B]" class="input input-bordered input-sm w-full focus:outline-teal-600" placeholder="Pilihan B" required />
-                </td>
-                <td>
-                    <input type="text" name="soal[${rowIndex}][opsi][C]" class="input input-bordered input-sm w-full focus:outline-teal-600" placeholder="Pilihan C" required />
-                </td>
-                <td>
-                    <input type="text" name="soal[${rowIndex}][opsi][D]" class="input input-bordered input-sm w-full focus:outline-teal-600" placeholder="Pilihan D" required />
-                </td>
-                <td class="text-center">
-                    <select name="soal[${rowIndex}][jawaban_benar]" class="select select-bordered w-full text-center font-semibold text-gray-700 focus:outline-teal-600" required>
-                        <option value="A">A</option>
-                        <option value="B">B</option>
-                        <option value="C">C</option>
-                        <option value="D">D</option>
-                    </select>
-                </td>
-                <td class="text-center">
-                    <button type="button" onclick="deleteRow(this)" class="btn btn-ghost btn-xs text-gray-400 hover:text-red-500">
-                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-4v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                    </button>
-                </td>
-            `;
-
-            container.appendChild(newRow);
-            rowIndex++;
-            updateRowNumbers(); // Susun ulang penomoran
-        }
-
-        // Fungsi Menghapus Baris Terpilih
-        function deleteRow(button) {
-            const row = button.closest('tr');
-            const container = document.getElementById('container-soal');
-            
-            // Sisakan minimal 1 baris di tabel agar form tidak kosong melompong
-            if (container.querySelectorAll('.dynamic-row').length > 1) {
-                row.remove();
-                updateRowNumbers();
-            } else {
-                alert('Gagal menghapus! Minimal harus ada 1 baris soal yang diisi.');
-            }
-        }
-
-        // Fungsi Otomatis Mengurutkan Angka No. 1, 2, 3... saat ada baris ditambah/dihapus
-        function updateRowNumbers() {
-            const rows = document.querySelectorAll('#container-soal .dynamic-row');
-            rows.forEach((row, index) => {
-                row.querySelector('.row-number').innerText = index + 1;
-            });
-        }
-
-        // Jalankan kalkulasi urutan nomor di awal load halaman
-        document.addEventListener("DOMContentLoaded", updateRowNumbers);
-    </script>
 </x-app-layout>

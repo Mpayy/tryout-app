@@ -212,7 +212,7 @@
         // Fungsi Buka Modal Edit Data (Sambil Lempar Data User terpilih)
         function openEditModal(user) {
             modalTitle.innerText = "Modal Form: Edit User (" + user.name + ")";
-            form.action = "/users/" + user.id; // Arahkan ke URL update
+            form.action = "/admin/users/" + user.id; // Arahkan ke URL update
             methodField.innerHTML = `@method('PUT')`; // Tambahkan spoofing method PUT Laravel
             passwordHint.classList.remove('hidden');
             document.getElementById('input_password').required = false;
