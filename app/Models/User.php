@@ -76,18 +76,22 @@ class User extends Authenticatable
         return $this->hasMany(SesiUjian::class, 'siswa_id', 'id');
     }
 
-    public function isAdmin()
+    /**
+     * FIX #4: Gunakan hasRole() dari Spatie, bukan $this->role (kolom tidak ada di DB).
+     * Spatie menyimpan role di tabel model_has_roles, bukan di kolom users.role.
+     */
+    public function isAdmin(): bool
     {
-        return $this->role === 'admin';
+        return $this->hasRole('admin');
     }
 
-    public function isGuru()
+    public function isGuru(): bool
     {
-        return $this->role === 'guru';
+        return $this->hasRole('guru');
     }
 
-    public function isSiswa()
+    public function isSiswa(): bool
     {
-        return $this->role === 'siswa';
+        return $this->hasRole('siswa');
     }
 }
