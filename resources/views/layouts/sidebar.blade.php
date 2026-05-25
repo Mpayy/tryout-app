@@ -80,6 +80,17 @@
                     Laporan Nilai
                 </a>
             </li>
+
+            <!-- MENU EDIT PROFILE -->
+            @role(['guru', 'siswa'])
+            <div class="text-xs font-bold text-gray-400 px-4 pt-4 pb-1 uppercase tracking-wider">Pengaturan</div>
+            <li>
+                <a href="{{ route('profil.index') }}" class="hover:bg-gray-100">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H3a2 2 0 01-2-2V5a2 2 0 012-2h4l2 2h4l2-2h4a2 2 0 012 2v14a2 2 0 01-2 2z"/></svg>
+                    Edit Profile
+                </a>
+            </li>
+            @endrole
         </ul>
     </div>
 </div>
