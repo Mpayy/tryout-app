@@ -19,6 +19,13 @@ class PaketUjian extends Model
         'status'
     ];
 
+    protected $casts = [
+        'tanggal_mulai' => 'datetime',
+        'tanggal_selesai' => 'datetime',
+        'acak_soal' => 'boolean',
+        'acak_jawaban' => 'boolean',
+    ];
+
     public function guru()
     {
         return $this->belongsTo(User::class, 'guru_id', 'id');

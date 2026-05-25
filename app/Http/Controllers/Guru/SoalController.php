@@ -8,17 +8,29 @@ use Illuminate\Support\Facades\DB;
 use App\Models\MataPelajaran;
 use App\Models\Soal;
 use App\Models\PilihanJawaban;
+use FontLib\Table\Type\name;
 
 class SoalController extends Controller
 {
     public function index()
     {
         $soals = Soal::where('guru_id', auth()->id())
-            ->with(['mataPelajaran', 'pilihanJawaban'])
-            ->latest()
-            ->paginate(20);
+            ->with(['mataPelajaran', 'pilihanJawaban'])->get();
+            // ->latest();
+            // ->paginate(20);
 
-        return view('guru.soal.index', compact('soals'));
+        $totalSoal = Soal::where('guru_id', auth()->id())->count();
+
+        $mataPelajaranYangDiAjar = MataPelajaran::whereHas('soal', function ($query) {
+            $query->where('guru_id', auth()->id());
+        })->get('nama');
+
+        // dd($mataPelajaranYangDiAjar);
+        
+
+        $mapels = MataPelajaran::orderBy('nama')->get();
+
+        return view('guru.soal.index', compact('soals', 'mapels', 'totalSoal', 'mataPelajaranYangDiAjar'));
     }
     /**
      * Tampilkan halaman input soal bulk.
@@ -85,15 +97,7 @@ class SoalController extends Controller
     /**
      * Tampilkan daftar soal milik guru ini.
      */
-    public function list()
-    {
-        $soal = Soal::where('guru_id', auth()->id())
-            ->with(['mataPelajaran', 'pilihanJawaban'])
-            ->latest()
-            ->paginate(20);
-
-        return view('guru.soal.list', compact('soal'));
-    }
+    
 
     /**
      * Hapus soal beserta semua pilihan jawabannya.
