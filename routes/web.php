@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\MataPelajaranController;
 use App\Http\Controllers\Guru\GuruDashboardController;
 use App\Http\Controllers\Guru\SoalController;
 use App\Http\Controllers\Siswa\SiswaDashboardController;
+use App\Http\Controllers\ProfilGuruSiswaController;
 
 // ── Halaman welcome ──────────────────────────────────────────
 // Route::get('/', function () {
@@ -24,6 +25,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get('/profil', [ProfilGuruSiswaController::class, 'index'])->name('profil.index');
+    Route::put('/profil', [ProfilGuruSiswaController::class, 'update'])->name('profil.update');
 });
 
 require __DIR__ . '/auth.php';
