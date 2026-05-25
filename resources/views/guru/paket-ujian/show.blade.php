@@ -33,7 +33,7 @@
                     <div class="mt-2">
                         <form action="{{ route('guru.paket-ujian.status', $paketUjian->id) }}" method="POST" class="flex gap-2">
                             @csrf @method('PATCH')
-                            <select name="status" class="select select-bordered select-sm rounded-lg" onchange="this.form.submit()">
+                            <select name="status" class="select select-bordered rounded-lg" onchange="this.form.submit()">
                                 <option value="draft" {{ $paketUjian->status == 'draft' ? 'selected' : '' }}>Draft (Siswa tidak bisa lihat)</option>
                                 <option value="aktif" {{ $paketUjian->status == 'aktif' ? 'selected' : '' }}>Aktif (Siap dikerjakan)</option>
                                 <option value="selesai" {{ $paketUjian->status == 'selesai' ? 'selected' : '' }}>Selesai (Ditutup)</option>
@@ -68,7 +68,7 @@
                                             {{ Str::limit(strip_tags($soal->konten), 120) }}
                                         </div>
                                         <div class="mt-2 text-xs flex gap-2">
-                                            <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded font-semibold">Kunci: {{ $soal->jawabanBenar->label ?? '-' }}</span>
+                                            <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded font-semibold">Kunci: {{ $soal->jawabanBenar->label ?? '-' }}. {{ $soal->jawabanBenar->konten }}</span>
                                             @if($soal->tingkat_kesulitan == 'sulit')
                                                 <span class="bg-red-50 text-red-600 px-2 py-1 rounded font-semibold">Sulit</span>
                                             @elseif($soal->tingkat_kesulitan == 'mudah')
@@ -88,7 +88,7 @@
                             
                             @if($bankSoal->count() > 0)
                             <div class="p-4 bg-gray-50 border-t border-gray-100 flex justify-end">
-                                <button type="submit" class="btn bg-indigo-600 hover:bg-indigo-700 text-white border-none rounded-xl">
+                                <button type="submit" class="btn btn-primary text-white border-none rounded-xl px-5">
                                     <svg class="w-5 h-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
                                     Tambahkan ke Paket
                                 </button>

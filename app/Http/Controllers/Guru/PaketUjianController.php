@@ -18,8 +18,8 @@ class PaketUjianController extends Controller
             ->withCount('soal')
             ->latest()
             ->paginate(15);
-
-        return view('guru.paket-ujian.index', compact('pakets'));
+        $mapels = MataPelajaran::orderBy('nama')->get();
+        return view('guru.paket-ujian.index', compact('pakets', 'mapels'));
     }
 
     public function create()

@@ -15,9 +15,9 @@ use App\Http\Controllers\Guru\SoalController;
 use App\Http\Controllers\Siswa\SiswaDashboardController;
 
 // ── Halaman welcome ──────────────────────────────────────────
-Route::get('/', function () {
-    return view('welcome');
-});
+// Route::get('/', function () {
+//     return view('welcome');
+// });
 
 // ── Profile (bawaan Breeze, semua role bisa akses) ───────────
 Route::middleware('auth')->group(function () {
@@ -86,12 +86,12 @@ Route::prefix('siswa')->name('siswa.')->middleware(['auth', 'role:siswa'])->grou
     Route::get('/dashboard', [SiswaDashboardController::class, 'index'])->name('dashboard');
 
     // ── Ujian ────
-    // Route::get('ujian', [\App\Http\Controllers\Siswa\UjianController::class, 'index'])->name('ujian.index');
-    // Route::post('ujian/{paket}/mulai', [\App\Http\Controllers\Siswa\UjianController::class, 'mulai'])->name('ujian.mulai');
-    // Route::get('ujian/{token}', [\App\Http\Controllers\Siswa\UjianController::class, 'show'])->name('ujian.show');
-    // Route::get('ujian/{token}/soal/{nomor}', [\App\Http\Controllers\Siswa\UjianController::class, 'soal'])->name('ujian.soal');
-    // Route::post('ujian/{token}/jawab', [\App\Http\Controllers\Siswa\UjianController::class, 'jawab'])->name('ujian.jawab');
-    // Route::post('ujian/{token}/ragu', [\App\Http\Controllers\Siswa\UjianController::class, 'tandaiRagu'])->name('ujian.ragu');
-    // Route::post('ujian/{token}/submit', [\App\Http\Controllers\Siswa\UjianController::class, 'submit'])->name('ujian.submit');
-    // Route::get('hasil/{token}', [\App\Http\Controllers\Siswa\UjianController::class, 'hasil'])->name('ujian.hasil');
+    Route::get('ujian', [\App\Http\Controllers\Siswa\UjianController::class, 'index'])->name('ujian.index');
+    Route::post('ujian/{paket}/mulai', [\App\Http\Controllers\Siswa\UjianController::class, 'mulai'])->name('ujian.mulai');
+    Route::get('ujian/{token}', [\App\Http\Controllers\Siswa\UjianController::class, 'show'])->name('ujian.show');
+    Route::get('ujian/{token}/soal/{nomor}', [\App\Http\Controllers\Siswa\UjianController::class, 'soal'])->name('ujian.soal');
+    Route::post('ujian/{token}/jawab', [\App\Http\Controllers\Siswa\UjianController::class, 'jawab'])->name('ujian.jawab');
+    Route::post('ujian/{token}/ragu', [\App\Http\Controllers\Siswa\UjianController::class, 'tandaiRagu'])->name('ujian.ragu');
+    Route::post('ujian/{token}/submit', [\App\Http\Controllers\Siswa\UjianController::class, 'submit'])->name('ujian.submit');
+    Route::get('hasil/{token}', [\App\Http\Controllers\Siswa\UjianController::class, 'hasil'])->name('ujian.hasil');
 });

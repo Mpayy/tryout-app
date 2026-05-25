@@ -21,6 +21,11 @@ class SesiUjian extends Model
         'total_ragu'
     ];
 
+    protected $casts = [
+        'waktu_mulai' => 'datetime',
+        'waktu_selesai' => 'datetime',
+    ];
+
     public function siswa()
     {
         return $this->belongsTo(User::class, 'siswa_id', 'id');
