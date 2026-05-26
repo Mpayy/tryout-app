@@ -4,8 +4,9 @@ namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
-class UserRequest extends FormRequest
+class GuruRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,9 +26,11 @@ class UserRequest extends FormRequest
         $userId = $this->route('user') ? $this->route('user')->id : null;
         return [
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $userId],
-            'password' => [$this->isMethod('post') ? 'required' : 'nullable', 'string', 'min:8'],
+            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($userId, 'id')],
+            'nip' => ['required', 'string', 'max:255', Rule::unique('profiles_guru', 'nip')->ignore($userId, 'user_id')],
             'role' => ['required', 'string', 'exists:roles,name'],
+            'bidang_studi' => ['required', 'string', 'max:255'],
+            'password' => [$this->isMethod('post') ? 'required' : 'nullable', 'string', 'min:8'],
         ];
     }
 }

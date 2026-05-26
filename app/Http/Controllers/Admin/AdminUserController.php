@@ -3,10 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\ProfileGuru;
 use Spatie\Permission\Models\Role;
-use App\Http\Requests\UserRequest;
+use App\Http\Requests\GuruRequest;
+use App\Services\GuruService;
 
 class AdminUserController extends Controller
 {
@@ -15,44 +16,45 @@ class AdminUserController extends Controller
      */
     public function index()
     {
-        $users = User::with('roles')->latest()->get();
         $roles = Role::all();
 
-        return view('admin.users.index', compact('users', 'roles'));
+        $daftarGuru = User::role('guru')->with(['profileGuru'=> function($query){
+            $query->select('id', 'user_id', 'nip', 'bidang_studi');
+        }])->select('id', 'name', 'email')->get();
+
+        return view('admin.users.index', compact('daftarGuru', 'roles'));
     }
 
 
+    protected $guruService;
+
+    public function __construct(GuruService $guruService)
+    {
+        $this->guruService = $guruService;
+    }
     /**
      * Store a newly created resource in storage.
      */
-    public function store(UserRequest $request)
+    public function store(GuruRequest $request)
     {
         $validatedData = $request->validated();
 
-        $user = User::create($validatedData);
+        $this->guruService->createGuru($validatedData);
 
-        $role = Role::findOrCreate($validatedData['role']);
-        $user->assignRole($role);
-
-        return redirect()->route('admin.users.index')->with('success', 'User berhasil ditambahkan');
+        return redirect()->route('admin.users.index');
     }
 
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UserRequest $request, User $user)
+    public function update(GuruRequest $request, User $user)
     {
         $validatedData = $request->validated();
-        if(empty($validatedData['password'])) {
-            unset($validatedData['password']);
-        }
 
-        $user->update($validatedData);
+        $this->guruService->updateGuru($user, $validatedData);
 
-        $user->syncRoles($validatedData['role']);
-
-        return redirect()->route('admin.users.index')->with('success', 'User berhasil diupdate');
+        return redirect()->route('admin.users.index');
     }
 
     /**
@@ -61,6 +63,7 @@ class AdminUserController extends Controller
     public function destroy(User $user)
     {
         $user->delete();
-        return redirect()->route('admin.users.index')->with('success', 'User berhasil dihapus');
+        
+        return redirect()->route('admin.users.index');
     }
 }

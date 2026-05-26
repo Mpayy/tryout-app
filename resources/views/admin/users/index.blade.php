@@ -1,120 +1,115 @@
 <x-app-layout>
-    <x-slot name="header">
-        Manajemen User
-    </x-slot>
-
-    <!-- AREA UTAMA (Bungkus Card DaisyUI) -->
-    <div class="card bg-white shadow-sm border border-gray-100 rounded-xl">
-        <div class="card-body p-6">
-
-            <!-- HEADER DAFTAR USER & TOMBOL TAMBAH -->
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-                <div>
-                    <h2 class="text-xl font-bold text-gray-800">Daftar User Platform</h2>
-                    <p class="text-sm text-gray-500">Kelola data login siswa, guru, dan admin sistem.</p>
-                </div>
-
-                <!-- Tombol untuk memicu Modal DaisyUI via ID -->
-                <button onclick="openCreateModal()" class="btn btn-primary sm:w-auto w-full gap-2 px-5">
-                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+    <div class="space-y-6">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <h1 class="text-2xl font-bold tracking-tight text-slate-800">Manajemen Guru</h1>
+                <p class="text-sm text-slate-500">Kelola daftar guru.</p>
+            </div>
+            <div>
+                <button onclick="openCreateModal()"
+                    class="btn bg-indigo-600 hover:bg-indigo-700 border-none text-white shadow-sm font-semibold normal-case gap-2 px-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                        stroke="currentColor" class="size-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                     </svg>
-                    Tambah User
+                    Tambah Guru
                 </button>
             </div>
+        </div>
 
-            <!-- AREA TABEL USER (Zebra Striped DaisyUI) -->
-            <div class="overflow-x-auto w-full rounded-lg border border-gray-100">
-                <table class="table table-zebra w-full text-gray-700">
-                    <!-- Head Tabel -->
-                    <thead class="bg-gray-50 text-gray-600 font-semibold text-sm">
-                        <tr>
-                            <th class="py-4">Nama</th>
-                            <th>Email</th>
-                            <th>Role</th>
-                            {{-- <th>Status</th> --}}
-                            <th class="text-center">Aksi</th>
-                        </tr>
-                    </thead>
-                    <!-- Isi Data User -->
-                    <tbody class="divide-y divide-gray-100">
-                        @foreach ($users as $user)
-                            <tr class="hover:bg-gray-50/50 transition">
-                                <td class="font-medium text-gray-900 py-4">{{ $user->name }}</td>
-                                <td>{{ $user->email }}</td>
-                                <td>
-                                    <!-- Deteksi Role untuk Pewarnaan Badge DaisyUI -->
-                                    @if ($user->roles->pluck('name')->contains('admin'))
-                                        <span
-                                            class="badge bg-purple-100 text-purple-700 border-none font-medium px-3 py-1">Admin</span>
-                                    @elseif($user->roles->pluck('name')->contains('guru'))
-                                        <span
-                                            class="badge bg-blue-100 text-blue-700 border-none font-medium px-3 py-1">Guru</span>
-                                    @else
-                                        <span
-                                            class="badge bg-teal-100 text-teal-700 border-none font-medium px-3 py-1">Siswa</span>
-                                    @endif
-                                </td>
-                                {{-- <td>
-                                    <!-- Switch Toggle Status Aktif (DaisyUI Toggle) -->
-                                    <input type="checkbox" class="toggle toggle-success toggle-sm" checked />
-                                </td> --}}
-                                <td class="text-center">
-                                    <div class="flex justify-center gap-2">
-                                        <!-- Tombol Edit -->
-                                        <button onclick="openEditModal({{ $user }})"
-                                            class="btn btn-ghost btn-xs text-gray-500 hover:text-teal-600 gap-1 font-medium">
-                                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24"
-                                                stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                            </svg>
-                                            Edit
-                                        </button>
-                                        <!-- Tombol Hapus -->
-                                        <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button
-                                                class="btn btn-ghost btn-xs text-gray-400 hover:text-red-500 gap-1 font-medium">
-                                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24"
-                                                    stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2"
-                                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-4v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                </svg>
-                                                Hapus
-                                            </button>
-                                        </form>
-                                    </div>
-                                </td>
+        <div class="card bg-white border border-slate-200/80 shadow-sm rounded-xl overflow-hidden">
+            <div class="p-6 space-y-6">
+
+                {{-- <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div class="relative w-full sm:w-80">
+                        <span
+                            class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                                stroke="currentColor" class="size-5">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.603 10.603Z" />
+                            </svg>
+                        </span>
+                        <input type="text" placeholder="Cari nama guru..."
+                            class="input input-bordered w-full pl-10 bg-white border-slate-200 text-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
+                    </div>
+
+                    <div class="text-sm text-slate-500 font-medium">
+                        Menampilkan <span class="text-slate-800 font-semibold">{{ $daftarGuru->count() }}</span> guru
+                    </div>
+                </div> --}}
+
+                <div class="overflow-x-auto rounded-lg border border-slate-100">
+                    <table class="table w-full text-slate-700">
+                        <thead>
+                            <tr class="bg-slate-50/70 border-b border-slate-200 text-slate-600 font-semibold text-sm">
+                                <th class="w-16 text-center">#</th>
+                                <th>Nama Guru</th>
+                                <th class="text-center">Email</th>
+                                <th class="text-center">Role</th>
+                                <th class="text-center">NIP</th>
+                                <th class="text-center">Bidang Studi</th>
+                                <th class="text-center">Aksi</th>
                             </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
+                        </thead>
 
+                        <tbody class="divide-y divide-slate-100 bg-white">
+                            @foreach ($daftarGuru as $guru)
+                                <tr class="hover:bg-slate-50/50 transition duration-150">
+                                    <td class="text-center font-medium text-slate-500">{{ $loop->iteration }}</td>
+                                    <td class="font-semibold text-slate-800">{{ $guru->name }}</td>
+                                    <td class="text-center font-medium">{{ $guru->email }}</td>
+                                    <td class="text-center">
+                                        <span
+                                            class="badge bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-1 font-medium text-xs rounded-full">
+                                            {{ $guru->roles->pluck('name')->implode(', ') }}
+                                        </span>
+                                    </td>
+                                    <td class="text-center font-medium">{{ $guru->profileGuru->nip ?? '-' }}</td>
+                                    <td class="text-center font-medium">{{ $guru->profileGuru->bidang_studi ?? '-' }}</td>
+                                    <td class="text-center">
+                                        <div class="flex items-center justify-center gap-1.5">
+                                            <button onclick="openEditModal({{ $guru }})"
+                                                class="btn btn-sm bg-indigo-50 hover:bg-indigo-100 border-none text-indigo-700 normal-case font-medium px-3 shadow-none">Edit</button>
+                                            <form action="{{ route('admin.users.destroy', $guru) }}" method="POST">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit"
+                                                    class="btn btn-sm bg-rose-50 hover:bg-rose-100 border-none text-rose-700 normal-case font-medium px-3 shadow-none">Hapus</button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
+    <dialog id="modal"
+        class="modal modal-bottom sm:modal-middle bg-slate-900/40 backdrop-blur-sm transition-all duration-300">
+        <div class="modal-box bg-white border border-slate-200/80 shadow-xl max-w-2xl p-6 rounded-xl text-slate-700">
 
-    <!-- ========================================== -->
-    <!-- MODAL FORM DIALOG (Satu Modal untuk Tambah & Edit) -->
-    <!-- ========================================== -->
-    <dialog id="user_modal" class="modal modal-bottom sm:modal-middle">
-        <div class="modal-box bg-white max-w-md p-6 rounded-xl">
-            <!-- Judul Modal Dinamis -->
-            <h3 id="modal_title" class="font-bold text-lg text-gray-800 mb-4">Modal Form: Tambah User Baru</h3>
-            <!-- Taruh Alert DaisyUI milikmu di sini -->
+            <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-6">
+                <div>
+                    <h3 id="modal_title" class="text-xl font-bold text-slate-800">Tambah Guru Baru</h3>
+                    <p class="text-xs text-slate-500 mt-0.5">Isi data akun dengan lengkap untuk mengonfigurasi hak akses
+                        pengguna.</p>
+                </div>
+                <button type="button" onclick="closeUserModal()"
+                    class="btn btn-sm btn-circle btn-ghost text-slate-400 hover:text-slate-600 hover:bg-slate-100">✕</button>
+            </div>
+
             @if ($errors->any())
-                <div role="alert" class="alert alert-error mb-4 bg-red-50 text-red-800 border-red-200">
-                    <div class="flex flex-col gap-1 items-start">
+                <div role="alert"
+                    class="alert alert-error mb-5 bg-rose-50 text-rose-800 border-rose-200 shadow-none rounded-lg p-3.5">
+                    <div class="flex flex-col gap-1.5 items-start">
                         @foreach ($errors->all() as $error)
                             <div class="flex items-center gap-2">
-                                <svg xmlns="http://www.w3.org/2000/svg"
-                                    class="h-5 w-5 shrink-0 stroke-current text-red-600" fill="none"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0 stroke-current text-rose-600"
+                                    fill="none" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
                                         d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
                                 <span class="text-sm font-medium">{{ $error }}</span>
@@ -124,143 +119,137 @@
                 </div>
             @endif
 
-            <!-- Form Input -->
-            <form id="user_form" method="POST" action="">
+            <form id="form" method="POST" action="" class="space-y-5">
                 @csrf
-                <!-- Method Spoofing untuk Edit (Akan diisi lewat JS jika Edit) -->
-                <div id="method_field"></div>
+                <div id="method"></div>
 
-                <!-- Input Nama -->
-                <div class="form-control w-full mb-4">
-                    <label class="label"><span class="label-text font-semibold text-gray-600">Nama
-                            Lengkap</span></label>
-                    <input type="text" id="input_name" name="name" value="{{ old('name') }}"
-                        placeholder="Masukkan nama lengkap..."
-                        class="input input-bordered w-full focus:outline-teal-600" />
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+                    <div class="form-control w-full col-span-1 sm:col-span-2">
+                        <label class="label py-1"><span class="label-text font-semibold text-slate-700 text-sm">Nama
+                                Lengkap</span></label>
+                        <input type="text" id="input_name" name="name" value="{{ old('name') }}"
+                            placeholder="Masukkan nama lengkap beserta gelar..."
+                            class="input input-bordered w-full bg-white border-slate-200 text-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-lg text-sm transition" />
+                    </div>
+
+                    <div class="form-control w-full">
+                        <label class="label py-1"><span class="label-text font-semibold text-slate-700 text-sm">Email
+                                Address</span></label>
+                        <input type="email" id="input_email" name="email" value="{{ old('email') }}"
+                            placeholder="contoh@gmail.com"
+                            class="input input-bordered w-full bg-white border-slate-200 text-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-lg text-sm transition"
+                            required />
+                    </div>
+
+                    <div class="form-control w-full">
+                        <label class="label py-1"><span class="label-text font-semibold text-slate-700 text-sm">NIP /
+                                Nomor Induk</span></label>
+                        <input type="number" id="input_nip" name="nip" value="{{ old('nip') }}"
+                            placeholder="199503212022031002"
+                            class="input input-bordered w-full bg-white border-slate-200 text-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-lg text-sm transition [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
+                    </div>
+
+                    <div class="form-control w-full">
+                        <label class="label py-1"><span class="label-text font-semibold text-slate-700 text-sm">Pilih
+                                Role</span></label>
+                        <select id="input_role" name="role"
+                            class="select select-bordered w-full bg-white border-slate-200 text-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-lg text-sm font-normal transition"
+                            required>
+                            <option value="" disabled selected>-- Pilih Role --</option>
+                            @foreach ($roles as $role)
+                                <option value="{{ $role->name }}">{{ ucfirst($role->name) }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="form-control w-full">
+                        <label class="label py-1"><span class="label-text font-semibold text-slate-700 text-sm">Bidang
+                                Studi</span></label>
+                        <input type="text" id="input_bidang_studi" name="bidang_studi" value="{{ old('bidang_studi') }}"
+                            placeholder="Contoh: Matematika / Bahasa Indonesia"
+                            class="input input-bordered w-full bg-white border-slate-200 text-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-lg text-sm transition" />
+                    </div>
+
+                    <div class="form-control w-full col-span-1 sm:col-span-2">
+                        <label class="label py-1">
+                            <span class="label-text font-semibold text-slate-700 text-sm">Kata Sandi</span>
+                            <span id="password_hint" class="label-text-alt text-amber-600 font-medium hidden">*Kosongkan
+                                jika tidak ingin mengubah sandi</span>
+                        </label>
+                        <input type="password" id="input_password" name="password" placeholder="••••••••"
+                            class="input input-bordered w-full bg-white border-slate-200 text-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-lg text-sm transition" />
+                    </div>
+
                 </div>
 
-                <!-- Input Email -->
-                <div class="form-control w-full mb-4">
-                    <label class="label"><span class="label-text font-semibold text-gray-600">Email
-                            Address</span></label>
-                    <input type="email" id="input_email" name="email" value="{{ old('email') }}"
-                        placeholder="contoh@gmail.com"
-                        class="input input-bordered w-full focus:outline-teal-600" required />
-                </div>
-
-                <!-- Dropdown Pilih Role (DaisyUI Select) -->
-                <div class="form-control w-full mb-4">
-                    <label class="label"><span class="label-text font-semibold text-gray-600">Pilih Role</span></label>
-                    <select id="input_role" name="role" class="select select-bordered w-full focus:outline-teal-600"
-                        required>
-                        <option value="" disabled selected>-- Pilih Hak Akses --</option>
-                        @foreach ($roles as $role)
-                            <option value="{{ $role->name }}">{{ $role->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <!-- Input Password -->
-                <div class="form-control w-full mb-6">
-
-                    <label class="label">
-                        <span class="label-text font-semibold text-gray-600">Kata Sandi</span>
-                        <span id="password_hint" class="label-text-alt text-gray-400 hidden">*Kosongkan jika tidak
-                            diubah</span>
-                    </label>
-                    <input type="password" id="input_password" name="password" placeholder="••••••••"
-                        class="input input-bordered w-full focus:outline-teal-600" />
-                </div>
-
-                <!-- Tombol Aksi di bagian bawah Modal -->
-                <div class="modal-action flex justify-end gap-2 pt-4 border-t border-gray-100">
+                <div class="modal-action flex justify-end gap-2 pt-4 border-t border-slate-100 mt-6">
                     <button type="button" onclick="closeUserModal()"
-                        class="btn btn-ghost border-gray-200">Batal</button>
-                    <button type="submit" class="btn btn-primary px-6">Simpan User</button>
+                        class="btn bg-slate-100 hover:bg-slate-200 border-none text-slate-600 font-medium normal-case px-5 rounded-lg shadow-none transition">
+                        Batal
+                    </button>
+                    <button type="submit"
+                        class="btn bg-indigo-600 hover:bg-indigo-700 border-none text-white font-semibold normal-case px-6 rounded-lg shadow-sm transition">
+                        Simpan User
+                    </button>
                 </div>
             </form>
         </div>
-
-        <!-- Backdrop transparan hitam agar klik di luar otomatis menutup modal -->
-        <form method="dialog" class="modal-backdrop bg-black/30">
-            <button>close</button>
-        </form>
     </dialog>
 
-    <!-- ========================================== -->
-    <!-- JAVASCRIPT LOGIC (Untuk Buka-Tutup Modal Dinamis) -->
-    <!-- ========================================== -->
     <script>
-        const modal = document.getElementById('user_modal');
-        const form = document.getElementById('user_form');
-        const modalTitle = document.getElementById('modal_title');
-        const methodField = document.getElementById('method_field');
-        const passwordHint = document.getElementById('password_hint');
+        const modal = document.getElementById('modal')
+        const form = document.getElementById('form')
+        const modalTitle = document.getElementById('modal_title')
+        const method = document.getElementById('method')
 
-        // Fungsi Buka Modal Tambah Data
+
         function openCreateModal() {
-            modalTitle.innerText = "Modal Form: Tambah User Baru";
-            form.action = "{{ route('admin.users.store') }}"; // Arahkan ke route store
-            methodField.innerHTML = ""; // Bersihkan PUT method
-            passwordHint.classList.add('hidden');
-            document.getElementById('input_password').required = true;
-
-            form.reset(); // Kosongkan seluruh form inputan
-            modal.showModal(); // Fungsi sakti bawaan browser untuk memunculkan <dialog>
+            modalTitle.innerText = 'Tambah Guru'
+            form.action = `{{ route('admin.users.store') }}`
+            method.innerHTML = ''
+            form.reset()
+            modal.showModal()
         }
 
-        // Fungsi Buka Modal Edit Data (Sambil Lempar Data User terpilih)
-        function openEditModal(user) {
-            modalTitle.innerText = "Modal Form: Edit User (" + user.name + ")";
-            form.action = "/admin/users/" + user.id; // Arahkan ke URL update
-            methodField.innerHTML = `@method('PUT')`; // Tambahkan spoofing method PUT Laravel
-            passwordHint.classList.remove('hidden');
-            document.getElementById('input_password').required = false;
+        function openEditModal(guru) {
+            modalTitle.innerText = 'Edit Guru (' + guru.name + ')'
+            form.action = `{{ route('admin.users.update', $guru->id) }}`
+            method.innerHTML = `@method('PUT')`
 
-            // Set value input form sesuai data user yang mau diedit
-            document.getElementById('input_name').value = user.name;
-            document.getElementById('input_email').value = user.email;
+            document.getElementById('input_name').value = guru.name
+            document.getElementById('input_email').value = guru.email
+            document.getElementById('input_nip').value = guru.profile_guru?.nip || ''
+            document.getElementById('input_role').value = guru.roles[0].name || ''
+            document.getElementById('input_bidang_studi').value = guru.profile_guru?.bidang_studi || ''
+            document.getElementById('input_password').required = false
 
-            // Mengambil nama role pertamanya untuk di-select otomatis
-            if (user.roles && user.roles.length > 0) {
-                document.getElementById('input_role').value = user.roles[0].name;
-            }
-
-            document.getElementById('input_password').value = ""; // Kosongkan kolom sandi demi keamanan
-            modal.showModal();
+            modal.showModal()
         }
 
-        // Tambahkan ini di dalam tag <script> kamu, di bawah fungsi openCreateModal / openEditModal
         document.addEventListener("DOMContentLoaded", function() {
-            // Mengecek apakah Laravel mengirimkan sinyal error bawaan
             @if ($errors->any())
-                const modal = document.getElementById('user_modal');
+                const modal = document.getElementById('modal');
                 const modalTitle = document.getElementById('modal_title');
-                const form = document.getElementById('user_form');
-                const methodField = document.getElementById('method_field');
+                const form = document.getElementById('form');
+                const methodField = document.getElementById('method');
 
-                // Opsional: Deteksi apakah ini error dari proses Edit atau Tambah Baru
-                // Jika ada input '_method' yang bernilai PUT sebelumnya, kita set ulang stylenya ke Edit
                 @if (old('_method') == 'PUT')
                     modalTitle.innerText = "Modal Form: Edit User";
-                    form.action = "{{ url('admin/users') }}/" +
-                    "{{ old('id') }}"; // Jika kamu mempassing old ID
+                    form.action = "{{ url('admin/users') }}/" + "{{ old('id') }}";
                     methodField.innerHTML = `@method('PUT')`;
                 @else
-                    // Jika tidak, kembalikan ke setelan simpan baru
                     modalTitle.innerText = "Modal Form: Tambah User Baru";
                     form.action = "{{ route('admin.users.store') }}";
                     methodField.innerHTML = "";
                 @endif
 
-                // JALANKAN PERINTAH SAKTI INI UNTUK MEMBUKA MODAL OTOMATIS
                 modal.showModal();
             @endif
         });
 
-        // Fungsi Menutup Modal
         function closeUserModal() {
-            modal.close(); // Fungsi bawaan untuk menutup <dialog>
+            modal.close();
         }
     </script>
 </x-app-layout>

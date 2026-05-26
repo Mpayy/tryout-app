@@ -13,7 +13,7 @@ class MataPelajaranController extends Controller
      */
     public function index()
     {
-        $mapels = MataPelajaran::all();
+        $mapels = MataPelajaran::select('id', 'nama', 'kode', 'deskripsi')->get();
         return view('admin.mapels.index', compact('mapels'));
     }
 
@@ -24,7 +24,7 @@ class MataPelajaranController extends Controller
     {
         $validateData = $request->validated();
         MataPelajaran::create($validateData);
-        return redirect()->route('admin.mapels.index')->with('success', 'Data berhasil disimpan!');
+        return redirect()->route('admin.mapels.index');
     }
 
     /**
@@ -34,7 +34,7 @@ class MataPelajaranController extends Controller
     {
         $validateData = $request->validated();
         $mapel->update($validateData);
-        return redirect()->route('admin.mapels.index')->with('success', 'Data berhasil diupdate!');
+        return redirect()->route('admin.mapels.index');
     }
 
     /**
@@ -43,6 +43,6 @@ class MataPelajaranController extends Controller
     public function destroy(MataPelajaran $mapel)
     {
         $mapel->delete();
-        return redirect()->route('admin.mapels.index')->with('success', 'Data berhasil dihapus!');
+        return redirect()->route('admin.mapels.index');
     }
 }

@@ -29,19 +29,4 @@ class MataPelajaranRequest extends FormRequest
             'deskripsi' => ['nullable', 'string', 'max:255'],
         ];
     }
-
-    /**
-     * @return array<string, string>
-     */
-    public function messages(): array
-    {
-        return [
-            'nama.required' => 'Nama mata pelajaran wajib diisi.',
-            'nama.max' => 'Nama mata pelajaran maksimal 100 karakter.',
-            'kode.required' => 'Kode mata pelajaran wajib diisi.',
-            'kode.max' => 'Kode mata pelajaran maksimal 10 karakter.',
-            'kode.unique' => 'Kode mata pelajaran sudah digunakan.',
-            'deskripsi.max' => 'Deskripsi maksimal 255 karakter.',
-        ];
-    }
 }
