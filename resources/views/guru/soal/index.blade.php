@@ -176,7 +176,7 @@
                         </div>
                     </div>
                     <div class="stat-title text-gray-500 font-semibold tracking-wide">Total Soal Terinput</div>
-                    <div class="stat-value text-indigo-700 text-4xl mt-2 font-black">{{ $totalSoal }}</div>
+                    <div class="stat-value text-indigo-700 text-4xl mt-2 font-black">{{ $soals->count() }}</div>
                     <div class="stat-desc mt-2 text-indigo-500 font-medium flex items-center gap-1">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
                         Target minimal: 30 soal
@@ -193,12 +193,10 @@
                     </div>
                     <div class="stat-title text-gray-500 font-semibold tracking-wide">Mata Pelajaran</div>
                     <div class="stat-value text-emerald-700 text-2xl mt-2 truncate max-w-[250px]">
-                        {{ $mataPelajaranYangDiAjar->map(function($mapel) {
-                            return $mapel->nama;
-                        })->implode('', ', ') }}
+                        {{ $guru->profileGuru->mataPelajarans->pluck('nama')->implode(', ') }}
                     </div>
                     <div class="stat-desc mt-2 font-semibold text-emerald-500">
-                        Total yang Anda ajar
+                        Total yang Anda ajar: {{ $guru->profileGuru->mataPelajarans->count() }}
                     </div>
                 </div>
             </div>
@@ -252,7 +250,7 @@
 
                                     <td class="font-medium text-gray-800 max-w-md">
                                         <div class="line-clamp-2 leading-relaxed text-sm">
-                                            {{ strip_tags($soal->konten) }}
+                                            {{ $soal->konten }}
                                         </div>
                                     </td>
 

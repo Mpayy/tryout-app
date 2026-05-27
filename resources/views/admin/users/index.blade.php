@@ -48,7 +48,7 @@
                                 <th class="text-center">Email</th>
                                 <th class="text-center">Role</th>
                                 <th class="text-center">NIP</th>
-                                <th class="text-center">Bidang Studi</th>
+                                <th class="text-center">Pelajaran</th>
                                 <th class="text-center">Aksi</th>
                             </tr>
                         </thead>
@@ -66,7 +66,18 @@
                                         </span>
                                     </td>
                                     <td class="text-center font-medium">{{ $guru->profileGuru->nip ?? '-' }}</td>
-                                    <td class="text-center font-medium">{{ $guru->profileGuru->bidang_studi ?? '-' }}</td>
+                                    <td class="text-center font-medium">
+                                        @if ($guru->profileGuru && $guru->profileGuru->mataPelajarans->isNotEmpty())
+                                            @foreach ($guru->profileGuru->mataPelajarans as $mapel)
+                                                <span
+                                                    class="badge bg-blue-50 text-blue-700 border border-blue-200 px-2.5 py-1 font-medium text-xs rounded-full">
+                                                    {{ $mapel->nama }}
+                                                </span>
+                                            @endforeach
+                                        @else
+                                            <span>-</span>
+                                        @endif
+                                    </td>
                                     <td class="text-center">
                                         <div class="flex items-center justify-center gap-1.5">
                                             <button onclick="openEditModal({{ $guru }})"
@@ -164,11 +175,24 @@
                     </div>
 
                     <div class="form-control w-full">
-                        <label class="label py-1"><span class="label-text font-semibold text-slate-700 text-sm">Bidang
-                                Studi</span></label>
-                        <input type="text" id="input_bidang_studi" name="bidang_studi" value="{{ old('bidang_studi') }}"
-                            placeholder="Contoh: Matematika / Bahasa Indonesia"
-                            class="input input-bordered w-full bg-white border-slate-200 text-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-lg text-sm transition" />
+                        <label class="label py-1"><span class="label-text font-semibold text-slate-700 text-sm">Mata
+                                Pelajaran</span></label>
+                        <div class="flex gap-2">
+                            <select id="select_mapel" name="mapel"
+                                class="select select-bordered w-full bg-white border-slate-200 text-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-lg text-sm font-normal transition">
+                                <option value="" disabled selected>-- Pilih Mata Pelajaran --</option>
+                                @foreach ($mapels as $mapel)
+                                    <option value="{{ $mapel->id }}">{{ ucfirst($mapel->nama) }}</option>
+                                @endforeach
+                            </select>
+
+                            <button type="button" id="btn_tambah_mapel"
+                                class="btn bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg px-4 font-medium text-sm transition">
+                                +
+                            </button>
+                        </div>
+                        <div id="wrapper_mapel_terpilih" class="mt-3 space-y-2">
+                        </div>
                     </div>
 
                     <div class="form-control w-full col-span-1 sm:col-span-2">
@@ -203,6 +227,8 @@
         const modalTitle = document.getElementById('modal_title')
         const method = document.getElementById('method')
 
+        let selectedMapelIds = [];
+
 
         function openCreateModal() {
             modalTitle.innerText = 'Tambah Guru'
@@ -221,13 +247,49 @@
             document.getElementById('input_email').value = guru.email
             document.getElementById('input_nip').value = guru.profile_guru?.nip || ''
             document.getElementById('input_role').value = guru.roles[0].name || ''
-            document.getElementById('input_bidang_studi').value = guru.profile_guru?.bidang_studi || ''
             document.getElementById('input_password').required = false
+
+            const wrapperMapel = document.getElementById('wrapper_mapel_terpilih');
+
+            // 1. Bersihkan dulu list mapel sisa klik/edit dari guru sebelumnya
+            wrapperMapel.innerHTML = '';
+
+            // Ambil array pelacak ID global dari script sebelumnya (pastikan variabel ini bisa diakses ya)
+            selectedMapelIds = [];
+
+            // 2. Cek apakah guru ini punya profile dan punya mata pelajaran
+            if (guru.profile_guru && guru.profile_guru.mata_pelajarans) {
+
+                // Loop setiap mapel yang dimiliki guru ini
+                guru.profile_guru.mata_pelajarans.forEach(mapel => {
+
+                    // Catat ID-nya ke array pelacak agar tidak bisa di-double tambah lewat dropdown
+                    selectedMapelIds.push(mapel.id.toString());
+
+                    // Buat baris HTML-nya (sama persis logikanya seperti saat tombol tambah diklik)
+                    const itemRow = document.createElement('div');
+                    itemRow.className = "flex items-center justify-between bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-700";
+                    itemRow.setAttribute('data-id', mapel.id);
+
+                    itemRow.innerHTML = `
+                <span>${mapel.nama_mapel || mapel.nama}</span>
+                
+                <input type="hidden" name="mapel[]" value="${mapel.id}">
+                
+                <button type="button" class="btn-hapus-mapel text-rose-500 hover:text-rose-700 font-medium text-xs transition">
+                    Hapus
+                </button>
+            `;
+
+                    // Masukkan ke dalam wrapper di modal
+                    wrapperMapel.appendChild(itemRow);
+                });
+            }
 
             modal.showModal()
         }
 
-        document.addEventListener("DOMContentLoaded", function() {
+        document.addEventListener("DOMContentLoaded", function () {
             @if ($errors->any())
                 const modal = document.getElementById('modal');
                 const modalTitle = document.getElementById('modal_title');
@@ -251,5 +313,66 @@
         function closeUserModal() {
             modal.close();
         }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const selectMapel = document.getElementById('select_mapel');
+            const btnTambahMapel = document.getElementById('btn_tambah_mapel');
+            const wrapperMapel = document.getElementById('wrapper_mapel_terpilih');
+
+            btnTambahMapel.addEventListener('click', function () {
+                const id = selectMapel.value;
+                const nama = selectMapel.options[selectMapel.selectedIndex].text;
+
+                // Validasi 1: Pastikan user sudah memilih mapel
+                if (!id) {
+                    alert('Silakan pilih mata pelajaran terlebih dahulu!');
+                    return;
+                }
+
+                // Validasi 2: Pastikan mapel belum pernah ditambahkan sebelumnya
+                if (selectedMapelIds.includes(id)) {
+                    alert('Mata pelajaran ini sudah ditambahkan!');
+                    return;
+                }
+
+                // Catat ID ke dalam array pelacak
+                selectedMapelIds.push(id);
+
+                // Buat elemen baris baru untuk list mapel
+                const itemRow = document.createElement('div');
+                itemRow.className = "flex items-center justify-between bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-700 animate-fade-in";
+                itemRow.setAttribute('data-id', id);
+
+                itemRow.innerHTML = `
+            <span>${nama}</span>
+            
+            <input type="hidden" name="mapel[]" value="${id}">
+            
+            <button type="button" class="btn-hapus-mapel text-rose-500 hover:text-rose-700 font-medium text-xs transition">
+                Hapus
+            </button>
+        `;
+
+                // Masukkan baris baru ke dalam wrapper list
+                wrapperMapel.appendChild(itemRow);
+
+                // Reset dropdown select ke pilihan default
+                selectMapel.value = "";
+            });
+
+            // Logika Tombol Hapus (Menggunakan Event Delegation)
+            wrapperMapel.addEventListener('click', function (e) {
+                if (e.target.classList.contains('btn-hapus-mapel')) {
+                    const row = e.target.closest('div');
+                    const idYangDihapus = row.getAttribute('data-id');
+
+                    // Hapus ID dari array pelacak
+                    selectedMapelIds = selectedMapelIds.filter(id => id !== idYangDihapus);
+
+                    // Hapus elemen HTML-nya
+                    row.remove();
+                }
+            });
+        });
     </script>
 </x-app-layout>

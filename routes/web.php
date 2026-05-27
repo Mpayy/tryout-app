@@ -9,6 +9,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminUserController;
+use App\Http\Controllers\Admin\KelasController;
 use App\Http\Controllers\Admin\MataPelajaranController;
 use App\Http\Controllers\Guru\GuruDashboardController;
 use App\Http\Controllers\Guru\SoalController;
@@ -51,6 +52,17 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::post('mapels', [MataPelajaranController::class, 'store'])->name('mapels.store');
     Route::put('mapels/{mapel}', [MataPelajaranController::class, 'update'])->name('mapels.update');
     Route::delete('mapels/{mapel}', [MataPelajaranController::class, 'destroy'])->name('mapels.destroy');
+
+    // ── Kelas ───────────────────────────────────
+    Route::get('kelas', [KelasController::class, 'index'])->name('kelas.index');
+    Route::post('kelas', [KelasController::class, 'store'])->name('kelas.store');
+    Route::put('kelas/{kelas}', [KelasController::class, 'update'])->name('kelas.update');
+    Route::delete('kelas/{kelas}', [KelasController::class, 'destroy'])->name('kelas.destroy');
+
+    // ── Tambah Siswa Ke Kelas ───────────────────────────────────
+    Route::get('kelas/{kelas}/anggota', [KelasController::class, 'anggota'])->name('kelas.anggota');
+    Route::post('kelas/{kelas}/tambah-siswa', [KelasController::class, 'tambahSiswa'])->name('kelas.tambah-siswa');
+    Route::delete('kelas/{kelas}/hapus-siswa/{profile_siswa}', [KelasController::class, 'hapusSiswa'])->name('kelas.hapus-siswa');
 
     // ── Monitoring & Rekap (aktifkan saat controller sudah dibuat) ──
     // Route::get('monitoring', [MonitoringController::class, 'index'])->name('monitoring');

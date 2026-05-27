@@ -4,10 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use App\Models\ProfileGuru;
 use Spatie\Permission\Models\Role;
 use App\Http\Requests\GuruRequest;
 use App\Services\GuruService;
+use App\Models\MataPelajaran;
 
 class AdminUserController extends Controller
 {
@@ -17,12 +17,16 @@ class AdminUserController extends Controller
     public function index()
     {
         $roles = Role::all();
+        $mapels = MataPelajaran::all();
 
-        $daftarGuru = User::role('guru')->with(['profileGuru'=> function($query){
-            $query->select('id', 'user_id', 'nip', 'bidang_studi');
-        }])->select('id', 'name', 'email')->get();
+        $daftarGuru = User::role('guru')->with([
+            'profileGuru.mataPelajarans:id,nama',
+            'roles:id,name'
+        ])->select('id', 'name', 'email')->get();
 
-        return view('admin.users.index', compact('daftarGuru', 'roles'));
+        // dd($daftarGuru);
+
+        return view('admin.users.index', compact('daftarGuru', 'roles', 'mapels'));
     }
 
 

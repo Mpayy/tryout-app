@@ -7,6 +7,7 @@ use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use App\Models\User;
 use App\Models\ProfileGuru;
+use App\Models\ProfileSiswa;
 
 class RolePermissionSeeder extends Seeder
 {
@@ -60,10 +61,7 @@ class RolePermissionSeeder extends Seeder
             'take-ujian', 'view-hasil-sendiri', 'view-ranking',
             'edit-profil-sendiri',
         ]);
-
-        // ── Buat user default ─────────────────────────────────────
-        // FIX #4 (benar): Role dikelola Spatie di tabel model_has_roles,
-        // TIDAK ada kolom 'role' di tabel users — tidak perlu field 'role' di sini.
+        
         $adminUser = User::firstOrCreate(
             ['email' => 'admin@tryout.com'],
             [
@@ -76,7 +74,7 @@ class RolePermissionSeeder extends Seeder
         $guruUser = User::firstOrCreate(
             ['email' => 'guru@tryout.com'],
             [
-                'name'     => 'Achmad Rifaih',
+                'name'     => 'Guru Utama',
                 'password' => bcrypt('password'),
             ]
         );
@@ -84,18 +82,22 @@ class RolePermissionSeeder extends Seeder
 
         ProfileGuru::firstOrCreate(
             ['user_id' => $guruUser->id],
-            ['nip' => '199001001', 'bidang_studi' => 'Matematika']
+            ['nip' => '199001001']
         );
 
         // Contoh siswa untuk testing
         $siswaUser = User::firstOrCreate(
             ['email' => 'siswa@tryout.com'],
             [
-                'name'                => 'Budi Santoso',
+                'name'                => 'Siswa Utama',
                 'password'            => bcrypt('password'),
                 'is_profile_complete' => true,
             ]
         );
         $siswaUser->syncRoles('siswa');
+        ProfileSiswa::firstOrCreate(
+            ['user_id' => $siswaUser->id],
+            ['kelas_id' => 1, 'nis' => '200710693', 'jurusan' => 'RPL']
+        );
     }
 }

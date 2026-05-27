@@ -19,11 +19,12 @@ class GuruService
     
             $user->assignRole($data['role']);
     
-            $user->profileGuru()->create([
+            $profile =$user->profileGuru()->create([
                 'nip' => $data['nip'],
-                'bidang_studi' => $data['bidang_studi'],
             ]);
-    
+
+            $profile->mataPelajarans()->attach($data['mapel']);
+
             return $user;
         });
     }
@@ -43,10 +44,12 @@ class GuruService
             }
             
             $user->syncRoles($data['role']);
-            $user->profileGuru()->update([
-                'nip' => $data['nip'],
-                'bidang_studi' => $data['bidang_studi'],
-            ]);
+            $profile = $user->profileGuru()->updateOrCreate(
+                ['user_id' => $user->id],
+                ['nip' => $data['nip']]
+            );
+
+            $profile->mataPelajarans()->sync($data['mapel'] ?? []);
 
             return $user;
         });
