@@ -18,4 +18,9 @@ class MataPelajaran extends Model
     {
         return $this->hasMany(PaketUjian::class, 'mata_pelajaran_id', 'id');
     }
+
+    public function profileGurus()
+    {
+        return $this->belongsToMany(ProfileGuru::class, 'mata_pelajaran_profile_guru', 'mata_pelajaran_id', 'profile_guru_id');
+    }
 }

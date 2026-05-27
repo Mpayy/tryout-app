@@ -6,7 +6,7 @@ use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class MataPelajaranRequest extends FormRequest
+class KelasRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,12 +23,11 @@ class MataPelajaranRequest extends FormRequest
      */
     public function rules(): array
     {
-        $mapel = $this->route('mapel');
-        $mapelId = $mapel instanceof \App\Models\MataPelajaran ? $mapel->id : $mapel;
+        $kelas = $this->route('kelas');
+        $kelasId = $kelas instanceof \App\Models\Kelas ? $kelas->id : $kelas;
         return [
-            'nama' => ['required', 'string', 'max:100'],
-            'kode' => ['required', 'string', 'max:10', Rule::unique('mata_pelajaran', 'kode')->ignore($mapelId, 'id')],
-            'deskripsi' => ['nullable', 'string', 'max:255'],
+            'nama' => ['required', 'string', 'max:255'],
+            'kode' => ['required', 'string', 'max:255', Rule::unique('kelas', 'kode')->ignore($kelasId, 'id')],
         ];
     }
 }
