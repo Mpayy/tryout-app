@@ -13,33 +13,42 @@ class PaketUjianController extends Controller
 {
     public function index()
     {
-        $pakets = PaketUjian::where('guru_id', auth()->id())
-            ->with(['mataPelajaran'])
+        $paketUjian = PaketUjian::where('guru_id', auth()->id())
+            ->with('mataPelajaran')
             ->withCount('soal')
-            ->latest()
-            ->paginate(15);
-        $mapels = MataPelajaran::orderBy('nama')->get();
-        return view('guru.paket-ujian.index', compact('pakets', 'mapels'));
-    }
-
-    public function create()
-    {
-        $mapels = MataPelajaran::orderBy('nama')->get();
-        return view('guru.paket-ujian.create', compact('mapels'));
+            ->get();
+        
+        $mataPelajaranGuru = auth()->user()->load('profileGuru.mataPelajarans')->profileGuru->mataPelajarans;
+        return view('guru.paket-ujian.index', compact('paketUjian', 'mataPelajaranGuru'));
     }
 
     public function store(PaketUjianRequest $request)
     {
         $data = $request->validated();
         $data['guru_id'] = auth()->id();
-        $data['status'] = $data['status'] ?? 'draft';
-        $data['acak_soal'] = $request->has('acak_soal') ? 1 : 0;
-        $data['acak_jawaban'] = $request->has('acak_jawaban') ? 1 : 0;
+        PaketUjian::create($data);
 
-        $paket = PaketUjian::create($data);
+        return redirect()->route('guru.paket-ujian.index');
+    }
 
-        return redirect()->route('guru.paket-ujian.show', $paket->id)
-            ->with('success', 'Paket ujian berhasil dibuat. Silakan tambahkan soal.');
+    public function update(PaketUjianRequest $request, PaketUjian $paket)
+    {
+        if ($paket->guru_id !== auth()->id()) {
+            abort(403, 'Akses ditolak.');
+        }
+        $data = $request->validated();
+        $paket->update($data);
+
+        return redirect()->route('guru.paket-ujian.index');
+    }
+
+    public function destroy(PaketUjian $paket)
+    {
+        if ($paket->guru_id !== auth()->id()) {
+            abort(403, 'Akses ditolak.');
+        }
+        $paket->delete();
+        return redirect()->route('guru.paket-ujian.index');
     }
 
     public function show(PaketUjian $paketUjian)

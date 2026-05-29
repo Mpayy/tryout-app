@@ -11,7 +11,9 @@ use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\KelasController;
 use App\Http\Controllers\Admin\MataPelajaranController;
+use App\Http\Controllers\Admin\SiswaController;
 use App\Http\Controllers\Guru\GuruDashboardController;
+use App\Http\Controllers\Guru\PaketUjianController;
 use App\Http\Controllers\Guru\SoalController;
 use App\Http\Controllers\Siswa\SiswaDashboardController;
 use App\Http\Controllers\ProfilGuruSiswaController;
@@ -64,6 +66,12 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::post('kelas/{kelas}/tambah-siswa', [KelasController::class, 'tambahSiswa'])->name('kelas.tambah-siswa');
     Route::delete('kelas/{kelas}/hapus-siswa/{profile_siswa}', [KelasController::class, 'hapusSiswa'])->name('kelas.hapus-siswa');
 
+    // ── Siswa ───────────────────────────────────
+    Route::get('siswa', [SiswaController::class, 'index'])->name('siswa.index');
+    Route::post('siswa', [SiswaController::class, 'store'])->name('siswa.store');
+    Route::put('siswa/{user}', [SiswaController::class, 'update'])->name('siswa.update');
+    Route::delete('siswa/{user}', [SiswaController::class, 'destroy'])->name('siswa.destroy');
+
     // ── Monitoring & Rekap (aktifkan saat controller sudah dibuat) ──
     // Route::get('monitoring', [MonitoringController::class, 'index'])->name('monitoring');
     // Route::get('rekap/{paket}', [RekapController::class, 'show'])->name('rekap.show');
@@ -87,10 +95,15 @@ Route::prefix('guru')->name('guru.')->middleware(['auth', 'role:guru'])->group(f
     Route::delete('soal/{soal}', [SoalController::class, 'destroy'])->name('soal.destroy');
 
     // ── Paket Ujian ──
-    Route::resource('paket-ujian', \App\Http\Controllers\Guru\PaketUjianController::class);
-    Route::post('paket-ujian/{paket_ujian}/soal', [\App\Http\Controllers\Guru\PaketUjianController::class, 'tambahSoal'])->name('paket-ujian.tambah-soal');
-    Route::delete('paket-ujian/{paket_ujian}/soal/{soal}', [\App\Http\Controllers\Guru\PaketUjianController::class, 'hapusSoal'])->name('paket-ujian.hapus-soal');
-    Route::patch('paket-ujian/{paket_ujian}/status', [\App\Http\Controllers\Guru\PaketUjianController::class, 'updateStatus'])->name('paket-ujian.status');
+    // Route::resource('paket-ujian', \App\Http\Controllers\Guru\PaketUjianController::class);
+    Route::get('paket-ujian', [PaketUjianController::class,'index'])->name('paket-ujian.index');
+    Route::post('paket-ujian', [PaketUjianController::class,'store'])->name('paket-ujian.store');
+    Route::put('paket-ujian/{paket}', [PaketUjianController::class,'update'])->name('paket-ujian.update');
+    Route::delete('paket-ujian/{paket}', [PaketUjianController::class,'destroy'])->name('paket-ujian.destroy');
+
+    Route::post('paket-ujian/{paket_ujian}/soal', [PaketUjianController::class, 'tambahSoal'])->name('paket-ujian.tambah-soal');
+    Route::delete('paket-ujian/{paket_ujian}/soal/{soal}', [PaketUjianController::class, 'hapusSoal'])->name('paket-ujian.hapus-soal');
+    Route::patch('paket-ujian/{paket_ujian}/status', [PaketUjianController::class, 'updateStatus'])->name('paket-ujian.status');
 });
 
 // ════════════════════════════════════════════════════════
