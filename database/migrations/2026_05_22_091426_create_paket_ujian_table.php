@@ -20,8 +20,8 @@ return new class extends Migration
             $table->integer('durasi');
             $table->dateTime('tanggal_mulai');
             $table->dateTime('tanggal_selesai');
-            $table->boolean('acak_soal')->default(true);
-            $table->boolean('acak_jawaban')->default(true);
+            $table->boolean('acak_soal')->default(false);
+            $table->boolean('acak_jawaban')->default(false);
             $table->enum('status', ['draft', 'aktif', 'selesai'])->default('draft');
             $table->timestamps();
         });

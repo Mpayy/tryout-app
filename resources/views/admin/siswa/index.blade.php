@@ -2,8 +2,8 @@
     <div class="space-y-6">
         <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <h1 class="text-2xl font-bold tracking-tight text-slate-800">Manajemen Paket Ujian</h1>
-                <p class="text-sm text-slate-500">Kelola daftar paket ujian.</p>
+                <h1 class="text-2xl font-bold tracking-tight text-slate-800">Manajemen Siswa</h1>
+                <p class="text-sm text-slate-500">Kelola daftar siswa.</p>
             </div>
             <div>
                 <button onclick="openCreateModal()"
@@ -12,7 +12,7 @@
                         stroke="currentColor" class="size-5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                     </svg>
-                    Tambah Paket Ujian
+                    Tambah Siswa
                 </button>
             </div>
         </div>
@@ -44,40 +44,43 @@
                         <thead>
                             <tr class="bg-slate-50/70 border-b border-slate-200 text-slate-600 font-semibold text-sm">
                                 <th class="w-16 text-center">#</th>
-                                <th>Nama Paket Ujian</th>
-                                <th class="text-center">Mata Pelajaran</th>
-                                <th class="text-center">Tanggal Mulai</th>
-                                <th class="text-center">Tanggal Selesai</th>
-                                <th class="text-center">Durasi</th>
-                                <th class="text-center">Total Soal</th>
-                                <th class="text-center"></th>Aksi</th>
+                                <th>Nama Siswa</th>
+                                <th class="text-center">Email</th>
+                                <th class="text-center">Role</th>
+                                <th class="text-center">NISN</th>
+                                <th class="text-center">Kelas</th>
+                                <th class="text-center">Aksi</th>
                             </tr>
                         </thead>
 
                         <tbody class="divide-y divide-slate-100 bg-white">
-                            @foreach ($paketUjian as $paket)
+                            @foreach ($daftarSiswa as $siswa)
                                 <tr class="hover:bg-slate-50/50 transition duration-150">
                                     <td class="text-center font-medium text-slate-500">{{ $loop->iteration }}</td>
-                                    <td class="font-semibold text-slate-800">{{ $paket->nama }}</td>
+                                    <td class="font-semibold text-slate-800">{{ $siswa->name }}</td>
+                                    <td class="text-center font-medium">{{ $siswa->email }}</td>
+                                    <td class="text-center">
+                                        <span
+                                            class="badge bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-1 font-medium text-xs rounded-full">
+                                            {{ $siswa->roles->pluck('name')->implode(', ') }}
+                                        </span>
+                                    </td>
+                                    <td class="text-center font-medium">{{ $siswa->profileSiswa->nis ?? '-' }}</td>
                                     <td class="text-center font-medium">
-                                        <div
-                                            class="badge bg-gray-100 text-gray-600 font-semibold px-3 py-2.5 rounded-md border-none text-xs">
-                                            {{ $paket->mataPelajaran->nama ?? '-' }}
-                                        </div>
+                                        @if ($siswa->profileSiswa && $siswa->profileSiswa->kelas)
+                                            <span
+                                                class="badge bg-blue-50 text-blue-700 border border-blue-200 px-2.5 py-1 font-medium text-xs rounded-full">
+                                                {{ $siswa->profileSiswa->kelas->nama }}
+                                            </span>
+                                        @else
+                                            <span>-</span>
+                                        @endif
                                     </td>
-                                    <td class="text-center">
-                                        {{ \Carbon\Carbon::parse($paket->tanggal_mulai)->format('d F Y') }}
-                                    </td>
-                                    <td class="text-center">
-                                        {{ \Carbon\Carbon::parse($paket->tanggal_selesai)->format('d F Y') }}
-                                    </td>
-                                    <td class="text-center">{{ $paket->durasi }} Menit</td>
-                                    <td class="text-center">{{ $paket->soal_count }}</td>
                                     <td class="text-center">
                                         <div class="flex items-center justify-center gap-1.5">
-                                            <button onclick="openEditModal({{ $paket }})"
+                                            <button onclick="openEditModal({{ $siswa }})"
                                                 class="btn btn-sm bg-indigo-50 hover:bg-indigo-100 border-none text-indigo-700 normal-case font-medium px-3 shadow-none">Edit</button>
-                                            <form action="{{ route('guru.paket-ujian.destroy', $paket) }}" method="POST">
+                                            <form action="{{ route('admin.siswa.destroy', $siswa) }}" method="POST">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit"
@@ -99,9 +102,9 @@
 
             <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-6">
                 <div>
-                    <h3 id="modal_title" class="text-xl font-bold text-slate-800">Tambah Mata Pelajaran Baru</h3>
-                    <p class="text-xs text-slate-500 mt-0.5">Isi data mata pelajaran dengan lengkap untuk
-                        mengonfigurasi data mata pelajaran.</p>
+                    <h3 id="modal_title" class="text-xl font-bold text-slate-800">Tambah Siswa Baru</h3>
+                    <p class="text-xs text-slate-500 mt-0.5">Isi data akun dengan lengkap untuk mengonfigurasi hak akses
+                        pengguna.</p>
                 </div>
                 <button type="button" onclick="closeUserModal()"
                     class="btn btn-sm btn-circle btn-ghost text-slate-400 hover:text-slate-600 hover:bg-slate-100">✕</button>
@@ -133,63 +136,76 @@
 
                     <div class="form-control w-full col-span-1 sm:col-span-2">
                         <label class="label py-1"><span class="label-text font-semibold text-slate-700 text-sm">Nama
-                                Paket</span></label>
-                        <input type="text" id="input_name" name="nama" value="{{ old('nama') }}"
-                            placeholder="Masukkan nama paket..."
+                                Lengkap</span></label>
+                        <input type="text" id="input_name" name="name" value="{{ old('name') }}"
+                            placeholder="Masukkan nama lengkap beserta gelar..."
                             class="input input-bordered w-full bg-white border-slate-200 text-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-lg text-sm transition" />
                     </div>
 
                     <div class="form-control w-full">
-                        <label class="label py-1"><span class="label-text font-semibold text-slate-700 text-sm">Mata
-                                Pelajaran</span></label>
-                        <select name="mata_pelajaran_id" id="input_mapel"
-                            class="select select-bordered w-full bg-white border-slate-200 text-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-lg text-sm transition"
+                        <label class="label py-1"><span class="label-text font-semibold text-slate-700 text-sm">Email
+                                Address</span></label>
+                        <input type="email" id="input_email" name="email" value="{{ old('email') }}"
+                            placeholder="contoh@gmail.com"
+                            class="input input-bordered w-full bg-white border-slate-200 text-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-lg text-sm transition"
+                            required />
+                    </div>
+
+                    <div class="form-control w-full">
+                        <label class="label py-1"><span class="label-text font-semibold text-slate-700 text-sm">NIS
+                                / Nomor Induk</span></label>
+                        <input type="number" id="input_nis" name="nis" value="{{ old('nis') }}"
+                            placeholder="Masukkan NISN siswa..."
+                            class="input input-bordered w-full bg-white border-slate-200 text-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-lg text-sm transition [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
+                    </div>
+
+                    <div class="form-control w-full">
+                        <label class="label py-1"><span class="label-text font-semibold text-slate-700 text-sm">Pilih
+                                Role</span></label>
+                        <select id="input_role" name="role"
+                            class="select select-bordered w-full bg-white border-slate-200 text-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-lg text-sm font-normal transition"
                             required>
-                            <option value="">Pilih Mata Pelajaran</option>
-                            @foreach ($mataPelajaranGuru as $mapel)
-                                <option value="{{ $mapel->id }}">{{ $mapel->nama }}</option>
+                            <option value="" disabled selected>-- Pilih Role --</option>
+                            @foreach ($roles as $role)
+                                <option value="{{ $role->name }}">{{ ucfirst($role->name) }}</option>
                             @endforeach
                         </select>
                     </div>
 
                     <div class="form-control w-full">
-                        <label class="label py-1"><span class="label-text font-semibold text-slate-700 text-sm">Durasi
-                                Pengerjaan (Menit)</span></label>
-                        <input type="number" min="10" id="input_durasi" name="durasi"
-                            value="{{ old('durasi_pengerjaan') }}" placeholder="Masukkan durasi pengerjaan..."
+                        <label class="label py-1"><span class="label-text font-semibold text-slate-700 text-sm">Pilih
+                                Kelas</span></label>
+                        <div class="flex gap-2">
+                            <select id="input_kelas" name="kelas"
+                                class="select select-bordered w-full bg-white border-slate-200 text-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-lg text-sm font-normal transition">
+                                <option value="" disabled selected>-- Pilih Kelas --</option>
+                                @foreach ($daftarKelas as $kelas)
+                                    <option value="{{ $kelas->id }}">{{ ucfirst($kelas->nama) }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-control w-full col-span-1 sm:col-span-2">
+                        <label class="label py-1">
+                            <span class="label-text font-semibold text-slate-700 text-sm">Kata Sandi</span>
+                            <span id="password_hint" class="label-text-alt text-amber-600 font-medium hidden">*Kosongkan
+                                jika tidak ingin mengubah sandi</span>
+                        </label>
+                        <input type="password" id="input_password" name="password" placeholder="••••••••"
                             class="input input-bordered w-full bg-white border-slate-200 text-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-lg text-sm transition" />
                     </div>
 
-                    <div>
-                        <label class="form-control w-full">
-                            <div class="label">
-                                <span class="label-text font-semibold text-slate-700 text-sm">Tanggal Dibuka</span>
-                            </div>
-                            <input type="date" id="input_tanggal_mulai" name="tanggal_mulai"
-                                value="{{ old('tanggal_mulai') }}"
-                                class="input input-bordered w-full bg-white border-slate-200 text-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-lg text-sm transition" />
-                        </label>
-                    </div>
-                    <div>
-                        <label class="form-control w-full">
-                            <div class="label">
-                                <span class="label-text font-semibold text-slate-700 text-sm">Tanggal Ditutup</span>
-                            </div>
-                            <input type="date" id="input_tanggal_selesai" name="tanggal_selesai"
-                                value="{{ old('tanggal_selesai') }}"
-                                class="input input-bordered w-full bg-white border-slate-200 text-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-lg text-sm transition" />
-                        </label>
-                    </div>
                 </div>
 
                 <div class="modal-action flex justify-end gap-2 pt-4 border-t border-slate-100 mt-6">
-                    <button type="button" onclick="closeModal()"
+                    <button type="button" onclick="closeUserModal()"
                         class="btn bg-slate-100 hover:bg-slate-200 border-none text-slate-600 font-medium normal-case px-5 rounded-lg shadow-none transition">
                         Batal
                     </button>
                     <button type="submit"
                         class="btn bg-indigo-600 hover:bg-indigo-700 border-none text-white font-semibold normal-case px-6 rounded-lg shadow-sm transition">
-                        Simpan
+                        Simpan User
                     </button>
                 </div>
             </form>
@@ -202,28 +218,27 @@
         const modalTitle = document.getElementById('modal_title')
         const method = document.getElementById('method')
 
-
         function openCreateModal() {
-            modalTitle.innerText = 'Tambah Mapel'
-            form.action = `{{ route('guru.paket-ujian.store') }}`
+            modalTitle.innerText = 'Tambah Siswa'
+            form.action = `{{ route('admin.siswa.store') }}`
             method.innerHTML = ''
             form.reset()
             modal.showModal()
         }
 
-        function openEditModal(paket) {
-            modalTitle.innerText = 'Edit Paket Ujian'
-            form.action = `{{ route('guru.paket-ujian.update', $paket->id) }}`
+        function openEditModal(siswa) {
+            modalTitle.innerText = 'Edit Siswa (' + siswa.name + ')'
+            form.action = `{{ route('admin.siswa.update', $siswa->id) }}`
             method.innerHTML = `@method('PUT')`
+            console.log(siswa)
 
-            const tglMulai = paket.tanggal_mulai ? paket.tanggal_mulai.slice(0, 10) : '';
-            const tglSelesai = paket.tanggal_selesai ? paket.tanggal_selesai.slice(0, 10) : '';
+            document.getElementById('input_name').value = siswa.name
+            document.getElementById('input_email').value = siswa.email
+            document.getElementById('input_nis').value = siswa.profile_siswa?.nis || ''
+            document.getElementById('input_role').value = siswa.roles[0].name || ''
+            document.getElementById('input_kelas').value = siswa.profile_siswa?.kelas.id || ''
+            document.getElementById('input_password').required = false
 
-            document.getElementById('input_name').value = paket.nama
-            document.getElementById('input_mapel').value = paket.mata_pelajaran_id
-            document.getElementById('input_durasi').value = paket.durasi
-            document.getElementById('input_tanggal_mulai').value = tglMulai
-            document.getElementById('input_tanggal_selesai').value = tglSelesai
             modal.showModal()
         }
 
@@ -235,12 +250,12 @@
                 const methodField = document.getElementById('method');
 
                 @if (old('_method') == 'PUT')
-                    modalTitle.innerText = 'Edit Mapel';
-                    form.action = `{{ route('guru.paket-ujian.update', old('id')) }}`;
+                    modalTitle.innerText = "Modal Form: Edit User";
+                    form.action = "{{ url('admin/siswa') }}/" + "{{ old('id') }}";
                     methodField.innerHTML = `@method('PUT')`;
                 @else
-                    modalTitle.innerText = 'Tambah Mapel';
-                    form.action = `{{ route('guru.paket-ujian.store') }}`;
+                    modalTitle.innerText = "Modal Form: Tambah User Baru";
+                    form.action = "{{ route('admin.siswa.store') }}";
                     methodField.innerHTML = "";
                 @endif
 
@@ -248,7 +263,7 @@
             @endif
         });
 
-        function closeModal() {
+        function closeUserModal() {
             modal.close();
         }
     </script>
