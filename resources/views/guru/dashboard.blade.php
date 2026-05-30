@@ -171,7 +171,7 @@
                                 <a href="{{ route('guru.soal.create') }}" class="btn bg-white/20 hover:bg-white text-white hover:text-indigo-600 border-none justify-start">
                                     <i class="bi bi-plus-circle text-lg mr-2"></i> Buat Soal Baru
                                 </a>
-                                <a href="{{ route('guru.paket-ujian.create') }}" class="btn bg-white/20 hover:bg-white text-white hover:text-indigo-600 border-none justify-start">
+                                <a href="{{ route('guru.paket-ujian.index') }}" class="btn bg-white/20 hover:bg-white text-white hover:text-indigo-600 border-none justify-start">
                                     <i class="bi bi-folder-plus text-lg mr-2"></i> Buat Paket Ujian
                                 </a>
                                 <a href="{{ route('guru.soal.index') }}" class="btn bg-white/20 hover:bg-white text-white hover:text-indigo-600 border-none justify-start">
