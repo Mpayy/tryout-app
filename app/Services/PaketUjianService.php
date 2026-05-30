@@ -12,13 +12,15 @@ class PaketUjianService
     {
         return DB::transaction(function () use ($data, $guruId) {
             $paket = PaketUjian::create([
-                'nama' => $data['nama'],
-                'mata_pelajaran_id'=> $data['mata_pelajaran_id'],
-                'durasi' => $data['durasi'],
-                'tanggal_mulai' => $data['tanggal_mulai'],
-                'tanggal_selesai' => $data['tanggal_selesai'],
-                'status' => $data['status'] ?? 'draft',
-                'guru_id' => $guruId,
+                'nama'              => $data['nama'],
+                'mata_pelajaran_id' => $data['mata_pelajaran_id'],
+                'durasi'            => $data['durasi'],
+                'tanggal_mulai'     => $data['tanggal_mulai'],
+                'tanggal_selesai'   => $data['tanggal_selesai'],
+                'status'            => $data['status'] ?? 'draft',
+                'acak_soal'         => $data['acak_soal'] ?? false,
+                'acak_jawaban'      => $data['acak_jawaban'] ?? false,
+                'guru_id'           => $guruId,
             ]);
             $paket->kelas()->attach($data['kelas_ids']);
 
@@ -30,12 +32,14 @@ class PaketUjianService
     {
         return DB::transaction(function () use ($paket,$data){
             $paket->update([
-                'nama' => $data['nama'],
+                'nama'              => $data['nama'],
                 'mata_pelajaran_id' => $data['mata_pelajaran_id'],
-                'durasi' => $data['durasi'],
-                'tanggal_mulai' => $data['tanggal_mulai'],
-                'tanggal_selesai' => $data['tanggal_selesai'],
-                'status' => $data['status'] ?? 'draft',
+                'durasi'            => $data['durasi'],
+                'tanggal_mulai'     => $data['tanggal_mulai'],
+                'tanggal_selesai'   => $data['tanggal_selesai'],
+                'status'            => $data['status'] ?? 'draft',
+                'acak_soal'         => $data['acak_soal'] ?? false,
+                'acak_jawaban'      => $data['acak_jawaban'] ?? false,
             ]);
 
             $paket->kelas()->sync($data['kelas_ids']);

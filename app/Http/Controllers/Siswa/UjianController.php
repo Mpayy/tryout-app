@@ -88,9 +88,7 @@ class UjianController extends Controller
     {
         $sesi = SesiUjian::where('token', $token)
             ->where('siswa_id', auth()->id())
-            ->with(['paketUjian.soal' => function ($q) {
-                $q->orderBy('paket_ujian_soal.nomor_urut');
-            }])
+            ->with('paketUjian')
             ->firstOrFail();
 
         if ($sesi->status === 'selesai' || $sesi->status === 'timeout') {
@@ -107,10 +105,18 @@ class UjianController extends Controller
             return redirect()->route('siswa.ujian.hasil', $token);
         }
 
-        $soalList   = $sesi->paketUjian->soal;
-        $jawabList  = JawabanSiswa::where('sesi_ujian_id', $sesi->id)
+        // Ambil jawaban siswa (diurutkan berdasarkan id = urutan saat insert di mulai())
+        // Urutan ini yang menjadi "urutan soal" yang konsisten selama ujian berlangsung.
+        // Jika acak_soal=true, urutan ini sudah teracak sejak mulai(). Jika false, urutannya reguler.
+        $jawabList = JawabanSiswa::where('sesi_ujian_id', $sesi->id)
+            ->orderBy('id') // id auto-increment = urutan insert = urutan yang sudah ditentukan di mulai()
             ->get()
             ->keyBy('soal_id');
+
+        // Ambil daftar soal sesuai urutan jawaban
+        $soalIds  = $jawabList->keys();
+        $soalMap  = $sesi->paketUjian->soal()->whereIn('soal.id', $soalIds)->with('pilihanJawaban')->get()->keyBy('id');
+        $soalList = $soalIds->map(fn($id) => $soalMap->get($id))->filter();
 
         return view('siswa.ujian.show', compact('sesi', 'soalList', 'jawabList', 'sisaWaktu'));
     }
@@ -119,29 +125,46 @@ class UjianController extends Controller
     {
         $sesi = SesiUjian::where('token', $token)
             ->where('siswa_id', auth()->id())
+            ->with('paketUjian')
             ->firstOrFail();
 
-        $soal = $sesi->paketUjian->soal()
-            ->orderBy('paket_ujian_soal.nomor_urut')
-            ->skip($nomor - 1)
-            ->first();
+        // Ambil daftar soal sesuai urutan yang sudah ditentukan saat mulai() (insert ke jawaban_siswa).
+        // Urutan berdasarkan id jawaban_siswa menjamin konsistensi: sama antara show() dan soal().
+        $soalIds = JawabanSiswa::where('sesi_ujian_id', $sesi->id)
+            ->orderBy('id')
+            ->pluck('soal_id');
 
+        // Ambil soal ke-$nomor berdasarkan posisi di urutan tersebut
+        $soalId = $soalIds->get($nomor - 1);
+        if (!$soalId) abort(404);
+
+        $soal = $sesi->paketUjian->soal()->with('pilihanJawaban')->find($soalId);
         if (!$soal) abort(404);
 
         $jawaban = JawabanSiswa::where('sesi_ujian_id', $sesi->id)
             ->where('soal_id', $soal->id)
             ->first();
 
+        // ACAK JAWABAN: Jika paket mengaktifkan acak_jawaban, kocok urutan pilihan
+        // menggunakan seed dari soal_id + sesi_id agar konsisten tiap reload halaman
+        $pilihan = $soal->pilihanJawaban;
+        if ($sesi->paketUjian->acak_jawaban) {
+            // Seed deterministik agar urutan pilihan tidak berubah tiap refresh
+            $seed = crc32($sesi->id . '-' . $soal->id);
+            mt_srand($seed);
+            $pilihan = $pilihan->shuffle();
+        }
+
         return response()->json([
             'soal'    => [
-                'id'      => $soal->id,
-                'nomor'   => $nomor,
-                'konten'  => $soal->konten,
-                'gambar'  => $soal->gambar ? asset('storage/' . $soal->gambar) : null,
+                'id'     => $soal->id,
+                'nomor'  => $nomor,
+                'konten' => $soal->konten,
+                'gambar' => $soal->gambar ? asset('storage/' . $soal->gambar) : null,
             ],
-            'pilihan' => $soal->pilihanJawaban->map(fn($p) => [
-                'id'    => $p->id,
-                'label' => $p->label,
+            'pilihan' => $pilihan->map(fn($p) => [
+                'id'     => $p->id,
+                'label'  => $p->label,
                 'konten' => $p->konten,
             ]),
             'jawaban' => [

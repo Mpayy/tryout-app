@@ -200,6 +200,34 @@
                         <p class="text-[11px] text-slate-400 mt-1">Paket ujian hanya akan muncul pada beranda siswa yang
                             berada di dalam kelas terpilih.</p>
                     </div>
+
+                    {{-- Toggle: Acak Soal & Acak Jawaban --}}
+                    <div class="form-control w-full col-span-1 sm:col-span-2 border-t border-slate-100 pt-4">
+                        <label class="label py-1 pb-2">
+                            <span class="label-text font-semibold text-slate-700 text-sm">Pengaturan Pengacakan</span>
+                        </label>
+                        <div class="grid grid-cols-2 gap-4">
+                            <label class="cursor-pointer flex items-center gap-3 p-3 bg-slate-50 border border-slate-200 rounded-lg hover:bg-indigo-50 hover:border-indigo-200 transition">
+                                <input type="checkbox" id="input_acak_soal" name="acak_soal" value="1"
+                                    class="toggle toggle-primary toggle-sm"
+                                    {{ old('acak_soal') ? 'checked' : '' }} />
+                                <div>
+                                    <span class="text-sm font-semibold text-slate-700 block">Acak Soal</span>
+                                    <span class="text-xs text-slate-400">Urutan soal berbeda tiap siswa</span>
+                                </div>
+                            </label>
+                            <label class="cursor-pointer flex items-center gap-3 p-3 bg-slate-50 border border-slate-200 rounded-lg hover:bg-indigo-50 hover:border-indigo-200 transition">
+                                <input type="checkbox" id="input_acak_jawaban" name="acak_jawaban" value="1"
+                                    class="toggle toggle-primary toggle-sm"
+                                    {{ old('acak_jawaban') ? 'checked' : '' }} />
+                                <div>
+                                    <span class="text-sm font-semibold text-slate-700 block">Acak Jawaban</span>
+                                    <span class="text-xs text-slate-400">Opsi A/B/C/D diacak tiap siswa</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
                 </div>
 
                 <div class="modal-action flex justify-end gap-2 pt-4 border-t border-slate-100 mt-6">
@@ -253,12 +281,16 @@
             const tglSelesai = paket.tanggal_selesai ? paket.tanggal_selesai.slice(0, 10) : '';
 
             // Mapping nilai value ke dalam form fields
-            document.getElementById('input_id').value = paket.id;
-            document.getElementById('input_name').value = paket.nama;
-            document.getElementById('input_mapel').value = paket.mata_pelajaran_id;
-            document.getElementById('input_durasi').value = paket.durasi;
-            document.getElementById('input_tanggal_mulai').value = tglMulai;
+            document.getElementById('input_id').value             = paket.id;
+            document.getElementById('input_name').value           = paket.nama;
+            document.getElementById('input_mapel').value          = paket.mata_pelajaran_id;
+            document.getElementById('input_durasi').value         = paket.durasi;
+            document.getElementById('input_tanggal_mulai').value  = tglMulai;
             document.getElementById('input_tanggal_selesai').value = tglSelesai;
+
+            // Bind toggle acak_soal dan acak_jawaban (nilai dari DB: 1 = true, 0 = false)
+            document.getElementById('input_acak_soal').checked    = paket.acak_soal == 1;
+            document.getElementById('input_acak_jawaban').checked = paket.acak_jawaban == 1;
 
             // Logika Otomatisasi Centang Checkbox Kelas (Many-to-Many Matcher)
             if (paket.kelas && paket.kelas.length > 0) {

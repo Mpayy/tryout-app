@@ -159,18 +159,9 @@
                             class="input input-bordered w-full bg-white border-slate-200 text-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-lg text-sm transition [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
                     </div>
 
-                    <div class="form-control w-full">
-                        <label class="label py-1"><span class="label-text font-semibold text-slate-700 text-sm">Pilih
-                                Role</span></label>
-                        <select id="input_role" name="role"
-                            class="select select-bordered w-full bg-white border-slate-200 text-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-lg text-sm font-normal transition"
-                            required>
-                            <option value="" disabled selected>-- Pilih Role --</option>
-                            @foreach ($roles as $role)
-                                <option value="{{ $role->name }}">{{ ucfirst($role->name) }}</option>
-                            @endforeach
-                        </select>
-                    </div>
+                    {{-- Role dikunci ke 'siswa' di backend (SiswaRequest). --}}
+                    {{-- Hidden input ini hanya untuk memastikan nilai role terkirim ke server. --}}
+                    <input type="hidden" name="role" value="siswa">
 
                     <div class="form-control w-full">
                         <label class="label py-1"><span class="label-text font-semibold text-slate-700 text-sm">Pilih
@@ -184,6 +175,14 @@
                                 @endforeach
                             </select>
                         </div>
+                    </div>
+
+                    <div class="form-control w-full">
+                        <label class="label py-1"><span class="label-text font-semibold text-slate-700 text-sm">Jurusan
+                                <span class="text-slate-400 font-normal">(Opsional)</span></span></label>
+                        <input type="text" id="input_jurusan" name="jurusan" value="{{ old('jurusan') }}"
+                            placeholder="Contoh: IPA / IPS / TKJ..."
+                            class="input input-bordered w-full bg-white border-slate-200 text-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-lg text-sm transition" />
                     </div>
 
                     <div class="form-control w-full col-span-1 sm:col-span-2">
@@ -228,15 +227,14 @@
 
         function openEditModal(siswa) {
             modalTitle.innerText = 'Edit Siswa (' + siswa.name + ')'
-            form.action = `{{ route('admin.siswa.update', $siswa->id) }}`
+            form.action = `{{ url('admin/siswa') }}/` + siswa.id
             method.innerHTML = `@method('PUT')`
-            console.log(siswa)
 
-            document.getElementById('input_name').value = siswa.name
-            document.getElementById('input_email').value = siswa.email
-            document.getElementById('input_nis').value = siswa.profile_siswa?.nis || ''
-            document.getElementById('input_role').value = siswa.roles[0].name || ''
-            document.getElementById('input_kelas').value = siswa.profile_siswa?.kelas.id || ''
+            document.getElementById('input_name').value    = siswa.name
+            document.getElementById('input_email').value   = siswa.email
+            document.getElementById('input_nis').value     = siswa.profile_siswa?.nis || ''
+            document.getElementById('input_kelas').value   = siswa.profile_siswa?.kelas?.id || ''
+            document.getElementById('input_jurusan').value = siswa.profile_siswa?.jurusan || ''
             document.getElementById('input_password').required = false
 
             modal.showModal()

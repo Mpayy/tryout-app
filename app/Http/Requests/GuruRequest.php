@@ -29,7 +29,8 @@ class GuruRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($userId, 'id')],
             'nip' => ['required', 'string', 'max:255', Rule::unique('profiles_guru', 'nip')->ignore($userId, 'user_id')],
-            'role' => ['required', 'string', 'exists:roles,name'],
+            // Hardcoded ke 'guru' — mencegah Privilege Escalation via form manipulation
+            'role' => ['required', 'string', 'in:guru'],
             'mapel' => ['required', 'array', 'min:1'],
             'mapel.*' => ['integer', 'exists:mata_pelajaran,id'],
             'password' => [$this->isMethod('post') ? 'required' : 'nullable', 'string', 'min:8'],
