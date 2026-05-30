@@ -45,4 +45,9 @@ class PaketUjian extends Model
     {
         return $this->hasMany(SesiUjian::class, 'paket_ujian_id', 'id');
     }
+
+    public function kelas()
+    {
+        return $this->belongsToMany(Kelas::class, 'kelas_paket_ujian', 'paket_ujian_id', 'kelas_id');
+    }
 }

@@ -16,7 +16,6 @@ use App\Http\Controllers\Guru\GuruDashboardController;
 use App\Http\Controllers\Guru\PaketUjianController;
 use App\Http\Controllers\Guru\SoalController;
 use App\Http\Controllers\Siswa\SiswaDashboardController;
-use App\Http\Controllers\ProfilGuruSiswaController;
 
 // ── Halaman welcome ──────────────────────────────────────────
 // Route::get('/', function () {
@@ -28,8 +27,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    Route::get('/profil', [ProfilGuruSiswaController::class, 'index'])->name('profil.index');
-    Route::put('/profil', [ProfilGuruSiswaController::class, 'update'])->name('profil.update');
 });
 
 require __DIR__ . '/auth.php';
@@ -98,8 +95,9 @@ Route::prefix('guru')->name('guru.')->middleware(['auth', 'role:guru'])->group(f
     // Route::resource('paket-ujian', \App\Http\Controllers\Guru\PaketUjianController::class);
     Route::get('paket-ujian', [PaketUjianController::class,'index'])->name('paket-ujian.index');
     Route::post('paket-ujian', [PaketUjianController::class,'store'])->name('paket-ujian.store');
-    Route::put('paket-ujian/{paket}', [PaketUjianController::class,'update'])->name('paket-ujian.update');
-    Route::delete('paket-ujian/{paket}', [PaketUjianController::class,'destroy'])->name('paket-ujian.destroy');
+    Route::get('paket-ujian/{paket_ujian}/show', [PaketUjianController::class,'show'])->name('paket-ujian.show');
+    Route::put('paket-ujian/{paket_ujian}', [PaketUjianController::class,'update'])->name('paket-ujian.update');
+    Route::delete('paket-ujian/{paket_ujian}', [PaketUjianController::class,'destroy'])->name('paket-ujian.destroy');
 
     Route::post('paket-ujian/{paket_ujian}/soal', [PaketUjianController::class, 'tambahSoal'])->name('paket-ujian.tambah-soal');
     Route::delete('paket-ujian/{paket_ujian}/soal/{soal}', [PaketUjianController::class, 'hapusSoal'])->name('paket-ujian.hapus-soal');

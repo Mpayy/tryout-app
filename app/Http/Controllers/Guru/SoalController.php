@@ -14,6 +14,10 @@ use App\Services\SoalService;
 
 class SoalController extends Controller
 {
+    public function __construct(
+        protected SoalService $soalService
+    ) {}
+
     public function index()
     {
         $soals = Soal::where('guru_id', auth()->id())->with('mataPelajaran')->get();
@@ -31,10 +35,6 @@ class SoalController extends Controller
         return view('guru.soal.create', compact('mataPelajaranGuru'));
     }
 
-    public function __construct(
-        protected SoalService $soalService
-    ) {}
-    
     public function store(SoalRequest $request)
     {
         $validated = $request->validated();
@@ -57,15 +57,6 @@ class SoalController extends Controller
             ->with('success', count($result) . ' butir soal berhasil disimpan ke bank soal.');
     }
 
-    /**
-     * Tampilkan daftar soal milik guru ini.
-     */
-    
-
-    /**
-     * Hapus soal beserta semua pilihan jawabannya.
-     * Cascade delete sudah diset di migration.
-     */
     public function destroy(Soal $soal)
     {
         // Pastikan hanya guru pemilik yang bisa hapus

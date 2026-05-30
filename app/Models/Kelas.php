@@ -16,4 +16,9 @@ class Kelas extends Model
     {
         return $this->hasMany(ProfileSiswa::class, 'kelas_id', 'id');
     }
+
+    public function paketUjians()
+    {
+        return $this->belongsToMany(PaketUjian::class, 'kelas_paket_ujian', 'kelas_id', 'paket_ujian_id');
+    }
 }

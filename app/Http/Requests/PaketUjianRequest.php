@@ -19,6 +19,8 @@ class PaketUjianRequest extends FormRequest
             'durasi' => ['required', 'integer', 'min:10'],
             'tanggal_mulai' => ['required', 'date'],
             'tanggal_selesai' => ['required', 'date', 'after:tanggal_mulai'],
+            'kelas_ids' => ['required', 'array', 'min:1'],
+            'kelas_ids.*' => ['exists:kelas,id'],
             'acak_soal' => ['nullable', 'boolean'],
             'acak_jawaban' => ['nullable', 'boolean'],
             'status' => ['nullable', 'in:draft,aktif,selesai'],
