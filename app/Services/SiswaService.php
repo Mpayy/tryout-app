@@ -12,15 +12,16 @@ class SiswaService
     {
         return DB::transaction(function () use ($data) {
             $siswa = User::create([
-                'name' => $data['name'],
-                'email' => $data['email'],
+                'name'     => $data['name'],
+                'email'    => $data['email'],
                 'password' => Hash::make($data['password'])
             ]);
 
             $siswa->assignRole($data['role']);
             $siswa->profileSiswa()->create([
-                'nis' => $data['nis'],
-                'kelas_id' => $data['kelas']
+                'nis'      => $data['nis'],
+                'kelas_id' => $data['kelas'],
+                'jurusan'  => $data['jurusan'] ?? null,
             ]);
 
             return $siswa;
@@ -29,9 +30,9 @@ class SiswaService
 
     public function updateSiswa(User $user, array $data)
     {
-        return Db::transaction(function () use ($user, $data) {
+        return DB::transaction(function () use ($user, $data) {
             $user->update([
-                'name' => $data['name'],
+                'name'  => $data['name'],
                 'email' => $data['email'],
             ]);
 
@@ -46,8 +47,9 @@ class SiswaService
             $user->profileSiswa()->updateOrCreate(
                 ['user_id' => $user->id],
                 [
-                    'nis' => $data['nis'],
+                    'nis'      => $data['nis'],
                     'kelas_id' => $data['kelas'],
+                    'jurusan'  => $data['jurusan'] ?? null,
                 ]
             );
 

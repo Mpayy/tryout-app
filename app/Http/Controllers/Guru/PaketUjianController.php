@@ -39,22 +39,10 @@ class PaketUjianController extends Controller
     public function store(PaketUjianRequest $request)
     {
         $data = $request->validated();
-        
-        // Bungkus dengan transaksi database agar jika salah satu gagal, data tidak pincang
-        // DB::transaction(function () use ($data) {
-        //     // Simpan data paket ujian utama
-        //     $paket = PaketUjian::create([
-        //         'nama' => $data['nama'],
-        //         'mata_pelajaran_id' => $data['mata_pelajaran_id'],
-        //         'durasi' => $data['durasi'],
-        //         'tanggal_mulai' => $data['tanggal_mulai'],
-        //         'tanggal_selesai' => $data['tanggal_selesai'],
-        //         'guru_id' => auth()->id(),
-        //     ]);
-
-        //     // Ikat data kelas ke tabel pivot kelas_paket_ujian
-        //     $paket->kelas()->attach($data['kelas_ids']);
-        // });
+        // Checkbox yang tidak dicentang tidak dikirim oleh browser,
+        // jadi kita paksa konversi ke boolean secara eksplisit.
+        $data['acak_soal']    = $request->boolean('acak_soal');
+        $data['acak_jawaban'] = $request->boolean('acak_jawaban');
 
         $this->paketUjianService->createPaketUjian($data, auth()->id());
 
@@ -63,26 +51,16 @@ class PaketUjianController extends Controller
 
     public function update(PaketUjianRequest $request, PaketUjian $paketUjian)
     {
-        // Security check ditaruh di paling atas
+        // Security check: Pastikan ini paket miliknya
         if ($paketUjian->guru_id !== auth()->id()) {
             abort(403, 'Akses ditolak.');
         }
 
         $data = $request->validated();
-
-        // DB::transaction(function () use ($paket, $data) {
-        //     // Update data paket ujian utama
-        //     $paket->update([
-        //         'nama' => $data['nama'],
-        //         'mata_pelajaran_id' => $data['mata_pelajaran_id'],
-        //         'durasi' => $data['durasi'],
-        //         'tanggal_mulai' => $data['tanggal_mulai'],
-        //         'tanggal_selesai' => $data['tanggal_selesai'],
-        //     ]);
-
-        //     // Gunakan sync() agar otomatis menghapus kelas lama dan memasukkan kelas baru yang dicentang
-        //     $paket->kelas()->sync($data['kelas_ids']);
-        // });
+        // Checkbox yang tidak dicentang tidak dikirim oleh browser,
+        // jadi kita paksa konversi ke boolean secara eksplisit.
+        $data['acak_soal']    = $request->boolean('acak_soal');
+        $data['acak_jawaban'] = $request->boolean('acak_jawaban');
 
         $this->paketUjianService->updatePaketUjian($paketUjian, $data);
 
@@ -133,28 +111,16 @@ class PaketUjianController extends Controller
             abort(403, 'Akses ditolak.');
         }
 
-        // Sesuaikan 'soal,id' dengan nama tabel bank soalmu (misal: 'soals' atau 'soal')
+        // Fix IDOR: Pastikan soal yang disubmit benar-benar milik guru yang sedang login.
+        // Ini mencegah Guru A memasukkan soal milik Guru B ke dalam paketnya.
         $data = $request->validate([
-            'soal_id' => ['required', 'array', 'min:1'],
-            'soal_id.*' => ['exists:soal,id'] 
+            'soal_id'   => ['required', 'array', 'min:1'],
+            'soal_id.*' => [
+                'required',
+                \Illuminate\Validation\Rule::exists('soal', 'id')
+                    ->where(fn($q) => $q->where('guru_id', auth()->id())),
+            ],
         ]);
-
-        // DB::transaction(function () use ($request, $paketUjian) {
-        //     // Ambil nomor urut tertinggi saat ini di paket tersebut
-        //     $lastOrder = DB::table('paket_ujian_soal')
-        //         ->where('paket_ujian_id', $paketUjian->id)
-        //         ->max('nomor_urut') ?? 0;
-
-        //     // Tampung data sync/attach massal agar hemat query
-        //     $attachData = [];
-        //     foreach ($request->soal_id as $soalId) {
-        //         $lastOrder++;
-        //         $attachData[$soalId] = ['nomor_urut' => $lastOrder];
-        //     }
-
-        //     // Melakukan insert massal ke tabel pivot tanpa menghapus yang lama
-        //     $paketUjian->soal()->attach($attachData);
-        // });
 
         $this->paketUjianService->addSoalToPaket($paketUjian, $data['soal_id']);
 
@@ -167,24 +133,7 @@ class PaketUjianController extends Controller
             abort(403, 'Akses ditolak.');
         }
 
-        // DB::transaction(function () use ($paketUjian, $soal) {
-        //     // 1. Lepaskan hubungan soal dari tabel pivot
-        //     $paketUjian->soal()->detach($soal->id);
-
-        //     // 2. OPTIONAL & BERMANFAAT: Susun ulang nomor_urut yang tersisa agar tidak bolong-bolong
-        //     $soalTersisa = DB::table('paket_ujian_soal')
-        //         ->where('paket_ujian_id', $paketUjian->id)
-        //         ->orderBy('nomor_urut', 'asc')
-        //         ->get();
-
-        //     foreach ($soalTersisa as $index => $row) {
-        //         DB::table('paket_ujian_soal')
-        //             ->where('id', $row->id)
-        //             ->update(['nomor_urut' => $index + 1]);
-        //     }
-        // });
-
-        $this->paketUjianService->deleteSoalFromPaket($paketUjian,$soal);
+        $this->paketUjianService->deleteSoalFromPaket($paketUjian, $soal);
 
         return redirect()->back()->with('success', 'Soal berhasil didepak dari paket ujian ini.');
     }
