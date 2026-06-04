@@ -22,7 +22,7 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 @forelse($paketUjian as $paket)
-                <div class="card bg-white shadow-xl border border-gray-100 rounded-2xl hover:-translate-y-1 hover:shadow-2xl transition duration-300 group">
+                <div class="card bg-white shadow-xl border border-gray-100 rounded-2xl">
                     <div class="card-body p-6">
                         <div class="flex justify-between items-start mb-4">
                             {{-- <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center font-bold shadow-sm group-hover:bg-indigo-600 group-hover:text-white transition">
@@ -48,6 +48,10 @@
                             <div class="flex items-center text-sm text-gray-600">
                                 <i class="bi bi-calendar-event w-6 text-gray-400"></i>
                                 <span>{{ \Carbon\Carbon::parse($paket->tanggal_mulai)->format('d M Y, H:i') }}</span>
+                            </div>
+                            <div class="flex items-center text-sm text-gray-600">
+                                <i class="bi bi-calendar-event w-6 text-gray-400"></i>
+                                <span>{{ \Carbon\Carbon::parse($paket->tanggal_selesai)->format('d M Y, H:i') }}</span>
                             </div>
                             <div class="flex items-center text-sm text-gray-600">
                                 <i class="bi bi-clock-history w-6 text-gray-400"></i>
@@ -81,13 +85,6 @@
                 </div>
                 @endforelse
             </div>
-
-            <!-- PAGINATION -->
-            @if($paketUjian->hasPages())
-            <div class="mt-6">
-                {{ $paketUjian->links() }}
-            </div>
-            @endif
         </div>
     </div>
 </x-app-layout>

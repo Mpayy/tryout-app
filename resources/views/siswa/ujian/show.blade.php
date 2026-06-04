@@ -1,29 +1,27 @@
 {{-- resources/views/siswa/ujian/show.blade.php --}}
-@extends('layouts.ujian') {{-- Pastikan layout utama sudah memuat Tailwind & DaisyUI --}}
+@extends('layouts.ujian')
 
 @section('content')
 <div class="container mx-auto px-4 py-6 max-w-7xl">
     <div class="flex flex-col lg:flex-row gap-6">
         
-        {{-- Panel Kiri: Area Soal (Lebar 2/3 di layar besar) --}}
+        {{-- Panel Kiri: Area Soal --}}
         <div class="lg:w-2/3 w-full">
             <div id="soal-container" class="min-h-[400px]">
-                {{-- Skeleton/Spinner bawaan saat memuat via AJAX --}}
                 <div class="flex flex-col items-center justify-center py-20 text-base-content/50">
-                    <span class="loading loading-spinner loading-lg text-primary mb-4"></span>
+                    <span class="loading loading-spinner loading-lg text-indigo-600 mb-4"></span>
                     <p>Menyiapkan soal...</p>
                 </div>
             </div>
         </div>
 
-        {{-- Panel Kanan: Sidebar Navigasi & Timer (Lebar 1/3 di layar besar) --}}
+        {{-- Panel Kanan: Sidebar Navigasi & Timer --}}
         <div class="lg:w-1/3 w-full space-y-4">
             
             {{-- Timer Card --}}
             <div class="card bg-base-100 shadow-md border-t-4 border-error">
                 <div class="card-body items-center text-center py-6">
                     <h6 class="text-sm font-semibold text-base-content/70 uppercase tracking-wider">Sisa Waktu</h6>
-                    {{-- Countdown font (opsional: bisa dipadukan dengan font mono) --}}
                     <h2 id="timer" class="text-4xl font-bold text-error mt-2 font-mono">--:--</h2>
                 </div>
             </div>
@@ -31,16 +29,16 @@
             {{-- Navigasi Soal Card --}}
             <div class="card bg-base-100 shadow-md">
                 <div class="card-body p-5">
-                    {{-- Keterangan / Legend --}}
-                    <div class="flex flex-wrap gap-3 mb-4 text-xs font-medium justify-center border-b pb-4">
+                    {{-- Keterangan / Legend (Sudah disamakan warnanya) --}}
+                    <div class="flex flex-wrap gap-3 mb-4 text-xs font-medium justify-center border-b border-base-200 pb-4">
                         <div class="flex items-center gap-1">
-                            <span class="w-3 h-3 rounded-full bg-success"></span> Dijawab
+                            <span class="w-3 h-3 rounded-full bg-indigo-600"></span> Dijawab
                         </div>
                         <div class="flex items-center gap-1">
-                            <span class="w-3 h-3 rounded-full bg-warning"></span> Ragu
+                            <span class="w-3 h-3 rounded-full bg-amber-500"></span> Ragu
                         </div>
                         <div class="flex items-center gap-1">
-                            <span class="w-3 h-3 border border-base-content/30 rounded-full"></span> Belum
+                            <span class="w-3 h-3 border border-base-300 rounded-full"></span> Belum
                         </div>
                     </div>
 
@@ -49,15 +47,19 @@
                         @foreach($soalList as $i => $soal)
                             @php
                                 $j = $jawabList[$soal->id] ?? null;
-                                // Default: Belum dijawab (Outline)
-                                $kelas = 'btn-outline border-base-300 text-base-content/70 hover:bg-base-200'; 
+                                // Default: Belum dijawab
+                                $kelas = 'border-base-300 text-base-content/70 hover:bg-base-200 bg-transparent'; 
                                 if ($j && $j->pilihan_jawaban_id) {
-                                    // Jika sudah dijawab, cek apakah ragu
-                                    $kelas = $j->is_ragu ? 'btn-warning text-warning-content' : 'btn-success text-success-content border-none';
+                                    // Jika dijawab, cek ragu
+                                    $kelas = $j->is_ragu 
+                                        ? 'bg-amber-500 hover:bg-amber-600 text-white border-transparent shadow-md' 
+                                        : 'bg-indigo-600 hover:bg-indigo-700 text-white border-transparent shadow-md';
                                 }
                             @endphp
-                            <button class="btn btn-sm text-sm p-0 {{ $kelas }} soal-nav-btn transition-all duration-200"
+                            <button class="btn btn-sm text-sm p-0 border soal-nav-btn transition-all duration-200 {{ $kelas }}"
                                     data-nomor="{{ $i+1 }}"
+                                    data-dijawab="{{ ($j && $j->pilihan_jawaban_id) ? 'true' : 'false' }}"
+                                    data-ragu="{{ ($j && $j->is_ragu) ? 'true' : 'false' }}"
                                     id="nav-{{ $soal->id }}">
                                 {{ $i+1 }}
                             </button>
@@ -66,18 +68,15 @@
                 </div>
             </div>
 
-            {{-- Tombol Submit Selesai Ujian --}}
-            <button class="btn btn-error w-full shadow-lg" id="btn-submit">
+            <button class="btn bg-indigo-600 hover:bg-indigo-700 text-white w-full border-none shadow-lg shadow-indigo-200 rounded-xl" id="btn-submit">
                 <i class="bi bi-check-circle text-lg mr-1"></i> Selesaikan Ujian
             </button>
         </div>
     </div>
 </div>
 
-{{-- Hidden Inputs untuk State JS --}}
 <input type="hidden" id="token" value="{{ $sesi->token }}">
 <input type="hidden" id="sisa-waktu-awal" value="{{ $sisaWaktu }}">
-<input type="hidden" id="soal-sekarang" value="1">
 <input type="hidden" id="total-soal" value="{{ $soalList->count() }}">
 @endsection
 
@@ -87,6 +86,36 @@ const TOKEN = document.getElementById('token').value;
 const TOTAL_SOAL = parseInt(document.getElementById('total-soal').value);
 let soalSekarang = 1;
 let timerInterval;
+
+// ========== 0. FUNGSI BANTUAN UPDATE WARNA NAVIGASI ==========
+// Fungsi ini menyelesaikan masalah class bentrok dan warna hilang
+function updateNavStatus(nomor, isDijawab, isRagu) {
+    const navBtn = document.querySelector(`[data-nomor="${nomor}"]`);
+    if (!navBtn) return;
+
+    // Simpan status di data attribute
+    navBtn.dataset.dijawab = isDijawab ? 'true' : 'false';
+    navBtn.dataset.ragu = isRagu ? 'true' : 'false';
+
+    // Reset ke class dasar
+    navBtn.className = "btn btn-sm text-sm p-0 border soal-nav-btn transition-all duration-200";
+
+    // Set warna sesuai status
+    if (isDijawab) {
+        if (isRagu) {
+            navBtn.classList.add('bg-amber-500', 'hover:bg-amber-600', 'text-white', 'border-transparent', 'shadow-md');
+        } else {
+            navBtn.classList.add('bg-indigo-600', 'hover:bg-indigo-700', 'text-white', 'border-transparent', 'shadow-md');
+        }
+    } else {
+        navBtn.classList.add('border-base-300', 'text-base-content/70', 'hover:bg-base-200', 'bg-transparent');
+    }
+
+    // Beri ring/highlight jika ini soal yang sedang dibuka
+    if (nomor === soalSekarang) {
+        navBtn.classList.add('ring-2', 'ring-indigo-500', 'ring-offset-2');
+    }
+}
 
 // ========== 1. TIMER ==========
 function startTimer(sisaDetik) {
@@ -103,7 +132,6 @@ function startTimer(sisaDetik) {
         const s = String(sisaDetik % 60).padStart(2, '0');
         el.textContent = `${m}:${s}`;
         
-        // Animasi pulse dari Tailwind saat waktu < 1 menit
         if (sisaDetik <= 60) {
             el.classList.add('animate-pulse');
         }
@@ -112,51 +140,55 @@ function startTimer(sisaDetik) {
 
 // ========== 2. LOAD SOAL (AJAX) ==========
 async function loadSoal(nomor) {
-    // Tampilkan loading spinner DaisyUI
     document.getElementById('soal-container').innerHTML = `
         <div class="flex items-center justify-center py-20">
-            <span class="loading loading-spinner loading-lg text-primary"></span>
+            <span class="loading loading-spinner loading-lg text-indigo-600"></span>
         </div>`;
 
     try {
         const res  = await fetch(`/siswa/ujian/${TOKEN}/soal/${nomor}`);
         const data = await res.json();
+        
+        const isRagu = data.jawaban?.is_ragu || false;
+        
+        // Logika warna tombol Ragu Manual
+        const btnRaguClass = isRagu 
+            ? 'bg-amber-500 hover:bg-amber-600 text-white border-transparent' 
+            : 'bg-transparent border-amber-500 text-amber-600 hover:bg-amber-50';
 
-        // Template menggunakan komponen Card DaisyUI
         let html = `
             <div class="card bg-base-100 shadow-md border border-base-200">
                 <div class="card-body p-6 lg:p-8">
                     
-                    {{-- Header Soal & Tombol Ragu --}}
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-4 border-b border-base-200">
                         <h2 class="text-lg font-bold text-base-content">Soal ${nomor} <span class="text-base-content/50 font-normal">dari ${TOTAL_SOAL}</span></h2>
-                        <button class="btn btn-sm ${data.jawaban.is_ragu ? 'btn-warning' : 'btn-outline btn-warning'}"
-                                id="btn-ragu" onclick="toggleRagu(${data.soal.id})">
+                        <button class="btn btn-sm ${btnRaguClass}" id="btn-ragu" onclick="toggleRagu(${data.soal.id})">
                             <i class="bi bi-flag"></i> Ragu-ragu
                         </button>
                     </div>
 
-                    {{-- Konten Soal --}}
                     <div class="prose max-w-none mb-8 text-base-content">
                         <p class="text-base leading-relaxed">${data.soal.konten}</p>
                         ${data.soal.gambar ? `<img src="${data.soal.gambar}" class="rounded-xl shadow-sm max-h-[300px] object-contain mt-4">` : ''}
                     </div>
 
-                    {{-- Pilihan Jawaban --}}
                     <div class="flex flex-col gap-3" id="pilihan-container">
         `;
 
-        data.pilihan.forEach(p => {
-            // Styling jika aktif vs tidak aktif
-            const isActive = data.jawaban.pilihan_id === p.id;
+        // LOOPING JAWABAN
+        data.pilihan.forEach((p, index) => {
+            const isActive = data.jawaban && data.jawaban.pilihan_id === p.id;
             const activeClasses = isActive 
-                ? 'border-primary bg-primary/10 ring-1 ring-primary' 
-                : 'border-base-300 hover:border-primary/50 hover:bg-base-200/50';
+                ? 'border-indigo-600 bg-indigo-50 ring-1 ring-indigo-600' 
+                : 'border-base-300 hover:border-indigo-300 hover:bg-base-50';
+
+            // GENERATE ABJAD (A, B, C, D) SECARA DINAMIS (Mengatasi urutan berantakan saat diacak)
+            const abjad = String.fromCharCode(65 + index);
 
             html += `
                 <div class="border-2 rounded-xl p-4 cursor-pointer transition-all duration-200 ${activeClasses} pilihan-item flex gap-4 items-start"
                      onclick="pilihJawaban(${data.soal.id}, ${p.id}, this)">
-                    <div class="font-bold text-lg mt-0.5">${p.label}.</div>
+                    <div class="font-bold text-lg mt-0.5 text-indigo-700">${abjad}.</div>
                     <div class="text-base pt-1">${p.konten}</div>
                 </div>`;
         });
@@ -164,12 +196,11 @@ async function loadSoal(nomor) {
         html += `
                     </div>
                     
-                    {{-- Footer Navigasi Prev/Next --}}
                     <div class="flex justify-between items-center mt-8 pt-6 border-t border-base-200">
                         <button class="btn btn-outline" onclick="navigasi(${nomor - 1})" ${nomor === 1 ? 'disabled' : ''}>
                             ← Sebelumnya
                         </button>
-                        <button class="btn btn-primary" onclick="navigasi(${nomor + 1})" ${nomor === TOTAL_SOAL ? 'disabled' : ''}>
+                        <button class="btn bg-indigo-600 hover:bg-indigo-700 text-white border-transparent" onclick="navigasi(${nomor + 1})" ${nomor === TOTAL_SOAL ? 'disabled' : ''}>
                             Selanjutnya →
                         </button>
                     </div>
@@ -177,36 +208,40 @@ async function loadSoal(nomor) {
             </div>`;
 
         document.getElementById('soal-container').innerHTML = html;
+        
+        // Update state navigasi yang aktif 
+        const prevSoal = soalSekarang;
         soalSekarang = nomor;
-
-        // Highlight navigasi tombol yang sedang aktif
-        document.querySelectorAll('.soal-nav-btn').forEach(b => {
-            b.classList.remove('ring-2', 'ring-primary', 'ring-offset-2');
-        });
-        const activeNav = document.querySelector(`[data-nomor="${nomor}"]`);
-        if (activeNav) {
-            activeNav.classList.add('ring-2', 'ring-primary', 'ring-offset-2');
-        }
+        
+        // Hilangkan ring dari tombol sebelumnya, tambahkan ke tombol saat ini
+        const prevBtn = document.querySelector(`[data-nomor="${prevSoal}"]`);
+        if (prevBtn) updateNavStatus(prevSoal, prevBtn.dataset.dijawab === 'true', prevBtn.dataset.ragu === 'true');
+        
+        const currBtn = document.querySelector(`[data-nomor="${nomor}"]`);
+        if (currBtn) updateNavStatus(nomor, currBtn.dataset.dijawab === 'true', currBtn.dataset.ragu === 'true');
 
     } catch (error) {
-        console.error("Gagal memuat soal", error);
-        document.getElementById('soal-container').innerHTML = `<div class="alert alert-error">Gagal memuat soal. Silakan refresh halaman.</div>`;
+        document.getElementById('soal-container').innerHTML = `<div class="alert alert-error">Gagal memuat soal. Silakan refresh.</div>`;
     }
 }
 
 // ========== 3. PILIH JAWABAN ==========
 async function pilihJawaban(soalId, pilihanId, el) {
-    // Reset gaya semua pilihan
     document.querySelectorAll('.pilihan-item').forEach(e => {
-        e.classList.remove('border-primary', 'bg-primary/10', 'ring-1', 'ring-primary');
-        e.classList.add('border-base-300', 'hover:border-primary/50', 'hover:bg-base-200/50');
+        e.classList.remove('border-indigo-600', 'bg-indigo-50', 'ring-1', 'ring-indigo-600');
+        e.classList.add('border-base-300', 'hover:border-indigo-300', 'hover:bg-base-50');
     });
     
-    // Tambah gaya pada pilihan yang di-klik
-    el.classList.remove('border-base-300', 'hover:border-primary/50', 'hover:bg-base-200/50');
-    el.classList.add('border-primary', 'bg-primary/10', 'ring-1', 'ring-primary');
+    el.classList.remove('border-base-300', 'hover:border-indigo-300', 'hover:bg-base-50');
+    el.classList.add('border-indigo-600', 'bg-indigo-50', 'ring-1', 'ring-indigo-600');
 
-    // Kirim ke backend
+    // Cek apakah tombol ragu saat ini sedang aktif
+    const btnRagu = document.getElementById('btn-ragu');
+    const isRagu = btnRagu && btnRagu.classList.contains('bg-amber-500');
+
+    // Update warna di navigasi samping langsung!
+    updateNavStatus(soalSekarang, true, isRagu);
+
     await fetch(`/siswa/ujian/${TOKEN}/jawab`, {
         method: 'POST',
         headers: {
@@ -215,37 +250,28 @@ async function pilihJawaban(soalId, pilihanId, el) {
         },
         body: JSON.stringify({ soal_id: soalId, pilihan_jawaban_id: pilihanId })
     });
-
-    // Update status warna di kotak navigasi samping
-    const navBtn = document.querySelector(`[data-nomor="${soalSekarang}"]`);
-    if (navBtn) {
-        // Hapus style lama
-        navBtn.classList.remove('btn-outline', 'border-base-300', 'text-base-content/70', 'btn-warning', 'text-warning-content');
-        
-        // JIKA tombol Ragu sedang aktif (di-UI), berarti statusnya harus warning, bukan success
-        const btnRagu = document.getElementById('btn-ragu');
-        if(btnRagu && btnRagu.classList.contains('btn-warning') && !btnRagu.classList.contains('btn-outline')) {
-            navBtn.classList.add('btn-warning', 'text-warning-content', 'border-none');
-        } else {
-            navBtn.classList.add('btn-success', 'text-success-content', 'border-none');
-        }
-    }
 }
 
 // ========== 4. TANDAI RAGU ==========
 async function toggleRagu(soalId) {
     const btn = document.getElementById('btn-ragu');
-    const isRaguSaatIni = btn.classList.contains('btn-warning') && !btn.classList.contains('btn-outline');
+    const isRaguSaatIni = btn.classList.contains('bg-amber-500');
     const isRaguBaru = !isRaguSaatIni;
 
-    // Toggle tampilan tombol Ragu di atas soal
+    // Toggle tampilan tombol Ragu
     if (isRaguBaru) {
-        btn.classList.remove('btn-outline');
+        btn.className = "btn btn-sm bg-amber-500 hover:bg-amber-600 text-white border-transparent";
     } else {
-        btn.classList.add('btn-outline');
+        btn.className = "btn btn-sm bg-transparent border-amber-500 text-amber-600 hover:bg-amber-50";
     }
 
-    // Kirim ke backend
+    // Cek apakah soal ini sudah dijawab (lewat dataset yang kita setel tadi)
+    const navBtn = document.querySelector(`[data-nomor="${soalSekarang}"]`);
+    const isDijawab = navBtn && navBtn.dataset.dijawab === 'true';
+
+    // Update kotak navigasi samping
+    updateNavStatus(soalSekarang, isDijawab, isRaguBaru);
+
     await fetch(`/siswa/ujian/${TOKEN}/ragu`, {
         method: 'POST',
         headers: {
@@ -254,18 +280,6 @@ async function toggleRagu(soalId) {
         },
         body: JSON.stringify({ soal_id: soalId, is_ragu: isRaguBaru })
     });
-
-    // Update kotak navigasi samping JIKA soal ini sudah dijawab
-    const navBtn = document.querySelector(`[data-nomor="${soalSekarang}"]`);
-    if (navBtn && (navBtn.classList.contains('btn-success') || navBtn.classList.contains('btn-warning'))) {
-        if (isRaguBaru) {
-            navBtn.classList.remove('btn-success', 'text-success-content');
-            navBtn.classList.add('btn-warning', 'text-warning-content');
-        } else {
-            navBtn.classList.remove('btn-warning', 'text-warning-content');
-            navBtn.classList.add('btn-success', 'text-success-content');
-        }
-    }
 }
 
 // ========== 5. NAVIGASI PREV / NEXT ==========
@@ -274,7 +288,7 @@ function navigasi(nomor) {
     loadSoal(nomor);
 }
 
-// ========== 6. AUTO SUBMIT & MANUAL SUBMIT ==========
+// ========== 6. AUTO SUBMIT ==========
 async function autoSubmit() {
     const res = await fetch(`/siswa/ujian/${TOKEN}/submit`, {
         method: 'POST',
@@ -285,26 +299,20 @@ async function autoSubmit() {
 }
 
 document.getElementById('btn-submit').addEventListener('click', function() {
-    // Opsional: Kamu bisa mengganti confirm() ini dengan modal dari DaisyUI nantinya
-    if (confirm('Yakin ingin menyelesaikan ujian? Jawaban tidak bisa diubah setelah ini.')) {
+    if (confirm('Yakin ingin menyelesaikan ujian?')) {
         clearInterval(timerInterval);
-        
-        // Ganti teks tombol menjadi loading saat diproses
         this.innerHTML = '<span class="loading loading-spinner"></span> Memproses...';
         this.disabled = true;
-        
         autoSubmit();
     }
 });
 
-// Listener klik pada kotak nomor soal di samping
 document.querySelectorAll('.soal-nav-btn').forEach(btn => {
     btn.addEventListener('click', function() {
         navigasi(parseInt(this.dataset.nomor));
     });
 });
 
-// ========== INIT SAAT HALAMAN DIMUAT ==========
 startTimer(parseInt(document.getElementById('sisa-waktu-awal').value));
 loadSoal(1);
 </script>

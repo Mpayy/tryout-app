@@ -240,7 +240,7 @@
 
         function openEditModal(guru) {
             modalTitle.innerText = 'Edit Guru (' + guru.name + ')'
-            form.action = `{{ route('admin.users.update', $guru->id) }}`
+            form.action = `/admin/users/` + guru.id;
             method.innerHTML = `@method('PUT')`
 
             document.getElementById('input_name').value = guru.name

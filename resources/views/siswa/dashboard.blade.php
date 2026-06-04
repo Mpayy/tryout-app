@@ -23,8 +23,8 @@
                         <h2 class="text-2xl font-bold text-gray-800 mb-1">Selamat datang, {{ $user->name }}!</h2>
                         <p class="text-gray-500 font-medium">
                             @if($user->profileSiswa)
-                                Kelas: <span class="text-indigo-600">{{ $user->profileSiswa->kelas ?? '-' }}</span> | 
-                                Jurusan: <span class="text-indigo-600">{{ $user->profileSiswa->jurusan ?? '-' }}</span>
+                                Kelas: <span class="text-indigo-600">{{ $user->profileSiswa->kelas->nama ?? '-' }}</span> 
+                                {{-- Jurusan: <span class="text-indigo-600">{{ $user->profileSiswa->jurusan ?? '-' }}</span> --}}
                             @else
                                 <span class="text-orange-500"><i class="bi bi-exclamation-circle"></i> Profil belum lengkap</span>
                             @endif
