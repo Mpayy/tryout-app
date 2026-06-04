@@ -306,4 +306,35 @@ class UjianController extends Controller
         // 2. Kembalikan ke halaman view hasil ujian
         return view('siswa.ujian.hasil', compact('sesi'));
     }
+
+    public function catatPelanggaran(Request $request, $token)
+{
+    $sesi = SesiUjian::where('token', $token)
+        ->where('siswa_id', auth()->id())
+        ->firstOrFail();
+
+    // Pastikan ujian masih berlangsung
+    if ($sesi->status === 'berlangsung') {
+        // Increment (tambah 1) jumlah pelanggaran di database
+        $sesi->increment('jumlah_pelanggaran');
+
+        // Cek apakah sudah melewati batas (misal maksimal 3x toleransi, ke-3 diblokir)
+        if ($sesi->jumlah_pelanggaran >= 3) {
+            $this->prosesAutoSubmit($sesi);
+            
+            return response()->json([
+                'status' => 'blocked',
+                'message' => 'Ujian dihentikan karena melanggar batas aturan.'
+            ]);
+        }
+
+        return response()->json([
+            'status' => 'warned',
+            'jumlah_pelanggaran' => $sesi->jumlah_pelanggaran,
+            'message' => 'Pelanggaran tercatat.'
+        ]);
+    }
+
+    return response()->json(['status' => 'ignored']);
+}
 }
