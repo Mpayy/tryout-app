@@ -6,14 +6,13 @@
                 <p class="text-sm text-slate-500">Kelola daftar paket ujian dan tentukan kelas penerima ujian.</p>
             </div>
             <div>
-                <button onclick="openCreateModal()"
-                    class="btn bg-indigo-600 hover:bg-indigo-700 border-none text-white shadow-sm font-semibold normal-case gap-2 px-4 rounded-lg transition">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
-                        stroke="currentColor" class="size-5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                    </svg>
+                {{-- <button onclick="openCreateModal()"
+                    class="btn btn-primary">
                     Tambah Paket Ujian
-                </button>
+                </button> --}}
+                <x-primary-button onclick="openCreateModal()">
+                    Tambah Paket Ujian
+                </x-primary-button>
             </div>
         </div>
 
