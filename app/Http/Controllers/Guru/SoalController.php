@@ -20,7 +20,7 @@ class SoalController extends Controller
 
     public function index()
     {
-        $soals = Soal::where('guru_id', auth()->id())->with('mataPelajaran')->get();
+        $soals = Soal::where('guru_id', auth()->id())->with('mataPelajaran')->paginate(5);
         $guru = auth()->user()->load('profileGuru.mataPelajarans');
 
         return view('guru.soal.index', compact('soals', 'guru'));
@@ -55,6 +55,51 @@ class SoalController extends Controller
         return redirect()
             ->route('guru.soal.index')
             ->with('success', count($result) . ' butir soal berhasil disimpan ke bank soal.');
+    }
+
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'pertanyaan'    => 'required|string',
+            'opsi_a'        => 'required|string',
+            'opsi_b'        => 'required|string',
+            'opsi_c'        => 'required|string',
+            'opsi_d'        => 'required|string',
+            'jawaban_benar' => 'required|string|in:A,B,C,D',
+        ]);
+
+        // 1. Cari data soal beserta relasi jawabannya
+        $soal = Soal::with('pilihanJawaban')->findOrFail($id);
+
+        // 2. Update tabel 'soals' terlebih dahulu
+        $soal->update([
+            'konten' => $request->pertanyaan,
+        ]);
+
+        // 3. Mapping input form menjadi struktur tabel jawaban terpisah
+        $opsiData = [
+            'A' => $request->opsi_a,
+            'B' => $request->opsi_b,
+            'C' => $request->opsi_c,
+            'D' => $request->opsi_d,
+        ];
+
+        // 4. Update data di tabel 'jawabans' satu per satu
+        foreach ($soal->pilihanJawaban as $jawaban) {
+            // Ambil konten baru berdasarkan label jawaban saat ini (A/B/C/D)
+            $kontenBaru = $opsiData[$jawaban->label];
+            
+            // Cek apakah label ini diset sebagai jawaban benar di form
+            $apakahBenar = ($jawaban->label === $request->jawaban_benar) ? 1 : 0;
+
+            // Eksekusi update baris tersebut
+            $jawaban->update([
+                'konten' => $kontenBaru,
+                'is_correct' => $apakahBenar
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Soal berhasil diperbarui!');
     }
 
     public function destroy(Soal $soal)

@@ -1,215 +1,141 @@
 <x-app-layout>
     <div class="space-y-6">
-        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-                <h1 class="text-2xl font-bold tracking-tight text-slate-800">Manajemen Siswa</h1>
-                <p class="text-sm text-slate-500">Kelola daftar siswa.</p>
-            </div>
-            <div>
-                <button onclick="openCreateModal()"
-                    class="btn bg-indigo-600 hover:bg-indigo-700 border-none text-white shadow-sm font-semibold normal-case gap-2 px-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
-                        stroke="currentColor" class="size-5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                    </svg>
-                    Tambah Siswa
-                </button>
-            </div>
-        </div>
+        <x-data-tabel>
+            <x-slot name="page">Siswa</x-slot>
+            <x-slot name="header">
+                <th class="w-12 text-center">No</th>
+                <th>Nama Siswa</th>
+                <th>NISN & Role</th>
+                <th class="text-center">Kelas</th>
+                <th class="w-28 text-center">Aksi</th>
+            </x-slot>
 
-        <div class="card bg-white border border-slate-200/80 shadow-sm rounded-xl overflow-hidden">
-            <div class="p-6 space-y-6">
+            @foreach ($daftarSiswa as $siswa)
+                <tr class="hover align-middle">
+                    <td class="text-center font-medium text-base-content/60">
+                        {{ ($daftarSiswa->currentPage() - 1) * $daftarSiswa->perPage() + $loop->iteration }}
+                    </td>
 
-                {{-- <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <div class="relative w-full sm:w-80">
-                        <span
-                            class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
-                                stroke="currentColor" class="size-5">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.603 10.603Z" />
-                            </svg>
-                        </span>
-                        <input type="text" placeholder="Cari nama guru..."
-                            class="input input-bordered w-full pl-10 bg-white border-slate-200 text-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
-                    </div>
-
-                    <div class="text-sm text-slate-500 font-medium">
-                        Menampilkan <span class="text-slate-800 font-semibold">{{ $daftarGuru->count() }}</span> guru
-                    </div>
-                </div> --}}
-
-                <div class="overflow-x-auto rounded-lg border border-slate-100">
-                    <table class="table w-full text-slate-700">
-                        <thead>
-                            <tr class="bg-slate-50/70 border-b border-slate-200 text-slate-600 font-semibold text-sm">
-                                <th class="w-16 text-center">#</th>
-                                <th>Nama Siswa</th>
-                                <th class="text-center">Email</th>
-                                <th class="text-center">Role</th>
-                                <th class="text-center">NISN</th>
-                                <th class="text-center">Kelas</th>
-                                <th class="text-center">Aksi</th>
-                            </tr>
-                        </thead>
-
-                        <tbody class="divide-y divide-slate-100 bg-white">
-                            @foreach ($daftarSiswa as $siswa)
-                                <tr class="hover:bg-slate-50/50 transition duration-150">
-                                    <td class="text-center font-medium text-slate-500">{{ $loop->iteration }}</td>
-                                    <td class="font-semibold text-slate-800">{{ $siswa->name }}</td>
-                                    <td class="text-center font-medium">{{ $siswa->email }}</td>
-                                    <td class="text-center">
-                                        <span
-                                            class="badge bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-1 font-medium text-xs rounded-full">
-                                            {{ $siswa->roles->pluck('name')->implode(', ') }}
-                                        </span>
-                                    </td>
-                                    <td class="text-center font-medium">{{ $siswa->profileSiswa->nis ?? '-' }}</td>
-                                    <td class="text-center font-medium">
-                                        @if ($siswa->profileSiswa && $siswa->profileSiswa->kelas)
-                                            <span
-                                                class="badge bg-blue-50 text-blue-700 border border-blue-200 px-2.5 py-1 font-medium text-xs rounded-full">
-                                                {{ $siswa->profileSiswa->kelas->nama }}
-                                            </span>
-                                        @else
-                                            <span>-</span>
-                                        @endif
-                                    </td>
-                                    <td class="text-center">
-                                        <div class="flex items-center justify-center gap-1.5">
-                                            <button onclick="openEditModal({{ $siswa }})"
-                                                class="btn btn-sm bg-indigo-50 hover:bg-indigo-100 border-none text-indigo-700 normal-case font-medium px-3 shadow-none">Edit</button>
-                                            <form action="{{ route('admin.siswa.destroy', $siswa) }}" method="POST">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit"
-                                                    class="btn btn-sm bg-rose-50 hover:bg-rose-100 border-none text-rose-700 normal-case font-medium px-3 shadow-none">Hapus</button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-    <dialog id="modal"
-        class="modal modal-bottom sm:modal-middle bg-slate-900/40 backdrop-blur-sm transition-all duration-300">
-        <div class="modal-box bg-white border border-slate-200/80 shadow-xl max-w-2xl p-6 rounded-xl text-slate-700">
-
-            <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-6">
-                <div>
-                    <h3 id="modal_title" class="text-xl font-bold text-slate-800">Tambah Siswa Baru</h3>
-                    <p class="text-xs text-slate-500 mt-0.5">Isi data akun dengan lengkap untuk mengonfigurasi hak akses
-                        pengguna.</p>
-                </div>
-                <button type="button" onclick="closeUserModal()"
-                    class="btn btn-sm btn-circle btn-ghost text-slate-400 hover:text-slate-600 hover:bg-slate-100">✕</button>
-            </div>
-
-            @if ($errors->any())
-                <div role="alert"
-                    class="alert alert-error mb-5 bg-rose-50 text-rose-800 border-rose-200 shadow-none rounded-lg p-3.5">
-                    <div class="flex flex-col gap-1.5 items-start">
-                        @foreach ($errors->all() as $error)
-                            <div class="flex items-center gap-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0 stroke-current text-rose-600"
-                                    fill="none" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                                        d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                <span class="text-sm font-medium">{{ $error }}</span>
+                    <td>
+                        <div class="flex items-center gap-3">
+                            <div class="avatar placeholder">
+                                <div
+                                    class="bg-secondary text-secondary-content w-9 rounded-full font-bold text-sm uppercase">
+                                    {{ substr($siswa->name, 0, 2) }}
+                                </div>
                             </div>
-                        @endforeach
-                    </div>
-                </div>
-            @endif
-
-            <form id="form" method="POST" action="" class="space-y-5">
-                @csrf
-                <div id="method"></div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-
-                    <div class="form-control w-full col-span-1 sm:col-span-2">
-                        <label class="label py-1"><span class="label-text font-semibold text-slate-700 text-sm">Nama
-                                Lengkap</span></label>
-                        <input type="text" id="input_name" name="name" value="{{ old('name') }}"
-                            placeholder="Masukkan nama lengkap beserta gelar..."
-                            class="input input-bordered w-full bg-white border-slate-200 text-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-lg text-sm transition" />
-                    </div>
-
-                    <div class="form-control w-full">
-                        <label class="label py-1"><span class="label-text font-semibold text-slate-700 text-sm">Email
-                                Address</span></label>
-                        <input type="email" id="input_email" name="email" value="{{ old('email') }}"
-                            placeholder="contoh@gmail.com"
-                            class="input input-bordered w-full bg-white border-slate-200 text-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-lg text-sm transition"
-                            required />
-                    </div>
-
-                    <div class="form-control w-full">
-                        <label class="label py-1"><span class="label-text font-semibold text-slate-700 text-sm">NIS
-                                / Nomor Induk</span></label>
-                        <input type="number" id="input_nis" name="nis" value="{{ old('nis') }}"
-                            placeholder="Masukkan NISN siswa..."
-                            class="input input-bordered w-full bg-white border-slate-200 text-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-lg text-sm transition [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
-                    </div>
-
-                    {{-- Role dikunci ke 'siswa' di backend (SiswaRequest). --}}
-                    {{-- Hidden input ini hanya untuk memastikan nilai role terkirim ke server. --}}
-                    <input type="hidden" name="role" value="siswa">
-
-                    <div class="form-control w-full">
-                        <label class="label py-1"><span class="label-text font-semibold text-slate-700 text-sm">Pilih
-                                Kelas</span></label>
-                        <div class="flex gap-2">
-                            <select id="input_kelas" name="kelas"
-                                class="select select-bordered w-full bg-white border-slate-200 text-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-lg text-sm font-normal transition">
-                                <option value="" disabled selected>-- Pilih Kelas --</option>
-                                @foreach ($daftarKelas as $kelas)
-                                    <option value="{{ $kelas->id }}">{{ ucfirst($kelas->nama) }}</option>
-                                @endforeach
-                            </select>
+                            <div>
+                                <div class="font-bold text-base-content">{{ $siswa->name }}</div>
+                                <div class="text-xs text-base-content/50">{{ $siswa->email }}</div>
+                            </div>
                         </div>
-                    </div>
+                    </td>
 
-                    <div class="form-control w-full">
-                        <label class="label py-1"><span class="label-text font-semibold text-slate-700 text-sm">Jurusan
-                                <span class="text-slate-400 font-normal">(Opsional)</span></span></label>
-                        <input type="text" id="input_jurusan" name="jurusan" value="{{ old('jurusan') }}"
-                            placeholder="Contoh: IPA / IPS / TKJ..."
-                            class="input input-bordered w-full bg-white border-slate-200 text-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-lg text-sm transition" />
-                    </div>
+                    <td>
+                        <div class="flex flex-col gap-1 items-start">
+                            <span class="text-sm font-semibold font-mono text-base-content/80">
+                                {{ $siswa->profileSiswa->nis ?? '-' }}
+                            </span>
+                            <span class="badge badge-neutral badge-xs uppercase font-bold tracking-wider px-1.5 rounded">
+                                {{ $siswa->roles->pluck('name')->implode(', ') }}
+                            </span>
+                        </div>
+                    </td>
 
-                    <div class="form-control w-full col-span-1 sm:col-span-2">
-                        <label class="label py-1">
-                            <span class="label-text font-semibold text-slate-700 text-sm">Kata Sandi</span>
-                            <span id="password_hint" class="label-text-alt text-amber-600 font-medium hidden">*Kosongkan
-                                jika tidak ingin mengubah sandi</span>
-                        </label>
-                        <input type="password" id="input_password" name="password" placeholder="••••••••"
-                            class="input input-bordered w-full bg-white border-slate-200 text-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-lg text-sm transition" />
-                    </div>
+                    <td class="text-center">
+                        @if ($siswa->profileSiswa && $siswa->profileSiswa->kelas)
+                            <span class="badge badge-primary badge-sm font-semibold px-3">
+                                {{ $siswa->profileSiswa->kelas->nama }}
+                            </span>
+                        @else
+                            <span class="text-base-content/30 text-xs italic">Belum masuk kelas</span>
+                        @endif
+                    </td>
 
-                </div>
+                    <td class="text-center">
+                        <div class="flex items-center justify-center gap-1.5">
+                            <button type="button"
+                                class="btn btn-xs btn-warning text-warning-content shadow-none font-medium px-2.5"
+                                onclick="openEditModal({{ $siswa }})">
+                                Edit
+                            </button>
 
-                <div class="modal-action flex justify-end gap-2 pt-4 border-t border-slate-100 mt-6">
-                    <button type="button" onclick="closeUserModal()"
-                        class="btn bg-slate-100 hover:bg-slate-200 border-none text-slate-600 font-medium normal-case px-5 rounded-lg shadow-none transition">
-                        Batal
-                    </button>
-                    <button type="submit"
-                        class="btn bg-indigo-600 hover:bg-indigo-700 border-none text-white font-semibold normal-case px-6 rounded-lg shadow-sm transition">
-                        Simpan User
-                    </button>
-                </div>
-            </form>
+                            <form action="{{ route('admin.siswa.destroy', $siswa) }}" method="POST"
+                                onsubmit="return confirm('Apakah Anda yakin ingin menghapus siswa ini?')" class="inline">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit"
+                                    class="btn btn-xs btn-outline btn-error shadow-none font-medium px-2.5">
+                                    Hapus
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            @endforeach
+        </x-data-tabel>
+
+        {{ $daftarSiswa->links() }}
+    </div>
+    <x-form-modal>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="form-control w-full col-span-1 sm:col-span-2">
+                <label class="floating-label">
+                    <span class="label-text font-semibold text-slate-700 text-sm">Masukan Nama</span>
+                    <input type="text" id="input_name" name="name" value="{{ old('name') }}" placeholder="Masukan Nama"
+                        class="input input-primary w-full" />
+                </label>
+            </div>
+
+            <div class="form-control w-full col-span-1 sm:col-span-2">
+                <label class="floating-label">
+                    <span class="label-text font-semibold text-slate-700 text-sm">mail@site.com</span>
+                    <input type="email" id="input_email" name="email" value="{{ old('email') }}"
+                        placeholder="mail@site.com" class="input input-primary w-full" required />
+                </label>
+            </div>
+
+            <div class="form-control w-full">
+                <label class="floating-label">
+                    <span class="label-text font-semibold text-slate-700 text-sm">NIS</span>
+                    <input type="number" id="input_nis" name="nis" value="{{ old('nis') }}" placeholder="NIS"
+                        class="input input-primary w-full" />
+                </label>
+            </div>
+
+            <input type="hidden" name="role" value="siswa">
+
+            <div class="form-control w-full">
+                <label class="floating-label">
+                    <span class="label-text font-semibold text-slate-700 text-sm">Pilih Kelas</span>
+                    <select id="input_kelas" name="kelas" class="select select-primary w-full">
+                        <option value="" disabled selected></option>
+                        @foreach ($daftarKelas as $kelas)
+                            <option value="{{ $kelas->id }}">{{ ucfirst($kelas->nama) }}</option>
+                        @endforeach
+                    </select>
+                </label>
+            </div>
         </div>
-    </dialog>
+
+        <div class="form-control col-span-1 sm:col-span-2">
+            <label class="floating-label">
+                <span>Kata Sandi</span>
+                <input type="password" id="input_password" name="password" placeholder="Kata Sandi"
+                    class="input input-primary w-full" />
+            </label>
+            <div class="label py-1 hidden" id="password_hint">
+                <span class="label-text-alt text-error text-xs flex items-center gap-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                        stroke="currentColor" class="size-3.5">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+                    </svg>
+                    *Kosongkan jika tidak ingin mengubah sandi
+                </span>
+            </div>
+        </div>
+    </x-form-modal>
 
     <script>
         const modal = document.getElementById('modal')
@@ -222,6 +148,7 @@
             form.action = `{{ route('admin.siswa.store') }}`
             method.innerHTML = ''
             form.reset()
+            document.getElementById('password_hint').classList.add('hidden');
             modal.showModal()
         }
 
@@ -230,12 +157,12 @@
             form.action = `{{ url('admin/siswa') }}/` + siswa.id
             method.innerHTML = `@method('PUT')`
 
-            document.getElementById('input_name').value    = siswa.name
-            document.getElementById('input_email').value   = siswa.email
-            document.getElementById('input_nis').value     = siswa.profile_siswa?.nis || ''
-            document.getElementById('input_kelas').value   = siswa.profile_siswa?.kelas?.id || ''
-            document.getElementById('input_jurusan').value = siswa.profile_siswa?.jurusan || ''
+            document.getElementById('input_name').value = siswa.name
+            document.getElementById('input_email').value = siswa.email
+            document.getElementById('input_nis').value = siswa.profile_siswa?.nis || ''
+            document.getElementById('input_kelas').value = siswa.profile_siswa?.kelas?.id || ''
             document.getElementById('input_password').required = false
+            document.getElementById('password_hint').classList.remove('hidden')
 
             modal.showModal()
         }

@@ -20,7 +20,7 @@ class SiswaController extends Controller
     {
         $roles = Role::all();
         $daftarKelas = Kelas::all();
-        $daftarSiswa = User::role('siswa')->with(['profileSiswa.kelas'], 'roles:id,name')->select('id', 'name', 'email')->get();
+        $daftarSiswa = User::role('siswa')->with(['profileSiswa.kelas'], 'roles:id,name')->select('id', 'name', 'email')->paginate(5);
         
         return view('admin.siswa.index', compact('daftarKelas', 'daftarSiswa', 'roles'));
     }

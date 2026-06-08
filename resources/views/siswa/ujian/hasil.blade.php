@@ -1,5 +1,5 @@
 {{-- resources/views/siswa/ujian/hasil.blade.php --}}
-@extends('layouts.ujian') {{-- Menggunakan layout minimalis yang sama --}}
+@extends('layouts.ujian')
 
 @section('title', 'Hasil Ujian')
 
@@ -7,88 +7,110 @@
 <div class="container mx-auto px-4 py-12 max-w-3xl">
     
     {{-- Main Card Hasil --}}
-    <div class="card bg-base-100 shadow-xl border border-base-200 overflow-hidden animate__animated animate__fadeIn">
+    <div class="card bg-base-100 shadow-sm border border-base-200 overflow-hidden">
         
-        {{-- Banner Atas (Warna hijau sukses) --}}
-        <div class="bg-success text-success-content py-8 px-6 text-center space-y-2">
-            <div class="inline-flex items-center justify-center w-16 h-16 bg-white/20 rounded-full mb-2">
-                <i class="bi bi-check2-all text-4xl"></i>
+        {{-- Banner Atas (Kondisional: Sukses vs Pelanggaran) --}}
+        @if($sesi->jumlah_pelanggaran >= 3)
+            <div class="bg-error text-error-content py-8 px-6 text-center space-y-3">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-error-content/20 rounded-full mb-1">
+                    <i class="bi bi-exclamation-triangle-fill text-4xl"></i>
+                </div>
+                <h1 class="text-2xl font-bold tracking-wide">Ujian Dihentikan Otomatis!</h1>
+                <p class="text-sm opacity-90 max-w-md mx-auto">
+                    Sistem mendeteksi aktivitas mencurigakan yang melebihi batas toleransi. Nilai Anda telah direkam secara otomatis.
+                </p>
             </div>
-            <h1 class="text-2xl font-bold tracking-wide">Ujian Selesai!</h1>
-            <p class="text-sm opacity-90">Terima kasih telah menyelesaikan ujian dengan jujur dan tepat waktu.</p>
-        </div>
+        @else
+            <div class="bg-success text-success-content py-8 px-6 text-center space-y-2">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-success-content/20 rounded-full mb-1">
+                    <i class="bi bi-check2-all text-4xl"></i>
+                </div>
+                <h1 class="text-2xl font-bold tracking-wide">Ujian Selesai!</h1>
+                <p class="text-sm opacity-90">Terima kasih telah menyelesaikan ujian dengan jujur dan tepat waktu.</p>
+            </div>
+        @endif
 
         <div class="card-body p-6 sm:p-8 space-y-6">
             
+            {{-- Alert Informasi Pelanggaran (Muncul jika ada pelanggaran 1 atau 2 kali) --}}
+            @if($sesi->jumlah_pelanggaran > 0 && $sesi->jumlah_pelanggaran < 3)
+                <div class="alert alert-warning shadow-sm text-sm">
+                    <i class="bi bi-info-circle-fill text-lg"></i>
+                    <span>Tercatat <strong>{{ $sesi->jumlah_pelanggaran }} kali</strong> peringatan pelanggaran (meninggalkan halaman ujian) selama pengerjaan.</span>
+                </div>
+            @endif
+
             {{-- Detail Informasi Peserta & Ujian --}}
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-base-200/50 p-4 rounded-xl border border-base-200 text-sm">
-                <div>
-                    <span class="text-base-content/60 block">Mata Pelajaran:</span>
-                    <strong class="text-base text-base-content">{{ $sesi->paketUjian->mataPelajaran->nama ?? 'N/A' }}</strong>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 bg-base-200/50 p-5 rounded-2xl border border-base-200 text-sm">
+                <div class="space-y-1">
+                    <span class="text-base-content/60 text-xs font-semibold uppercase tracking-wider">Mata Pelajaran</span>
+                    <div class="font-bold text-base">{{ $sesi->paketUjian->mataPelajaran->nama ?? 'N/A' }}</div>
                 </div>
-                <div>
-                    <span class="text-base-content/60 block">Paket Ujian:</span>
-                    <strong class="text-base text-base-content">{{ $sesi->paketUjian->nama }}</strong>
+                <div class="space-y-1">
+                    <span class="text-base-content/60 text-xs font-semibold uppercase tracking-wider">Paket Ujian</span>
+                    <div class="font-bold text-base">{{ $sesi->paketUjian->nama }}</div>
                 </div>
-                <div class="sm:border-t sm:pt-2 border-base-300">
-                    <span class="text-base-content/60 block">Selesai Pada:</span>
-                    <strong class="text-base-content font-medium">
+                <div class="sm:border-t border-base-300 sm:pt-3 space-y-1">
+                    <span class="text-base-content/60 text-xs font-semibold uppercase tracking-wider">Selesai Pada</span>
+                    <div class="font-medium text-base-content">
                         {{ \Carbon\Carbon::parse($sesi->waktu_selesai)->translatedFormat('d F Y, H:i') }} WIB
-                    </strong>
+                    </div>
                 </div>
-                <div class="sm:border-t sm:pt-2 border-base-300">
-                    <span class="text-base-content/60 block">Status Sesi:</span>
-                    <span class="badge badge-success badge-sm text-white font-semibold uppercase px-2 py-2">
-                        {{ $sesi->status }}
-                    </span>
+                <div class="sm:border-t border-base-300 sm:pt-3 space-y-1">
+                    <span class="text-base-content/60 text-xs font-semibold uppercase tracking-wider">Status Sesi</span>
+                    <div>
+                        <span class="badge {{ $sesi->jumlah_pelanggaran >= 3 ? 'badge-error' : 'badge-success' }} badge-sm text-white font-bold uppercase px-3 py-2.5 shadow-sm">
+                            {{ $sesi->status }}
+                        </span>
+                    </div>
                 </div>
             </div>
 
-            <div class="divider my-2">Ringkasan Hasil</div>
+            <div class="divider text-base-content/40 text-sm font-semibold uppercase tracking-widest my-1">Ringkasan Hasil</div>
 
             {{-- Statistik Nilai (DaisyUI Stats Component) --}}
-            <div class="stats stats-vertical sm:stats-horizontal shadow-sm border border-base-200 w-full bg-base-50">
+            <div class="stats stats-vertical sm:stats-horizontal shadow-sm border border-base-200 w-full bg-base-100">
                 
                 {{-- Score Stat --}}
-                <div class="stat place-items-center sm:place-items-start">
-                    <div class="stat-title text-sm font-semibold">Nilai Akhir</div>
-                    <div class="stat-value text-primary font-mono text-4xl sm:text-5xl my-1">{{ $sesi->nilai }}</div>
-                    <div class="stat-desc text-xs text-base-content/50">Skala 0 - 100</div>
+                <div class="stat place-items-center">
+                    <div class="stat-title text-sm font-bold text-base-content/70">Nilai Akhir</div>
+                    <div class="stat-value text-primary font-mono text-5xl my-2">{{ $sesi->nilai }}</div>
+                    <div class="stat-desc font-medium text-base-content/50">Skala 0 - 100</div>
                 </div>
                 
-                {{-- Benar & Salah Stat --}}
-                <div class="stat place-items-center sm:place-items-start">
-                    <div class="stat-title text-sm font-semibold">Analisis Jawaban</div>
-                    <div class="space-y-1 mt-2 w-full">
-                        <div class="flex justify-between text-sm">
-                            <span class="flex items-center gap-1.5 text-success font-medium">
-                                <span class="w-2.5 h-2.5 bg-success rounded-full"></span> Benar
+                {{-- Analisis Stat --}}
+                <div class="stat">
+                    <div class="stat-title text-sm font-bold text-base-content/70 mb-3">Analisis Jawaban</div>
+                    <div class="space-y-2.5 w-full">
+                        <div class="flex justify-between items-center text-sm bg-success/10 px-3 py-1.5 rounded-lg border border-success/20">
+                            <span class="flex items-center gap-2 text-success-content font-semibold">
+                                <i class="bi bi-check-circle-fill text-success"></i> Benar
                             </span>
-                            <span class="font-bold font-mono">{{ $sesi->total_benar }}</span>
+                            <span class="font-bold font-mono text-success text-base">{{ $sesi->total_benar }}</span>
                         </div>
-                        <div class="flex justify-between text-sm">
-                            <span class="flex items-center gap-1.5 text-error font-medium">
-                                <span class="w-2.5 h-2.5 bg-error rounded-full"></span> Salah
+                        <div class="flex justify-between items-center text-sm bg-error/10 px-3 py-1.5 rounded-lg border border-error/20">
+                            <span class="flex items-center gap-2 text-error-content font-semibold">
+                                <i class="bi bi-x-circle-fill text-error"></i> Salah
                             </span>
-                            <span class="font-bold font-mono">{{ $sesi->total_salah }}</span>
+                            <span class="font-bold font-mono text-error text-base">{{ $sesi->total_salah }}</span>
                         </div>
                     </div>
                 </div>
 
-                {{-- Ragu-ragu Stat --}}
-                <div class="stat place-items-center sm:place-items-start">
-                    <div class="stat-title text-sm font-semibold">Catatan Keaktifan</div>
-                    <div class="space-y-1 mt-2 w-full">
-                        <div class="flex justify-between text-sm">
-                            <span class="flex items-center gap-1.5 text-warning font-medium">
-                                <span class="w-2.5 h-2.5 bg-warning rounded-full"></span> Sempat Ragu
+                {{-- Keaktifan Stat --}}
+                <div class="stat">
+                    <div class="stat-title text-sm font-bold text-base-content/70 mb-3">Keaktifan</div>
+                    <div class="space-y-2.5 w-full">
+                        <div class="flex justify-between items-center text-sm px-3 py-1.5">
+                            <span class="flex items-center gap-2 text-warning font-semibold">
+                                <i class="bi bi-flag-fill"></i> Ragu-ragu
                             </span>
                             <span class="font-bold font-mono">{{ $sesi->total_ragu }}</span>
                         </div>
-                        <div class="flex justify-between text-sm text-base-content/60">
-                            <span>Total Soal</span>
+                        <div class="flex justify-between items-center text-sm px-3 py-1.5 border-t border-base-200">
+                            <span class="text-base-content/70 font-medium">Total Soal</span>
                             <span class="font-bold font-mono">
-                                {{ $sesi->total_benar + $sesi->total_salah }} Soal
+                                {{ $sesi->total_benar + $sesi->total_salah }}
                             </span>
                         </div>
                     </div>
@@ -97,9 +119,9 @@
             </div>
 
             {{-- Tombol Aksi Bawah --}}
-            <div class="card-actions justify-center pt-4">
-                <a href="{{ route('siswa.ujian.index') }}" class="btn btn-primary px-8 shadow-md">
-                    <i class="bi bi-house-door mr-1"></i> Kembali ke Dashboard Ujian
+            <div class="card-actions justify-center pt-6 mt-2">
+                <a href="{{ route('siswa.ujian.index') }}" class="btn btn-primary btn-wide font-bold shadow-sm rounded-xl">
+                    <i class="bi bi-house-door-fill mr-1"></i> Kembali ke Dashboard
                 </a>
             </div>
 

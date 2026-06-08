@@ -87,7 +87,7 @@
                                     </span>
                                 </label>
                                 <div class="bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-sm text-slate-500 font-medium">
-                                    {{ auth()->user()->profileSiswa?->kelas?->nama_kelas ?: 'Belum dimasukkan ke kelas' }}
+                                    {{ auth()->user()->profileSiswa?->kelas?->nama ?: 'Belum dimasukkan ke kelas' }}
                                 </div>
                             </div>
                         @endif

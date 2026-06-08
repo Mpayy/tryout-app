@@ -13,7 +13,8 @@ class KelasController extends Controller
 {
     public function index()
     {
-        $daftarKelas = Kelas::all();
+        $daftarKelas = Kelas::withCount('profileSiswas as total_siswa')->get();
+        // dd($daftarKelas);
         return view('admin.kelas.index', compact('daftarKelas'));
     }
 

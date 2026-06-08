@@ -1,5 +1,5 @@
 <dialog id="modal" class="modal modal-bottom sm:modal-middle">
-    <div class="modal-box w-full max-w-3xl">
+    <div class="modal-box w-full">
         <h3 id="modal_title" class="text-lg font-bold"></h3>
         @if ($errors->any())
             <div class="space-y-2 my-2">
@@ -14,10 +14,9 @@
         <form id="form" method="POST" action="" class="space-y-5">
             @csrf
             <div id="method"></div>
-
             {{ $slot }}
             <div class="modal-action">
-                <button type="submit" class="btn btn-primary btn-soft">Simpan</button>
+                <x-primary-button>Simpan</x-primary-button>
             </div>
         </form>
     </div>

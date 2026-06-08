@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-theme="light">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-theme="tryout">
 
 <head>
     <meta charset="utf-8">
@@ -16,40 +16,42 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
 </head>
-<body class="font-sans antialiased bg-gray-50">
-    <div class="min-h-screen flex flex-col">
-        <div class="drawer">
-            <input id="my-drawer-1" type="checkbox" class="drawer-toggle" />
-            <div class="drawer-content">
-                <!-- 1. BARIS ATAS: Navigation Bar Utama (Bawaan Breeze yang sudah kamu perbaiki tadi) -->
-                @include('layouts.navigation')
 
-                <!-- 2. BARIS BAWAH: Pembagian Sidebar (Kiri) dan Konten (Kanan) -->
-                {{-- <div class="flex flex-1"> --}}
-                    <!-- Main Content Area -->
-                    <main class="flex-1 p-6 lg:p-8 overflow-y-auto">
-                        <!-- Header Halaman Dinamis (Jika ada) -->
-                        @if (isset($header))
-                            <header class="mb-6">
-                                <div class="text-2xl font-bold text-gray-800 tracking-tight">
-                                    {{ $header }}
-                                </div>
-                            </header>
-                        @endif
-
-                        <!-- Konten Halaman Utama (Isi CRUD / Dashboard akan masuk ke sini) -->
-                        <div class="animate-fade-in">
-                            {{ $slot }}
+<body class="font-sans antialiased bg-base-200">
+    <div class="drawer lg:drawer-open">
+        <input id="my-drawer-4" type="checkbox" class="drawer-toggle" />
+        <div class="drawer-content">
+            @include('layouts.navigation')
+            <main class="flex-1 p-6 lg:p-8 overflow-y-auto">
+                {{-- @if (isset($header))
+                    <header class="mb-6">
+                        <div class="text-2xl font-bold text-gray-800 tracking-tight">
+                            {{ $header }}
                         </div>
-                    </main>
-                    {{--
-                </div> --}}
-            </div>
-            <!-- Memanggil Sidebar Komponen -->
-            @include('layouts.sidebar')
+                    </header>
+                @endif --}}
+
+                <div class="animate-fade-in">
+                    {{ $slot }}
+                </div>
+            </main>
         </div>
+        @include('layouts.sidebar')
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const drawerToggle = document.getElementById("my-drawer-4");
+            const sidebarState = localStorage.getItem("sidebar-open");
+            if (sidebarState === "false") {
+                drawerToggle.checked = false;
+            } else {
+                drawerToggle.checked = true;
+            }
+            drawerToggle.addEventListener("change", function () {
+                localStorage.setItem("sidebar-open", drawerToggle.checked);
+            });
+        });
+    </script>
 </body>
 
 </html>
