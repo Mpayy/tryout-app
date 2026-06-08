@@ -18,14 +18,14 @@ class RolePermissionSeeder extends Seeder
 
         // ── Buat semua permission ─────────────────────────────────
         $permissions = [
-            'manage-admin', 'manage-guru', 'manage-siswa', 'view-users',
-            'manage-mata-pelajaran', 'view-mata-pelajaran',
-            'create-soal', 'edit-soal', 'delete-soal', 'view-soal',
-            'create-paket-ujian', 'edit-paket-ujian', 'delete-paket-ujian',
-            'publish-paket-ujian', 'view-paket-ujian',
-            'take-ujian', 'view-hasil-sendiri', 'monitor-ujian',
-            'view-rekap-nilai', 'view-ranking', 'export-excel', 'export-pdf',
-            'edit-profil-sendiri',
+            'manage-admin',
+            'manage-guru',
+            'manage-siswa',
+            'manage-kelas',
+            'manage-mata-pelajaran',
+            'manage-soal',
+            'manage-paket-ujian',
+            'manage-profil',
         ];
 
         foreach ($permissions as $perm) {
@@ -35,31 +35,26 @@ class RolePermissionSeeder extends Seeder
         // ── Buat role & assign permission ─────────────────────────
         $admin = Role::firstOrCreate(['name' => 'admin']);
         $admin->syncPermissions([
-            'manage-admin', 'manage-guru', 'manage-siswa', 'view-users',
-            'manage-mata-pelajaran', 'view-mata-pelajaran',
-            'view-soal', 'delete-soal',
-            'delete-paket-ujian', 'publish-paket-ujian', 'view-paket-ujian',
-            'monitor-ujian',
-            'view-rekap-nilai', 'view-ranking', 'export-excel', 'export-pdf',
-            'edit-profil-sendiri',
+            'manage-admin',
+            'manage-guru',
+            'manage-siswa',
+            'manage-kelas',
+            'manage-mata-pelajaran',
+            'manage-soal',
+            'manage-paket-ujian',
+            'manage-profil',
         ]);
 
         $guru = Role::firstOrCreate(['name' => 'guru']);
         $guru->syncPermissions([
-            'view-mata-pelajaran',
-            'create-soal', 'edit-soal', 'delete-soal', 'view-soal',
-            'create-paket-ujian', 'edit-paket-ujian', 'delete-paket-ujian',
-            'publish-paket-ujian', 'view-paket-ujian',
-            'monitor-ujian',
-            'view-rekap-nilai', 'view-ranking', 'export-excel', 'export-pdf',
-            'edit-profil-sendiri',
+            'manage-soal',
+            'manage-paket-ujian',
+            'manage-profil',
         ]);
 
         $siswa = Role::firstOrCreate(['name' => 'siswa']);
         $siswa->syncPermissions([
-            'view-mata-pelajaran', 'view-paket-ujian',
-            'take-ujian', 'view-hasil-sendiri', 'view-ranking',
-            'edit-profil-sendiri',
+            'manage-profil',
         ]);
         
         $adminUser = User::firstOrCreate(
@@ -70,34 +65,5 @@ class RolePermissionSeeder extends Seeder
             ]
         );
         $adminUser->syncRoles('admin');
-
-        $guruUser = User::firstOrCreate(
-            ['email' => 'guru@tryout.com'],
-            [
-                'name'     => 'Guru Utama',
-                'password' => bcrypt('password'),
-            ]
-        );
-        $guruUser->syncRoles('guru');
-
-        ProfileGuru::firstOrCreate(
-            ['user_id' => $guruUser->id],
-            ['nip' => '199001001']
-        );
-
-        // Contoh siswa untuk testing
-        $siswaUser = User::firstOrCreate(
-            ['email' => 'siswa@tryout.com'],
-            [
-                'name'                => 'Siswa Utama',
-                'password'            => bcrypt('password'),
-                'is_profile_complete' => true,
-            ]
-        );
-        $siswaUser->syncRoles('siswa');
-        ProfileSiswa::firstOrCreate(
-            ['user_id' => $siswaUser->id],
-            ['kelas_id' => 1, 'nis' => '200710693', 'jurusan' => 'RPL']
-        );
     }
 }

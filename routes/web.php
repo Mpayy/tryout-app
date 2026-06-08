@@ -90,6 +90,7 @@ Route::prefix('guru')->name('guru.')->middleware(['auth', 'role:guru'])->group(f
     Route::get('soal', [SoalController::class, 'index'])->name('soal.index');
     Route::get('soal/create', [SoalController::class, 'create'])->name('soal.create');
     Route::post('soal/store', [SoalController::class, 'store'])->name('soal.store');
+    Route::put('soal/{soal}', [SoalController::class, 'update'])->name('soal.update');
     Route::delete('soal/{soal}', [SoalController::class, 'destroy'])->name('soal.destroy');
 
     // ── Paket Ujian ──

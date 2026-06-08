@@ -1,72 +1,91 @@
 <x-app-layout>
     <div class="space-y-6">
-        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-                <h1 class="text-2xl font-bold tracking-tight text-slate-800">Manajemen Mata Pelajaran</h1>
-            </div>
-            <div>
-                <x-primary-button onclick="openCreateModal()">
-                    Tambah
-                </x-primary-button>
-            </div>
-        </div>
-
         <x-data-tabel>
+            <x-slot name="page">Mata Pelajaran</x-slot>
             <x-slot name="header">
-                <th>No</th>
-                <th>Nama Mata Pelajaran</th>
-                <th>Kode</th>
+                <th class="w-12 text-center">No</th>
+                <th class="w-1/4">Nama Mata Pelajaran</th>
+                <th class="w-28 text-center">Kode</th>
                 <th>Deskripsi</th>
-                <th>Aksi</th>
+                <th class="w-28 text-center">Aksi</th>
             </x-slot>
 
             @foreach ($mapels as $mapel)
-                <tr>
-                    <td>{{ $loop->iteration }}</td>
-                    <td>{{ $mapel->nama }}</td>
-                    <td>
-                        <div class="badge badge-info badge-soft">
-                            {{ $mapel->kode }}
-                        </div>
+                <tr class="hover align-middle">
+                    <td class="text-center font-medium text-base-content/60">
+                        {{ $loop->iteration }}
                     </td>
-                    <td>{{ $mapel->deskripsi }}</td>
+
                     <td>
-                        <div class="flex items-center gap-1.5">
-                            <button onclick="openEditModal({{ $mapel }})"
-                                class="btn btn-primary btn-sm btn-soft">Edit</button>
-                            <form action="{{ route('admin.mapels.destroy', $mapel) }}" method="POST">
+                        <div class="font-bold text-base-content">{{ $mapel->nama }}</div>
+                    </td>
+
+                    <td class="text-center">
+                        <span class="badge badge-neutral font-mono font-bold text-xs uppercase tracking-wider px-2">
+                            {{ $mapel->kode }}
+                        </span>
+                    </td>
+
+                    <td>
+                        @if($mapel->deskripsi)
+                            <div class="text-sm text-base-content/70 line-clamp-1 max-w-md" title="{{ $mapel->deskripsi }}">
+                                {{ $mapel->deskripsi }}
+                            </div>
+                        @else
+                            <span class="text-base-content/30 text-xs italic">Tidak ada deskripsi</span>
+                        @endif
+                    </td>
+
+                    <td class="text-center">
+                        <div class="flex items-center justify-center gap-1.5">
+                            <button type="button"
+                                class="btn btn-xs btn-warning text-warning-content shadow-none font-medium px-2.5"
+                                onclick="openEditModal({{ $mapel }})">
+                                Edit
+                            </button>
+
+                            <form action="{{ route('admin.mapels.destroy', $mapel) }}" method="POST"
+                                onsubmit="return confirm('Apakah Anda yakin ingin menghapus mata pelajaran ini?')"
+                                class="inline">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-error btn-sm btn-soft">Hapus</button>
+                                <button type="submit"
+                                    class="btn btn-xs btn-outline btn-error shadow-none font-medium px-2.5">
+                                    Hapus
+                                </button>
                             </form>
                         </div>
                     </td>
                 </tr>
             @endforeach
         </x-data-tabel>
+
+        {{ $mapels->links() }}
     </div>
     <x-form-modal>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="form-control w-full col-span-1 sm:col-span-2">
+                <label class="floating-label">
+                    <span class="label-text font-semibold text-slate-700 text-sm">Mata Pelajaran</span>
+                    <input type="text" id="input_name" name="nama" value="{{ old('nama') }}"
+                        placeholder="Mata Pelajaran" class="input input-primary w-full" />
+                </label>
+            </div>
 
             <div class="form-control w-full col-span-1 sm:col-span-2">
-                <label class="label"><span class="label-text font-semibold text-slate-700 text-sm">Nama
-                        Mata Pelajaran</span></label>
-                <input type="text" id="input_name" name="nama" value="{{ old('nama') }}"
-                    placeholder="Masukkan nama mata pelajaran..." class="input input-primary w-full" />
+                <label class="floating-label">
+                    <span class="label-text font-semibold text-slate-700 text-sm">Kode</span>
+                    <input type="text" id="input_kode" name="kode" value="{{ old('kode') }}" placeholder="Kode"
+                        class="input input-primary w-full" required />
+                </label>
             </div>
 
-            <div class="form-control w-full">
-                <label class="label"><span class="label-text font-semibold text-slate-700 text-sm">Kode
-                        Mata Pelajaran</span></label>
-                <input type="text" id="input_kode" name="kode" value="{{ old('kode') }}" placeholder="Contoh: MTK"
-                    class="input input-primary w-full" required />
-            </div>
-
-            <div class="form-control w-full">
-                <label class="label"><span class="label-text font-semibold text-slate-700 text-sm">Deskripsi
-                        Mata Pelajaran</span></label>
-                <input type="text" id="input_deskripsi" name="deskripsi" value="{{ old('deskripsi') }}"
-                    placeholder="Masukkan deskripsi mata pelajaran..." class="input input-primary w-full" />
+            <div class="form-control w-full col-span-1 sm:col-span-2">
+                <label class="floating-label">
+                    <span class="label-text font-semibold text-slate-700 text-sm">Deskripsi</span>
+                    <input type="text" id="input_deskripsi" name="deskripsi" value="{{ old('deskripsi') }}"
+                        placeholder="Deskripsi" class="input input-primary w-full" />
+                </label>
             </div>
         </div>
     </x-form-modal>

@@ -20,6 +20,7 @@ return new class extends Migration
             $table->dateTime('waktu_selesai')->nullable();
             $table->integer('sisa_waktu')->nullable();
             $table->enum('status', ['menunggu', 'berlangsung', 'selesai', 'timeout'])->default('menunggu');
+            $table->integer('jumlah_pelanggaran')->default(0);
             $table->decimal('nilai', 5, 2)->nullable();
             $table->integer('total_benar')->default(0);
             $table->integer('total_salah')->default(0);

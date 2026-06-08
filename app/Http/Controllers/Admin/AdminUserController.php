@@ -22,7 +22,7 @@ class AdminUserController extends Controller
         $daftarGuru = User::role('guru')->with([
             'profileGuru.mataPelajarans:id,nama',
             'roles:id,name'
-        ])->select('id', 'name', 'email')->get();
+        ])->select('id', 'name', 'email')->paginate(5);
 
         // dd($daftarGuru);
 

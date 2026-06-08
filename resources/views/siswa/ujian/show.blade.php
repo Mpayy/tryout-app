@@ -9,56 +9,60 @@
             <div class="lg:w-2/3 w-full">
                 <div id="soal-container" class="min-h-[400px]">
                     <div class="flex flex-col items-center justify-center py-20 text-base-content/50">
-                        <span class="loading loading-spinner loading-lg text-indigo-600 mb-4"></span>
+                        <span class="loading loading-spinner loading-lg text-primary mb-4"></span>
                         <p>Menyiapkan soal...</p>
                     </div>
                 </div>
             </div>
 
             {{-- Panel Kanan: Sidebar Navigasi & Timer --}}
-            <div class="lg:w-1/3 w-full space-y-4">
+            <div class="lg:w-1/3 w-full space-y-6">
 
                 {{-- Timer Card --}}
-                <div class="card bg-base-100 shadow-md border-t-4 border-error">
+                <div class="card bg-base-100 shadow-sm border border-base-200">
                     <div class="card-body items-center text-center py-6">
-                        <h6 class="text-sm font-semibold text-base-content/70 uppercase tracking-wider">Sisa Waktu</h6>
-                        <h2 id="timer" class="text-4xl font-bold text-error mt-2 font-mono">--:--</h2>
+                        <h6 class="text-xs font-bold text-base-content/50 uppercase tracking-widest">Sisa Waktu</h6>
+                        <div class="text-4xl font-bold text-error mt-1 font-mono tracking-wider flex items-center gap-2">
+                            <i class="bi bi-stopwatch text-3xl opacity-80"></i>
+                            <span id="timer">--:--</span>
+                        </div>
                     </div>
                 </div>
 
                 {{-- Navigasi Soal Card --}}
-                <div class="card bg-base-100 shadow-md">
+                <div class="card bg-base-100 shadow-sm border border-base-200">
                     <div class="card-body p-5">
-                        {{-- Keterangan / Legend (Sudah disamakan warnanya) --}}
+
+                        {{-- Keterangan / Legend --}}
                         <div
-                            class="flex flex-wrap gap-3 mb-4 text-xs font-medium justify-center border-b border-base-200 pb-4">
-                            <div class="flex items-center gap-1">
-                                <span class="w-3 h-3 rounded-full bg-indigo-600"></span> Dijawab
+                            class="flex flex-wrap gap-4 mb-5 text-xs font-semibold justify-center border-b border-base-200 pb-5 text-base-content/80">
+                            <div class="flex items-center gap-1.5">
+                                <span class="w-3.5 h-3.5 rounded-full bg-primary shadow-sm"></span> Dijawab
                             </div>
-                            <div class="flex items-center gap-1">
-                                <span class="w-3 h-3 rounded-full bg-amber-500"></span> Ragu
+                            <div class="flex items-center gap-1.5">
+                                <span class="w-3.5 h-3.5 rounded-full bg-warning shadow-sm"></span> Ragu
                             </div>
-                            <div class="flex items-center gap-1">
-                                <span class="w-3 h-3 border border-base-300 rounded-full"></span> Belum
+                            <div class="flex items-center gap-1.5">
+                                <span class="w-3.5 h-3.5 border-2 border-base-300 rounded-full"></span> Belum
                             </div>
                         </div>
 
                         {{-- Grid Navigasi --}}
-                        <div id="nav-soal" class="grid grid-cols-5 gap-2">
+                        <div id="nav-soal" class="grid grid-cols-5 gap-2.5">
                             @foreach($soalList as $i => $soal)
                                 @php
                                     $j = $jawabList[$soal->id] ?? null;
                                     // Default: Belum dijawab
-                                    $kelas = 'border-base-300 text-base-content/70 hover:bg-base-200 bg-transparent';
+                                    $kelas = 'btn-outline border-base-300 text-base-content/70 hover:bg-base-200 hover:border-base-300';
+
                                     if ($j && $j->pilihan_jawaban_id) {
                                         // Jika dijawab, cek ragu
                                         $kelas = $j->is_ragu
-                                            ? 'bg-amber-500 hover:bg-amber-600 text-white border-transparent shadow-md'
-                                            : 'bg-indigo-600 hover:bg-indigo-700 text-white border-transparent shadow-md';
+                                            ? 'btn-warning text-warning-content shadow-sm border-transparent'
+                                            : 'btn-primary text-primary-content shadow-sm border-transparent';
                                     }
                                 @endphp
-                                <button
-                                    class="btn btn-sm text-sm p-0 border soal-nav-btn transition-all duration-200 {{ $kelas }}"
+                                <button class="btn btn-sm text-sm p-0 soal-nav-btn transition-all duration-200 {{ $kelas }}"
                                     data-nomor="{{ $i + 1 }}"
                                     data-dijawab="{{ ($j && $j->pilihan_jawaban_id) ? 'true' : 'false' }}"
                                     data-ragu="{{ ($j && $j->is_ragu) ? 'true' : 'false' }}" id="nav-{{ $soal->id }}">
@@ -69,10 +73,8 @@
                     </div>
                 </div>
 
-                <button
-                    class="btn bg-indigo-600 hover:bg-indigo-700 text-white w-full border-none shadow-lg shadow-indigo-200 rounded-xl"
-                    id="btn-submit">
-                    <i class="bi bi-check-circle text-lg mr-1"></i> Selesaikan Ujian
+                <button class="btn btn-success w-full font-bold shadow-md shadow-success/20 rounded-xl" id="btn-submit">
+                    <i class="bi bi-check-circle text-lg"></i> Selesaikan Ujian
                 </button>
             </div>
         </div>
@@ -91,322 +93,319 @@
         let soalSekarang = 1;
         let timerInterval;
 
-        // ========== 0. FUNGSI BANTUAN UPDATE WARNA NAVIGASI ==========
-        // Fungsi ini menyelesaikan masalah class bentrok dan warna hilang
-        function updateNavStatus(nomor, isDijawab, isRagu) {
-            const navBtn = document.querySelector(`[data-nomor="${nomor}"]`);
-            if (!navBtn) return;
+        // ==========0. FUNGSI BANTUAN UPDATE WARNA NAVIGASI ==========
+            function updateNavStatus(nomor, isDijawab, isRagu) {
+                const navBtn = document.querySelector(`[data-nomor="${nomor}"]`);
+                if (!navBtn) return;
 
-            // Simpan status di data attribute
-            navBtn.dataset.dijawab = isDijawab ? 'true' : 'false';
-            navBtn.dataset.ragu = isRagu ? 'true' : 'false';
+                navBtn.dataset.dijawab = isDijawab ? 'true' : 'false';
+                navBtn.dataset.ragu = isRagu ? 'true' : 'false';
 
-            // Reset ke class dasar
-            navBtn.className = "btn btn-sm text-sm p-0 border soal-nav-btn transition-all duration-200";
+                // Reset class dasar sesuai komponen DaisyUI
+                navBtn.className = "btn btn-sm text-sm p-0 soal-nav-btn transition-all duration-200 ";
 
-            // Set warna sesuai status
-            if (isDijawab) {
-                if (isRagu) {
-                    navBtn.classList.add('bg-amber-500', 'hover:bg-amber-600', 'text-white', 'border-transparent', 'shadow-md');
+                if (isDijawab) {
+                    if (isRagu) {
+                        navBtn.className += 'btn-warning text-warning-content shadow-sm border-transparent';
+                    } else {
+                        navBtn.className += 'btn-primary text-primary-content shadow-sm border-transparent';
+                    }
                 } else {
-                    navBtn.classList.add('bg-indigo-600', 'hover:bg-indigo-700', 'text-white', 'border-transparent', 'shadow-md');
+                    navBtn.className += 'btn-outline border-base-300 text-base-content/70 hover:bg-base-200 hover:border-base-300';
                 }
-            } else {
-                navBtn.classList.add('border-base-300', 'text-base-content/70', 'hover:bg-base-200', 'bg-transparent');
+
+                // Ring untuk penanda soal aktif saat ini
+                if (nomor === soalSekarang) {
+                    navBtn.classList.add('ring-2', 'ring-primary', 'ring-offset-2', 'ring-offset-base-100');
+                }
             }
 
-            // Beri ring/highlight jika ini soal yang sedang dibuka
-            if (nomor === soalSekarang) {
-                navBtn.classList.add('ring-2', 'ring-indigo-500', 'ring-offset-2');
+            // ========== 1. TIMER ==========
+            function startTimer(sisaDetik) {
+                const endTime = performance.now() + sisaDetik * 1000;
+                const el = document.getElementById('timer');
+
+                timerInterval = setInterval(() => {
+                    const remaining = Math.round((endTime - performance.now()) / 1000);
+                    if (remaining <= 0) {
+                        clearInterval(timerInterval);
+                        el.textContent = '00:00';
+                        autoSubmit();
+                        return;
+                    }
+                    const m = String(Math.floor(remaining / 60)).padStart(2, '0');
+                    const s = String(remaining % 60).padStart(2, '0');
+                    el.textContent = `${m}:${s}`;
+
+                    // Efek kedip saat sisa waktu <= 1 menit
+                    if (remaining <= 60) {
+                        el.classList.add('animate-pulse', 'text-error');
+                    }
+                }, 1000);
             }
-        }
 
-        // ========== 1. TIMER ==========
-        function startTimer(sisaDetik) {
-            const endTime = performance.now() + sisaDetik * 1000;
-            const el = document.getElementById('timer');
-            timerInterval = setInterval(() => {
-                const remaining = Math.round((endTime - performance.now()) / 1000);
-                if (remaining <= 0) {
-                    clearInterval(timerInterval);
-                    el.textContent = '00:00';
-                    autoSubmit();
-                    return;
-                }
-                const m = String(Math.floor(remaining / 60)).padStart(2, '0');
-                const s = String(remaining % 60).padStart(2, '0');
-                el.textContent = `${m}:${s}`;
+            // ========== 2. LOAD SOAL (AJAX) ==========
+            async function loadSoal(nomor) {
+                document.getElementById('soal-container').innerHTML = `
+                    <div class="flex items-center justify-center py-20">
+                        <span class="loading loading-spinner loading-lg text-primary"></span>
+                    </div>`;
 
-                if (remaining <= 60) {
-                    el.classList.add('animate-pulse');
-                }
-            }, 1000);
-        }
+                try {
+                    const res = await fetch(`/siswa/ujian/${TOKEN}/soal/${nomor}`);
+                    const data = await res.json();
 
-        // ========== 2. LOAD SOAL (AJAX) ==========
-        async function loadSoal(nomor) {
-            document.getElementById('soal-container').innerHTML = `
-            <div class="flex items-center justify-center py-20">
-                <span class="loading loading-spinner loading-lg text-indigo-600"></span>
-            </div>`;
+                    const isRagu = data.jawaban?.is_ragu || false;
 
-            try {
-                const res = await fetch(`/siswa/ujian/${TOKEN}/soal/${nomor}`);
-                const data = await res.json();
+                    // Logika class tombol ragu DaisyUI
+                    const btnRaguClass = isRagu
+                        ? 'btn-warning text-warning-content border-transparent shadow-sm'
+                        : 'btn-outline btn-warning';
 
-                const isRagu = data.jawaban?.is_ragu || false;
+                    let html = `
+                        <div class="card bg-base-100 shadow-sm border border-base-200">
+                            <div class="card-body p-6 lg:p-8">
 
-                // Logika warna tombol Ragu Manual
-                const btnRaguClass = isRagu
-                    ? 'bg-amber-500 hover:bg-amber-600 text-white border-transparent'
-                    : 'bg-transparent border-amber-500 text-amber-600 hover:bg-amber-50';
+                                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-4 border-b border-base-200">
+                                    <h2 class="text-xl font-bold text-base-content">Soal ${nomor} <span class="text-sm text-base-content/50 font-medium ml-1">dari ${TOTAL_SOAL}</span></h2>
+                                    <button class="btn btn-sm ${btnRaguClass}" id="btn-ragu" onclick="toggleRagu(${data.soal.id})">
+                                        <i class="bi bi-flag"></i> Ragu-ragu
+                                    </button>
+                                </div>
 
-                let html = `
-                <div class="card bg-base-100 shadow-md border border-base-200">
-                    <div class="card-body p-6 lg:p-8">
+                                <div class="prose max-w-none mb-8 text-base-content">
+                                    <p class="text-base leading-relaxed">${data.soal.konten}</p>
+                                    ${data.soal.gambar ? `<img src="${data.soal.gambar}" class="rounded-xl shadow-sm max-h-[300px] object-contain mt-4">` : ''}
+                                </div>
 
-                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-4 border-b border-base-200">
-                            <h2 class="text-lg font-bold text-base-content">Soal ${nomor} <span class="text-base-content/50 font-normal">dari ${TOTAL_SOAL}</span></h2>
-                            <button class="btn btn-sm ${btnRaguClass}" id="btn-ragu" onclick="toggleRagu(${data.soal.id})">
-                                <i class="bi bi-flag"></i> Ragu-ragu
-                            </button>
-                        </div>
+                                <div class="flex flex-col gap-3" id="pilihan-container">
+                        `;
 
-                        <div class="prose max-w-none mb-8 text-base-content">
-                            <p class="text-base leading-relaxed">${data.soal.konten}</p>
-                            ${data.soal.gambar ? `<img src="${data.soal.gambar}" class="rounded-xl shadow-sm max-h-[300px] object-contain mt-4">` : ''}
-                        </div>
+                    // LOOPING JAWABAN
+                    data.pilihan.forEach((p, index) => {
+                        const isActive = data.jawaban && data.jawaban.pilihan_id === p.id;
+                        const activeClasses = isActive
+                            ? 'border-primary bg-primary/10 ring-1 ring-primary'
+                            : 'border-base-300 hover:border-primary/50 hover:bg-base-200/50';
 
-                        <div class="flex flex-col gap-3" id="pilihan-container">
-            `;
+                        const abjad = String.fromCharCode(65 + index);
 
-                // LOOPING JAWABAN
-                data.pilihan.forEach((p, index) => {
-                    const isActive = data.jawaban && data.jawaban.pilihan_id === p.id;
-                    const activeClasses = isActive
-                        ? 'border-indigo-600 bg-indigo-50 ring-1 ring-indigo-600'
-                        : 'border-base-300 hover:border-indigo-300 hover:bg-base-50';
-
-                    // GENERATE ABJAD (A, B, C, D) SECARA DINAMIS (Mengatasi urutan berantakan saat diacak)
-                    const abjad = String.fromCharCode(65 + index);
+                        html += `
+                            <div class="border-2 rounded-xl p-4 cursor-pointer transition-all duration-200 ${activeClasses} pilihan-item flex gap-4 items-start"
+                                 onclick="pilihJawaban(${data.soal.id}, ${p.id}, this)">
+                                <div class="font-bold text-lg mt-0.5 text-primary">${abjad}.</div>
+                                <div class="text-base pt-1 font-medium text-base-content">${p.konten}</div>
+                            </div>`;
+                    });
 
                     html += `
-                    <div class="border-2 rounded-xl p-4 cursor-pointer transition-all duration-200 ${activeClasses} pilihan-item flex gap-4 items-start"
-                         onclick="pilihJawaban(${data.soal.id}, ${p.id}, this)">
-                        <div class="font-bold text-lg mt-0.5 text-indigo-700">${abjad}.</div>
-                        <div class="text-base pt-1">${p.konten}</div>
-                    </div>`;
+                                </div>
+
+                                <div class="flex justify-between items-center mt-10 pt-6 border-t border-base-200">
+                                    <button class="btn btn-outline border-base-300" onclick="navigasi(${nomor - 1})" ${nomor === 1 ? 'disabled' : ''}>
+                                        ← Sebelumnya
+                                    </button>
+                                    <button class="btn btn-primary" onclick="navigasi(${nomor + 1})" ${nomor === TOTAL_SOAL ? 'disabled' : ''}>
+                                        Selanjutnya →
+                                    </button>
+                                </div>
+                            </div>
+                        </div>`;
+
+                    document.getElementById('soal-container').innerHTML = html;
+
+                    const prevSoal = soalSekarang;
+                    soalSekarang = nomor;
+
+                    const prevBtn = document.querySelector(`[data-nomor="${prevSoal}"]`);
+                    if (prevBtn) updateNavStatus(prevSoal, prevBtn.dataset.dijawab === 'true', prevBtn.dataset.ragu === 'true');
+
+                    const currBtn = document.querySelector(`[data-nomor="${nomor}"]`);
+                    if (currBtn) updateNavStatus(nomor, currBtn.dataset.dijawab === 'true', currBtn.dataset.ragu === 'true');
+
+                } catch (error) {
+                    document.getElementById('soal-container').innerHTML = `<div class="alert alert-error">Gagal memuat soal. Silakan refresh halaman.</div>`;
+                }
+            }
+
+            // ========== 3. PILIH JAWABAN ==========
+            async function pilihJawaban(soalId, pilihanId, el) {
+                document.querySelectorAll('.pilihan-item').forEach(e => {
+                    e.classList.remove('border-primary', 'bg-primary/10', 'ring-1', 'ring-primary');
+                    e.classList.add('border-base-300', 'hover:border-primary/50', 'hover:bg-base-200/50');
                 });
 
-                html += `
-                        </div>
+                el.classList.remove('border-base-300', 'hover:border-primary/50', 'hover:bg-base-200/50');
+                el.classList.add('border-primary', 'bg-primary/10', 'ring-1', 'ring-primary');
 
-                        <div class="flex justify-between items-center mt-8 pt-6 border-t border-base-200">
-                            <button class="btn btn-outline" onclick="navigasi(${nomor - 1})" ${nomor === 1 ? 'disabled' : ''}>
-                                ← Sebelumnya
-                            </button>
-                            <button class="btn bg-indigo-600 hover:bg-indigo-700 text-white border-transparent" onclick="navigasi(${nomor + 1})" ${nomor === TOTAL_SOAL ? 'disabled' : ''}>
-                                Selanjutnya →
-                            </button>
-                        </div>
-                    </div>
-                </div>`;
+                const btnRagu = document.getElementById('btn-ragu');
+                const isRagu = btnRagu && !btnRagu.classList.contains('btn-outline'); // Karena ragu aktif = tidak ada class btn-outline
 
-                document.getElementById('soal-container').innerHTML = html;
+                updateNavStatus(soalSekarang, true, isRagu);
 
-                // Update state navigasi yang aktif 
-                const prevSoal = soalSekarang;
-                soalSekarang = nomor;
-
-                // Hilangkan ring dari tombol sebelumnya, tambahkan ke tombol saat ini
-                const prevBtn = document.querySelector(`[data-nomor="${prevSoal}"]`);
-                if (prevBtn) updateNavStatus(prevSoal, prevBtn.dataset.dijawab === 'true', prevBtn.dataset.ragu === 'true');
-
-                const currBtn = document.querySelector(`[data-nomor="${nomor}"]`);
-                if (currBtn) updateNavStatus(nomor, currBtn.dataset.dijawab === 'true', currBtn.dataset.ragu === 'true');
-
-            } catch (error) {
-                document.getElementById('soal-container').innerHTML = `<div class="alert alert-error">Gagal memuat soal. Silakan refresh.</div>`;
-            }
-        }
-
-        // ========== 3. PILIH JAWABAN ==========
-        async function pilihJawaban(soalId, pilihanId, el) {
-            document.querySelectorAll('.pilihan-item').forEach(e => {
-                e.classList.remove('border-indigo-600', 'bg-indigo-50', 'ring-1', 'ring-indigo-600');
-                e.classList.add('border-base-300', 'hover:border-indigo-300', 'hover:bg-base-50');
-            });
-
-            el.classList.remove('border-base-300', 'hover:border-indigo-300', 'hover:bg-base-50');
-            el.classList.add('border-indigo-600', 'bg-indigo-50', 'ring-1', 'ring-indigo-600');
-
-            // Cek apakah tombol ragu saat ini sedang aktif
-            const btnRagu = document.getElementById('btn-ragu');
-            const isRagu = btnRagu && btnRagu.classList.contains('bg-amber-500');
-
-            // Update warna di navigasi samping langsung!
-            updateNavStatus(soalSekarang, true, isRagu);
-
-            await fetch(`/siswa/ujian/${TOKEN}/jawab`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content
-                },
-                body: JSON.stringify({ soal_id: soalId, pilihan_jawaban_id: pilihanId })
-            });
-        }
-
-        // ========== 4. TANDAI RAGU ==========
-        async function toggleRagu(soalId) {
-            const btn = document.getElementById('btn-ragu');
-            const isRaguSaatIni = btn.classList.contains('bg-amber-500');
-            const isRaguBaru = !isRaguSaatIni;
-
-            // Toggle tampilan tombol Ragu
-            if (isRaguBaru) {
-                btn.className = "btn btn-sm bg-amber-500 hover:bg-amber-600 text-white border-transparent";
-            } else {
-                btn.className = "btn btn-sm bg-transparent border-amber-500 text-amber-600 hover:bg-amber-50";
+                await fetch(`/siswa/ujian/${TOKEN}/jawab`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content
+                    },
+                    body: JSON.stringify({ soal_id: soalId, pilihan_jawaban_id: pilihanId })
+                });
             }
 
-            // Cek apakah soal ini sudah dijawab (lewat dataset yang kita setel tadi)
-            const navBtn = document.querySelector(`[data-nomor="${soalSekarang}"]`);
-            const isDijawab = navBtn && navBtn.dataset.dijawab === 'true';
+            // ========== 4. TANDAI RAGU ==========
+            async function toggleRagu(soalId) {
+                const btn = document.getElementById('btn-ragu');
+                const isRaguSaatIni = !btn.classList.contains('btn-outline');
+                const isRaguBaru = !isRaguSaatIni;
 
-            // Update kotak navigasi samping
-            updateNavStatus(soalSekarang, isDijawab, isRaguBaru);
-
-            await fetch(`/siswa/ujian/${TOKEN}/ragu`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content
-                },
-                body: JSON.stringify({ soal_id: soalId, is_ragu: isRaguBaru })
-            });
-        }
-
-        // ========== 5. NAVIGASI PREV / NEXT ==========
-        function navigasi(nomor) {
-            if (nomor < 1 || nomor > TOTAL_SOAL) return;
-            loadSoal(nomor);
-        }
-
-        // ========== 6. AUTO SUBMIT ==========
-        async function autoSubmit() {
-            const res = await fetch(`/siswa/ujian/${TOKEN}/submit`, {
-                method: 'POST',
-                headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content }
-            });
-            const data = await res.json();
-            window.location.href = data.redirect;
-        }
-
-        document.getElementById('btn-submit').addEventListener('click', function () {
-            if (confirm('Yakin ingin menyelesaikan ujian?')) {
-                clearInterval(timerInterval);
-                this.innerHTML = '<span class="loading loading-spinner"></span> Memproses...';
-                this.disabled = true;
-                autoSubmit();
-            }
-        });
-
-        document.querySelectorAll('.soal-nav-btn').forEach(btn => {
-            btn.addEventListener('click', function () {
-                navigasi(parseInt(this.dataset.nomor));
-            });
-        });
-
-        startTimer(parseInt(document.getElementById('sisa-waktu-awal').value));
-        loadSoal(1);
-
-        let jumlahPelanggaran = parseInt(document.getElementById('db-pelanggaran').value) || 0;
-        const MAKSIMAL_PELANGGARAN = 3; // Siswa otomatis keluar di pelanggaran ke-3
-
-        let lastPelanggaranTime = 0;
-
-        function catatPelanggaran(alasan) {
-            const now = Date.now();
-            if (now - lastPelanggaranTime < 2000) return; // Mencegah double trigger (debounce 2 detik)
-            lastPelanggaranTime = now;
-
-            jumlahPelanggaran++;
-
-            // Kirim data pelanggaran ke backend via AJAX untuk dicatat di database (anti-curang)
-            fetch(`/siswa/ujian/${TOKEN}/pelanggaran`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content
-                },
-                body: JSON.stringify({ alasan: alasan, pelanggaran_ke: jumlahPelanggaran })
-            });
-
-            if (jumlahPelanggaran >= MAKSIMAL_PELANGGARAN) {
-                alert('Ujian Anda dihentikan otomatis karena terlalu sering keluar dari halaman ujian!');
-                autoSubmit(); // Fungsi submit yang sudah kita buat sebelumnya
-            } else {
-                alert(`Peringatan keras! Anda terdeteksi mencoba keluar dari halaman ujian (${jumlahPelanggaran}/${MAKSIMAL_PELANGGARAN}). \nJika mencapai batas, ujian akan otomatis selesai!`);
-            }
-        }
-
-        // Deteksi Taktik 1: Browser kehilangan fokus (Alt+Tab, klik aplikasi lain)
-        window.addEventListener('blur', () => {
-            // Kasih jeda sedikit untuk memastikan bukan karena alert/pop-up internal aplikasi
-            setTimeout(() => {
-                if (!document.hasFocus()) {
-                    catatPelanggaran('Meninggalkan halaman (Alt+Tab / Buka Aplikasi Lain)');
+                if (isRaguBaru) {
+                    btn.className = "btn btn-sm btn-warning text-warning-content border-transparent shadow-sm";
+                } else {
+                    btn.className = "btn btn-sm btn-outline btn-warning";
                 }
-            }, 200);
-        });
 
-        // Deteksi Taktik 2: Pindah tab browser atau minimize window
-        document.addEventListener('visibilitychange', () => {
-            if (document.visibilityState === 'hidden') {
-                catatPelanggaran('Pindah tab atau meminimalkan browser');
+                const navBtn = document.querySelector(`[data-nomor="${soalSekarang}"]`);
+                const isDijawab = navBtn && navBtn.dataset.dijawab === 'true';
+
+                updateNavStatus(soalSekarang, isDijawab, isRaguBaru);
+
+                await fetch(`/siswa/ujian/${TOKEN}/ragu`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content
+                    },
+                    body: JSON.stringify({ soal_id: soalId, is_ragu: isRaguBaru })
+                });
             }
-        });
 
-        async function cekMultiLayar() {
-            // 1. Cek menggunakan API Modern (Window Management)
-            if ('getScreenDetails' in window || 'getScreens' in window) {
+            // ========== 5. NAVIGASI & SUBMIT ==========
+            function navigasi(nomor) {
+                if (nomor < 1 || nomor > TOTAL_SOAL) return;
+                loadSoal(nomor);
+            }
+
+            async function autoSubmit() {
+                const res = await fetch(`/siswa/ujian/${TOKEN}/submit`, {
+                    method: 'POST',
+                    headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content }
+                });
+                const data = await res.json();
+                window.location.href = data.redirect;
+            }
+
+            document.getElementById('btn-submit').addEventListener('click', function () {
+                if (confirm('Yakin ingin menyelesaikan ujian? Anda tidak dapat kembali ke halaman ini.')) {
+                    clearInterval(timerInterval);
+                    this.innerHTML = '<span class="loading loading-spinner"></span> Memproses...';
+                    this.disabled = true;
+                    autoSubmit();
+                }
+            });
+
+            document.querySelectorAll('.soal-nav-btn').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    navigasi(parseInt(this.dataset.nomor));
+                });
+            });
+
+            startTimer(parseInt(document.getElementById('sisa-waktu-awal').value));
+            loadSoal(1);
+
+            let jumlahPelanggaran = parseInt(document.getElementById('db-pelanggaran').value);
+            const MAKSIMAL_PELANGGARAN = 3; // Siswa otomatis keluar di pelanggaran ke-3
+
+            let lastPelanggaranTime = 0;
+
+            async function catatPelanggaran(alasan) {
+                const now = Date.now();
+                if (now - lastPelanggaranTime < 2000) return; // Mencegah double trigger (debounce 2 detik)
+                lastPelanggaranTime = now;
+
+                jumlahPelanggaran++;
+
+                // Kirim data pelanggaran ke backend via AJAX untuk dicatat di database (anti-curang)
                 try {
-                    const screenDetails = window.getScreenDetails ? await window.getScreenDetails() : await window.getScreens();
+                    const res = await fetch(`/siswa/ujian/${TOKEN}/pelanggaran`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content
+                        },
+                        body: JSON.stringify({ alasan: alasan, pelanggaran_ke: jumlahPelanggaran })
+                    });
 
-                    // Jika jumlah layar lebih dari 1, rekam sebagai pelanggaran!
-                    if (screenDetails.screens.length > 1) {
-                        laporkanKecuranganLayar();
+                    const data = await res.json();
+
+                    if (data.status === 'blocked') {
+                        alert('Ujian Anda dihentikan otomatis karena terlalu sering keluar dari halaman ujian!');
+                        // Langsung redirect ke halaman hasil (backend sudah melakukan auto-submit)
+                        window.location.href = `/siswa/hasil/${TOKEN}`;
+                    } else if (data.status === 'warned') {
+                        alert(`Peringatan keras! Anda terdeteksi mencoba keluar dari halaman ujian (${data.jumlah_pelanggaran}/${MAKSIMAL_PELANGGARAN}). \nJika mencapai batas, ujian akan otomatis selesai!`);
                     }
+                } catch (err) {
+                    console.error("Gagal mencatat pelanggaran", err);
+                }
+            }
 
-                    // Deteksi jika di tengah ujian siswa baru mencolok kabel HDMI
-                    screenDetails.addEventListener('screenschange', () => {
+            // Deteksi Taktik 1: Browser kehilangan fokus (Alt+Tab, klik aplikasi lain)
+            window.addEventListener('blur', () => {
+                // Kasih jeda sedikit untuk memastikan bukan karena alert/pop-up internal aplikasi
+                setTimeout(() => {
+                    if (!document.hasFocus()) {
+                        catatPelanggaran('Meninggalkan halaman (Alt+Tab / Buka Aplikasi Lain)');
+                    }
+                }, 200);
+            });
+
+            // Deteksi Taktik 2: Pindah tab browser atau minimize window
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'hidden') {
+                    catatPelanggaran('Pindah tab atau meminimalkan browser');
+                }
+            });
+
+            async function cekMultiLayar() {
+                // 1. Cek menggunakan API Modern (Window Management)
+                if ('getScreenDetails' in window || 'getScreens' in window) {
+                    try {
+                        const screenDetails = window.getScreenDetails ? await window.getScreenDetails() : await window.getScreens();
+
+                        // Jika jumlah layar lebih dari 1, rekam sebagai pelanggaran!
                         if (screenDetails.screens.length > 1) {
                             laporkanKecuranganLayar();
                         }
-                    });
-                } catch (err) {
-                    console.log("Izin deteksi layar ditolak atau diblokir browser.");
+
+                        // Deteksi jika di tengah ujian siswa baru mencolok kabel HDMI
+                        screenDetails.addEventListener('screenschange', () => {
+                            if (screenDetails.screens.length > 1) {
+                                laporkanKecuranganLayar();
+                            }
+                        });
+                    } catch (err) {
+                        console.log("Izin deteksi layar ditolak atau diblokir browser.");
+                    }
+                }
+
+                // 2. Cadangan (Fallback) untuk browser lama: Cek resolusi lebar layar tidak wajar
+                // Siswa jagoan sering pakai mode 'Extend' yang membuat window.screen.width menjadi sangat besar
+                if (window.screen.width > 2560) {
+                    laporkanKecuranganLayar();
                 }
             }
 
-            // 2. Cadangan (Fallback) untuk browser lama: Cek resolusi lebar layar tidak wajar
-            // Siswa jagoan sering pakai mode 'Extend' yang membuat window.screen.width menjadi sangat besar
-            if (window.screen.width > 2560) {
-                laporkanKecuranganLayar();
+            function laporkanKecuranganLayar() {
+                alert('Terdeteksi: Anda menggunakan lebih dari 1 layar (Dual Monitor/HDMI)! \nLepaskan layar tambahan untuk melanjutkan ujian.');
+
+                // Panggil fungsi catatPelanggaran yang sudah kita buat ke database sebelumnya
+                catatPelanggaran('Menggunakan Dual Monitor / Kabel HDMI Aktif');
             }
-        }
 
-        function laporkanKecuranganLayar() {
-            alert('Terdeteksi: Anda menggunakan lebih dari 1 layar (Dual Monitor/HDMI)! \nLepaskan layar tambahan untuk melanjutkan ujian.');
-
-            // Panggil fungsi catatPelanggaran yang sudah kita buat ke database sebelumnya
-            catatPelanggaran('Menggunakan Dual Monitor / Kabel HDMI Aktif');
-        }
-
-        // Jalankan fungsi ini saat ujian dimulai
-        window.addEventListener('DOMContentLoaded', () => {
-            cekMultiLayar();
-        });
-    </script>
+            // Jalankan fungsi ini saat ujian dimulai
+            window.addEventListener('DOMContentLoaded', () => {
+                cekMultiLayar();
+            });
+        </script>
 @endpush

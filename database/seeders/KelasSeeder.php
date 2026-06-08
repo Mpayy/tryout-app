@@ -13,11 +13,11 @@ class KelasSeeder extends Seeder
      */
     public function run(): void
     {
-        Kelas::create([
-            'nama' => 'Kelas 12 IPA 1',
-            'kode' => 'XII-IPA-1'
-        ]);
-
-        
+        for ($i = 1; $i <= 6; $i++) {
+            Kelas::create([
+                'nama' => 'Kelas ' . $i,
+                'kode' => 'KLS-' . $i
+            ]);
+        }
     }
 }

@@ -15,14 +15,6 @@ class UjianController extends Controller
 {
     public function index()
     {
-        // Tampilkan daftar ujian yang aktif
-        // $paketUjian = PaketUjian::where('status', 'aktif')
-        //     ->with(['mataPelajaran'])
-        //     ->withCount('soal')
-        //     ->latest()
-        //     ->paginate(10);
-
-        // return view('siswa.ujian.index', compact('paketUjian'));
 
         $user = auth()->user();
         $kelasId = $user->profileSiswa?->kelas_id;
@@ -33,19 +25,19 @@ class UjianController extends Controller
         //     ])->with('error', 'Akun Anda belum terdaftar di kelas manapun. Silahkan hubungi admin.');
         // }
 
-        // $now = Carbon::today()->toDateString();
+        $now = Carbon::today()->toDateString();
         // dd($now);
 
         $paketUjian = PaketUjian::with(['mataPelajaran'])
-        ->withCount('soal')
-        ->whereHas('kelas', function($query) use($kelasId) {
-            $query->where('kelas_id', $kelasId);
-        })
-        ->where('status', 'aktif')
-        // ->whereDate('tanggal_mulai', '<=', $now)
-        // ->whereDate('tanggal_selesai', '>=', $now)
-        ->latest()
-        ->get();
+            ->withCount('soal')
+            ->whereHas('kelas', function ($query) use ($kelasId) {
+                $query->where('kelas_id', $kelasId);
+            })
+            ->where('status', 'aktif')
+            ->whereDate('tanggal_mulai', '<=', $now)
+            ->whereDate('tanggal_selesai', '>=', $now)
+            ->latest()
+            ->get();
 
         return view('siswa.ujian.index', compact('paketUjian'));
     }
@@ -92,7 +84,7 @@ class UjianController extends Controller
         } else {
             $soalQuery->orderBy('paket_ujian_soal.nomor_urut');
         }
-        
+
         $soalIds = $soalQuery->pluck('soal.id');
         $jawaban = $soalIds->map(fn($id) => [
             'sesi_ujian_id'     => $sesi->id,
@@ -107,7 +99,7 @@ class UjianController extends Controller
 
         return redirect()->route('siswa.ujian.show', $sesi->token);
     }
-    
+
     public function show(string $token)
     {
         $sesi = SesiUjian::where('token', $token)
@@ -122,13 +114,13 @@ class UjianController extends Controller
         // =========================================================================
         // PERBAIKAN TIMER: Menggunakan Hitungan Waktu Selesai yang Akurat
         // =========================================================================
-        
+
         // 1. Pastikan waktu_mulai dibaca sebagai objek Carbon secara eksplisit
         $waktuMulai = \Carbon\Carbon::parse($sesi->waktu_mulai);
-        
+
         // 2. Tentukan jam berapa ujian ini HARUS selesai (Waktu Mulai + Durasi Paket)
         $waktuSelesai = $waktuMulai->copy()->addMinutes($sesi->paketUjian->durasi);
-        
+
         // 3. Hitung sisa waktu murni dalam detik dari SEKARANG menuju WAKTU SELESAI
         // Parameter false memastikan jika waktu lewat, hasilnya akan negatif
         $sisaWaktu = now()->diffInSeconds($waktuSelesai, false);
@@ -143,9 +135,9 @@ class UjianController extends Controller
 
         // Ambil jawaban siswa (diurutkan berdasarkan id = urutan saat insert di mulai())
         $jawabList = JawabanSiswa::where('sesi_ujian_id', $sesi->id)
-        ->orderBy('id') 
-        ->get()
-        ->keyBy('soal_id');
+            ->orderBy('id')
+            ->get()
+            ->keyBy('soal_id');
 
         // Ambil daftar soal sesuai urutan jawaban
         $soalIds  = $jawabList->keys();
@@ -251,16 +243,18 @@ class UjianController extends Controller
     {
         $sesi = SesiUjian::where('token', $token)
             ->where('siswa_id', auth()->id())
-            ->where('status', 'berlangsung')
             ->firstOrFail();
 
-        $this->prosesAutoSubmit($sesi);
+        if ($sesi->status === 'berlangsung') {
+            $this->prosesAutoSubmit($sesi);
+        }
 
         return response()->json(['redirect' => route('siswa.ujian.hasil', $token)]);
     }
 
     private function prosesAutoSubmit(SesiUjian $sesi): void
     {
+        if ($sesi->status === 'selesai') return;
         DB::transaction(function () use ($sesi) {
             $jawaban = JawabanSiswa::where('sesi_ujian_id', $sesi->id)
                 ->with('pilihanJawaban')
@@ -308,33 +302,33 @@ class UjianController extends Controller
     }
 
     public function catatPelanggaran(Request $request, $token)
-{
-    $sesi = SesiUjian::where('token', $token)
-        ->where('siswa_id', auth()->id())
-        ->firstOrFail();
+    {
+        $sesi = SesiUjian::where('token', $token)
+            ->where('siswa_id', auth()->id())
+            ->firstOrFail();
 
-    // Pastikan ujian masih berlangsung
-    if ($sesi->status === 'berlangsung') {
-        // Increment (tambah 1) jumlah pelanggaran di database
-        $sesi->increment('jumlah_pelanggaran');
+        // Pastikan ujian masih berlangsung
+        if ($sesi->status === 'berlangsung') {
+            // Increment (tambah 1) jumlah pelanggaran di database          
+            $sesi->increment('jumlah_pelanggaran');
 
-        // Cek apakah sudah melewati batas (misal maksimal 3x toleransi, ke-3 diblokir)
-        if ($sesi->jumlah_pelanggaran >= 3) {
-            $this->prosesAutoSubmit($sesi);
-            
+            // Cek apakah sudah melewati batas (misal maksimal 3x toleransi, ke-3 diblokir)
+            if ($sesi->jumlah_pelanggaran >= 3) {
+                $this->prosesAutoSubmit($sesi);
+
+                return response()->json([
+                    'status' => 'blocked',
+                    'message' => 'Ujian dihentikan karena melanggar batas aturan.'
+                ]);
+            }
+
             return response()->json([
-                'status' => 'blocked',
-                'message' => 'Ujian dihentikan karena melanggar batas aturan.'
+                'status' => 'warned',
+                'jumlah_pelanggaran' => $sesi->jumlah_pelanggaran,
+                'message' => 'Pelanggaran tercatat.'
             ]);
         }
 
-        return response()->json([
-            'status' => 'warned',
-            'jumlah_pelanggaran' => $sesi->jumlah_pelanggaran,
-            'message' => 'Pelanggaran tercatat.'
-        ]);
+        return response()->json(['status' => 'ignored']);
     }
-
-    return response()->json(['status' => 'ignored']);
-}
 }

@@ -13,7 +13,7 @@ class MataPelajaranController extends Controller
      */
     public function index()
     {
-        $mapels = MataPelajaran::select('id', 'nama', 'kode', 'deskripsi')->get();
+        $mapels = MataPelajaran::select('id', 'nama', 'kode', 'deskripsi')->paginate(5);
         return view('admin.mapels.index', compact('mapels'));
     }
 

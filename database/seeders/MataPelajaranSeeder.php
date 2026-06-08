@@ -18,6 +18,15 @@ class MataPelajaranSeeder extends Seeder
             'kode' => 'MTK',
             'deskripsi' => 'Mata pelajaran matematika'
         ]);
-
+        MataPelajaran::create([
+            'nama' => 'Bahasa Indonesia',
+            'kode' => 'B.Indo',
+            'deskripsi' => 'Mata pelajaran Bahasa Indonesia'
+        ]);
+        MataPelajaran::create([
+            'nama' => 'Bahasa Inggris',
+            'kode' => 'B.Ing',
+            'deskripsi' => 'Mata pelajaran Bahasa Inggris'
+        ]);
     }
 }

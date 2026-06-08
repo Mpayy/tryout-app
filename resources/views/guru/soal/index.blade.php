@@ -1,322 +1,188 @@
-{{-- <x-app-layout>
-    <x-slot name="header">
-        <div class="flex justify-between items-center">
-            <h2 class="font-bold text-2xl text-gray-800 leading-tight">
-                <i class="bi bi-journal-text text-indigo-500 mr-2"></i> Bank Soal
-            </h2>
-            <div class="text-sm text-gray-500 font-medium">
-                Manajemen <span class="text-indigo-600">/</span> Bank Soal
-            </div>
-        </div>
-    </x-slot>
-
-    <div class="py-6">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-
-            <!-- 1. STATISTIK RINGKAS (DAISYUI STATS) -->
-            <div class="stats shadow-xl border border-gray-100 w-full bg-white rounded-2xl overflow-hidden">
-                <div class="stat hover:bg-gray-50 transition duration-300">
-                    <div class="stat-figure text-indigo-500">
-                        <div class="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center">
-                            <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                        </div>
-                    </div>
-                    <div class="stat-title text-gray-500 font-semibold tracking-wide">Total Soal Terinput</div>
-                    <div class="stat-value text-indigo-700 text-4xl mt-2 font-black">{{ $soals->total() }}</div>
-                    <div class="stat-desc mt-2 text-indigo-500 font-medium flex items-center gap-1">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                        </svg>
-                        Target minimal: 30 soal
-                    </div>
-                </div>
-
-                <div class="stat hover:bg-gray-50 transition duration-300">
-                    <div class="stat-figure text-emerald-500">
-                        <div class="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center">
-                            <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                            </svg>
-                        </div>
-                    </div>
-                    <div class="stat-title text-gray-500 font-semibold tracking-wide">Mata Pelajaran</div>
-                    <div class="stat-value text-emerald-700 text-2xl mt-2 truncate max-w-[250px]">
-                        Semua Mapel
-                    </div>
-                    <div class="stat-desc mt-2 font-semibold text-emerald-500">
-                        Total yang Anda ajar
-                    </div>
-                </div>
-            </div>
-
-            <!-- 2. AREA UTAMA DAFTAR SOAL -->
-            <div class="card bg-white shadow-xl border border-gray-100 rounded-2xl overflow-hidden">
-                <div class="card-body p-0">
-
-                    <!-- HEADER & TOMBOL AKSI -->
-                    <div
-                        class="bg-gray-50/50 p-6 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                        <div>
-                            <h3 class="text-xl font-bold text-gray-800">Daftar Butir Pertanyaan</h3>
-                            <p class="text-sm text-gray-500 mt-1">Kumpulan soal yang siap digunakan dalam paket ujian.
-                            </p>
-                        </div>
-
-                        <div class="flex gap-2">
-                            <a href="{{ route('guru.soal.create') }}"
-                                class="btn bg-indigo-600 hover:bg-indigo-700 text-white border-none shadow-lg shadow-indigo-200 gap-2 rounded-xl">
-                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 4v16m8-8H4" />
-                                </svg>
-                                Tambah Soal
-                            </a>
-                        </div>
-                    </div>
-
-                    <!-- AREA TABEL DAFTAR SOAL -->
-                    <div class="overflow-x-auto w-full">
-                        <table class="table w-full text-gray-700">
-                            <thead class="bg-white text-gray-600 font-semibold text-sm border-b-2 border-gray-100">
-                                <tr>
-                                    <th class="w-16 text-center py-5">No</th>
-                                    <th>Mata Pelajaran</th>
-                                    <th>Pertanyaan</th>
-                                    <th class="w-32 text-center">Kunci</th>
-                                    <th class="w-24 text-center">Kesulitan</th>
-                                    <th class="w-32 text-center">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-100">
-                                @forelse($soals as $index => $soal)
-                                <tr class="hover:bg-indigo-50/30 transition duration-200">
-                                    <td class="text-center font-medium text-gray-400">
-                                        {{ $soals->firstItem() + $index }}
-                                    </td>
-
-                                    <td>
-                                        <div
-                                            class="badge badge-ghost font-medium px-3 py-3 rounded-lg bg-gray-100 text-gray-600 border-none">
-                                            {{ $soal->mataPelajaran->nama ?? '-' }}
-                                        </div>
-                                    </td>
-
-                                    <td class="font-medium text-gray-800 max-w-md">
-                                        <div class="line-clamp-2 leading-relaxed">
-                                            {{ strip_tags($soal->konten) }}
-                                        </div>
-                                    </td>
-
-                                    <td class="text-center">
-                                        <span
-                                            class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 font-bold border border-emerald-200 shadow-sm">
-                                            {{ $soal->jawabanBenar->label ?? '-' }}
-                                        </span>
-                                    </td>
-
-                                    <td class="text-center">
-                                        @if($soal->tingkat_kesulitan == 'mudah')
-                                        <span
-                                            class="badge bg-green-100 text-green-700 border-none font-semibold px-3 py-2 rounded-md">Mudah</span>
-                                        @elseif($soal->tingkat_kesulitan == 'sulit')
-                                        <span
-                                            class="badge bg-red-100 text-red-700 border-none font-semibold px-3 py-2 rounded-md">Sulit</span>
-                                        @else
-                                        <span
-                                            class="badge bg-yellow-100 text-yellow-700 border-none font-semibold px-3 py-2 rounded-md">Sedang</span>
-                                        @endif
-                                    </td>
-
-                                    <td class="text-center">
-                                        <div class="flex justify-center gap-2">
-                                            <form action="{{ route('guru.soal.destroy', $soal->id) }}" method="POST"
-                                                onsubmit="return confirm('Yakin ingin menghapus soal ini?')">
-                                                @csrf @method('DELETE')
-                                                <button type="submit"
-                                                    class="btn btn-circle btn-ghost btn-sm text-gray-400 hover:text-red-500 hover:bg-red-50 transition">
-                                                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                                                        stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2"
-                                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-4v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                    </svg>
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
-                                @empty
-                                <tr>
-                                    <td colspan="6" class="text-center py-12">
-                                        <div class="flex flex-col items-center justify-center space-y-3">
-                                            <div
-                                                class="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-2">
-                                                <svg class="w-10 h-10 text-gray-300" fill="none" viewBox="0 0 24 24"
-                                                    stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2"
-                                                        d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                </svg>
-                                            </div>
-                                            <h4 class="text-lg font-bold text-gray-700">Belum ada soal</h4>
-                                            <p class="text-gray-500 max-w-sm text-center">Anda belum membuat soal ujian.
-                                                Silakan klik tombol "Tambah Soal" di kanan atas untuk mulai menyusun
-                                                bank soal.</p>
-                                        </div>
-                                    </td>
-                                </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <!-- PAGINATION -->
-                    @if($soals->hasPages())
-                    <div class="p-6 border-t border-gray-100 bg-gray-50/30">
-                        {{ $soals->links() }}
-                    </div>
-                    @endif
-                </div>
-            </div>
-        </div>
-    </div>
-</x-app-layout> --}}
 <x-app-layout>
     <div class="space-y-6">
-        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-                <h1 class="text-2xl font-bold tracking-tight text-slate-800">Manajemen Soal</h1>
-                <p class="text-sm text-slate-500">Kelola daftar soal.</p>
+        <x-data-tabel>
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-5">
+                <div>
+                    <h1 class="text-2xl font-bold tracking-tight text-slate-800">Manajemen Soal</h1>
+                </div>
+                <div>
+                    <a href="{{ route('guru.soal.create') }}"
+                        class="btn btn-primary shadow-sm font-semibold normal-case">
+                        Tambah Soal
+                    </a>
+                </div>
             </div>
-            <div>
-                <a href="{{ route('guru.soal.create') }}"
-                    class="btn bg-indigo-600 hover:bg-indigo-700 border-none text-white shadow-sm font-semibold normal-case gap-2 px-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
-                        stroke="currentColor" class="size-5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                    </svg>
-                    Tambah Soal
-                </a>
-            </div>
-        </div>
+            <x-slot name="header">
+                <th class="w-12 text-center">No</th>
+                <th class="w-36">Mata Pelajaran</th>
+                <th class="min-w-[250px] max-w-md">Pertanyaan</th>
+                <th class="w-48">Pilihan Jawaban (Hover)</th>
+                <th class="w-24 text-center">Kunci</th>
+                <th class="w-32 text-center">Aksi</th>
+            </x-slot>
 
-        <!-- 2. AREA UTAMA DAFTAR SOAL -->
-        <div class="card bg-white border border-slate-200/80 shadow-sm rounded-xl overflow-hidden">
-            <div class="p-6 space-y-6">
-                <!-- AREA TABEL DAFTAR SOAL -->
-                <div class="overflow-x-auto rounded-lg border border-slate-100">
-                    <table class="table w-full text-slate-700">
-                        <thead>
-                            <tr class="bg-slate-50/70 border-b border-slate-200 text-slate-600 font-semibold text-sm">
-                                <th class="w-16 text-center">#</th>
-                                <th class="text-center">Mata Pelajaran</th>
-                                <th class="text-center">Pertanyaan</th>
-                                <th class="text-center">Pilihan Jawaban</th>
-                                <th class="text-center">Kunci</th>
-                                {{-- <th class="w-28 text-center">Kesulitan</th> --}}
-                                <th class="text-center">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100 bg-white">
-                            @forelse($soals as $index => $soal)
-                                <tr class="hover:bg-slate-50/50 transition duration-150">
-                                    <td class="text-center font-medium text-slate-500">
-                                        {{ $loop->iteration }}
-                                    </td>
+            @forelse($soals as $index => $soal)
+                <tr class="hover align-top">
+                    <td class="text-center font-medium">
+                        {{ ($soals->currentPage() - 1) * $soals->perPage() + $loop->iteration }}</td>
 
-                                    <td>
-                                        <div
-                                            class="badge bg-gray-100 text-gray-600 font-semibold px-3 py-2.5 rounded-md border-none text-xs">
-                                            {{ $soal->mataPelajaran->nama ?? '-' }}
-                                        </div>
-                                    </td>
+                    <td>
+                        <div class="badge badge-neutral badge-sm font-semibold whitespace-nowrap">
+                            {{ $soal->mataPelajaran->nama ?? '-' }}
+                        </div>
+                    </td>
 
-                                    <td class="font-medium text-gray-800 max-w-md">
-                                        <div class="line-clamp-2 leading-relaxed text-sm">
-                                            {{ $soal->konten }}
-                                        </div>
-                                    </td>
+                    <td class="max-w-md">
+                        <div class="line-clamp-2 text-sm font-medium text-base-content" title="{{ $soal->konten }}">
+                            {{ $soal->konten }}
+                        </div>
+                    </td>
 
-                                    <td>
-                                        @foreach($soal->pilihanJawaban as $pilihan)
-                                            <div class="line-clamp-2 leading-relaxed text-sm">
-                                                <span class="font-bold">{{ $pilihan->label }}</span>. {{ $pilihan->konten }}
-                                            </div>
-                                        @endforeach
-                                    </td>
-
-                                    <td class="text-center">
-                                        <span class="line-clamp-2 leading-relaxed text-sm">
-                                            {{ $soal->jawabanBenar->label ?? '-' }}. {{ $soal->jawabanBenar->konten }}
+                    <td>
+                        <div class="dropdown dropdown-hover dropdown-right dropdown-end">
+                            <div tabindex="0" role="button" class="btn btn-xs btn-ghost gap-1 text-primary normal-case">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                                    stroke="currentColor" class="size-3.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                                </svg>
+                                Lihat Opsi
+                            </div>
+                            <ul tabindex="0"
+                                class="dropdown-content menu p-3 shadow-xl bg-base-100 rounded-box w-64 z-[1] border border-base-200">
+                                @foreach($soal->pilihanJawaban as $pilihan)
+                                    <li class="text-xs py-0.5 border-b border-base-100 last:border-none">
+                                        <span class="p-1 block">
+                                            <b class="text-primary">{{ $pilihan->label }}.</b> {{ $pilihan->konten }}
                                         </span>
-                                    </td>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    </td>
 
-                                    {{-- <td class="text-center">
-                                        @if($soal->tingkat_kesulitan == 'mudah')
-                                        <span
-                                            class="badge bg-green-50 text-green-700 border border-green-100 font-semibold px-2.5 py-2 rounded-md text-xs">Mudah</span>
-                                        @elseif($soal->tingkat_kesulitan == 'sulit')
-                                        <span
-                                            class="badge bg-red-50 text-red-700 border border-red-100 font-semibold px-2.5 py-2 rounded-md text-xs">Sulit</span>
-                                        @else
-                                        <span
-                                            class="badge bg-amber-50 text-amber-700 border border-amber-100 font-semibold px-2.5 py-2 rounded-md text-xs">Sedang</span>
-                                        @endif
-                                    </td> --}}
+                    <td class="text-center">
+                        <div class="tooltip tooltip-primary" data-tip="{{ $soal->jawabanBenar->konten }}">
+                            <span class="badge badge-success text-success-content font-bold px-2.5">
+                                {{ $soal->jawabanBenar->label }}
+                            </span>
+                        </div>
+                    </td>
 
-                                    <td class="text-center">
-                                        <div class="flex justify-center gap-1">
-                                            <form action="{{ route('guru.soal.destroy', $soal->id) }}" method="POST"
-                                                onsubmit="return confirm('Yakin ingin menghapus soal ini?')">
-                                                @csrf @method('DELETE')
-                                                <button type="submit"
-                                                    class="btn btn-ghost btn-xs text-gray-400 hover:text-red-500 p-1 rounded-md transition">
-                                                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                                                        stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2"
-                                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-4v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                    </svg>
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="6" class="text-center py-16">
-                                        <div class="flex flex-col items-center justify-center space-y-2">
-                                            <div
-                                                class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-1">
-                                                <svg class="w-8 h-8 text-gray-300" fill="none" viewBox="0 0 24 24"
-                                                    stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                </svg>
-                                            </div>
-                                            <h4 class="text-base font-bold text-gray-700">Belum Ada Soal Ujian</h4>
-                                            <p class="text-gray-400 text-sm max-w-xs text-center">Silakan tekan tombol
-                                                tambah soal di atas untuk merakit bank soal masal.</p>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
+                    <td class="text-center">
+                        <div class="flex items-center justify-center gap-1">
+                            <button type="button" class="btn btn-xs btn-warning text-warning-content shadow-none"
+                                onclick="openEditModal( {{ $soal->load('pilihanJawaban', 'jawabanBenar') }} )">
+                                Edit
+                            </button>
 
-                <!-- PAGINATION -->
-                {{-- @if($soals->hasPages())
-                <div class="p-4 border-t border-gray-100 bg-gray-50/20">
-                    {{ $soals->links() }}
-                </div>
-                @endif --}}
+                            <form action="{{ route('guru.soal.destroy', $soal) }}" method="POST"
+                                onsubmit="return confirm('Hapus soal ini?')" class="inline">
+                                @csrf @method('DELETE')
+                                <button type="submit" class="btn btn-xs btn-outline btn-error shadow-none">
+                                    Hapus
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="6" class="text-center py-16">
+                        <div class="flex flex-col items-center gap-4">
+                            <div
+                                class="w-16 h-16 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center">
+                                <svg class="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M8 9l4-4m0 0l4 4m-4-4v14">
+                                    </path>
+                                </svg>
+                            </div>
+                            <div class="text-slate-600 text-center">
+                                <p class="font-semibold text-lg">Belum ada data</p>
+                                <p class="text-sm">Silahkan tambah data terlebih dahulu.</p>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            @endforelse
+        </x-data-tabel>
+        {{ $soals->links() }}
+    </div>
+
+    <x-form-modal>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+            <div class="form-control w-full col-span-1 sm:col-span-2">
+                <label class="label"><span class="label-text font-semibold text-slate-700 text-sm">
+                        Pertanyaan</span></label>
+                <input type="text" id="edit_pertanyaan" name="pertanyaan" value="{{ old('pertanyaan') }}"
+                    placeholder="Masukkan pertanyaan" class="input input-neutral w-full" required />
+            </div>
+
+            <div class="form-control w-full">
+                <label class="label"><span class="label-text font-semibold text-slate-700 text-sm">Opsi A</span></label>
+                <input type="text" id="edit_opsi_a" name="opsi_a" value="{{ old('opsi_a') }}"
+                    placeholder="Masukkan opsi A" class="input input-neutral" required />
+            </div>
+
+            <div class="form-control w-full">
+                <label class="label"><span class="label-text font-semibold text-slate-700 text-sm">Opsi B</span></label>
+                <input type="text" id="edit_opsi_b" name="opsi_b" value="{{ old('opsi_b') }}"
+                    placeholder="Masukkan opsi B" class="input input-neutral" required />
+            </div>
+
+            <div class="form-control w-full">
+                <label class="label"><span class="label-text font-semibold text-slate-700 text-sm">Opsi C</span></label>
+                <input type="text" id="edit_opsi_c" name="opsi_c" value="{{ old('opsi_c') }}"
+                    placeholder="Masukkan opsi C" class="input input-neutral" required />
+            </div>
+
+            <div class="form-control w-full">
+                <label class="label"><span class="label-text font-semibold text-slate-700 text-sm">Opsi D</span></label>
+                <input type="text" id="edit_opsi_d" name="opsi_d" value="{{ old('opsi_d') }}"
+                    placeholder="Masukkan opsi D" class="input input-neutral" required />
+            </div>
+
+            <div class="form-control w-full">
+                <label class="label"><span class="label-text font-semibold text-slate-700 text-sm">Kunci
+                        Jawaban</span></label>
+                <select id="edit_jawaban_benar" name="jawaban_benar" class="select select-neutral"
+                    value="{{ old('jawaban_benar') }}" required>
+                    <option value="" disabled selected>-- Pilih Kunci Jawaban --</option>
+                    <option value="A">A</option>
+                    <option value="B">B</option>
+                    <option value="C">C</option>
+                    <option value="D">D</option>
+                </select>
             </div>
         </div>
-    </div>
+    </x-form-modal>
+
+    <script>
+        const modal = document.getElementById('modal')
+        const form = document.getElementById('form')
+        const modalTitle = document.getElementById('modal_title')
+        const method = document.getElementById('method')
+
+        function openEditModal(soal) {
+            modalTitle.innerText = 'Edit Soal'
+            form.action = `{{ url('guru/soal') }}/` + soal.id
+            method.innerHTML = `@method('PUT')`
+            document.getElementById('edit_pertanyaan').value = soal.konten;
+            soal.pilihan_jawaban.forEach(jawaban => {
+                if (jawaban.label === 'A') document.getElementById('edit_opsi_a').value = soal.pilihan_jawaban[0].konten;
+                if (jawaban.label === 'B') document.getElementById('edit_opsi_b').value = soal.pilihan_jawaban[1].konten;
+                if (jawaban.label === 'C') document.getElementById('edit_opsi_c').value = soal.pilihan_jawaban[2].konten;
+                if (jawaban.label === 'D') document.getElementById('edit_opsi_d').value = soal.pilihan_jawaban[3].konten;
+
+                // Jika baris jawaban ini adalah yang benar, otomatis pilih di dropdown select
+                if (jawaban.is_correct == 1) {
+                    document.getElementById('edit_jawaban_benar').value = jawaban.label;
+                }
+            });
+
+            modal.showModal()
+        }
+    </script>
 </x-app-layout>

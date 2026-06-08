@@ -60,7 +60,6 @@ class AdminDashboardController extends Controller
 
         // Siswa baru belum lengkap profilnya
         $siswaBaru = User::role('siswa')
-            ->where('is_profile_complete', false)
             ->latest()
             ->take(5)
             ->get();

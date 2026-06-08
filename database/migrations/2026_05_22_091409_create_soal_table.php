@@ -17,7 +17,6 @@ return new class extends Migration
             $table->foreignId('guru_id')->constrained('users')->cascadeOnDelete();
             $table->longText('konten');
             $table->string('gambar')->nullable();
-            $table->enum('tingkat_kesulitan', ['mudah', 'sedang', 'sulit'])->default('sedang');
             $table->timestamps();
         });
     }

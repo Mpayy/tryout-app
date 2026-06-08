@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('pilihan_jawaban', function (Blueprint $table) {
             $table->id();
             $table->foreignId('soal_id')->constrained('soal')->cascadeOnDelete();
-            $table->enum('label', ['A', 'B', 'C', 'D', 'E']);
+            $table->enum('label', ['A', 'B', 'C', 'D']);
             $table->text('konten');
-            $table->boolean('is_correct')->default(true);
+            $table->boolean('is_correct')->default(false);
             $table->timestamps();
         });
     }
