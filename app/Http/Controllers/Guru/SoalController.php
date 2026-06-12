@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\DB;
 use App\Models\MataPelajaran;
 use App\Models\Soal;
 use App\Models\PilihanJawaban;
-use FontLib\Table\Type\name;
 use App\Http\Requests\SoalRequest;
 use App\Services\SoalService;
 
@@ -25,10 +24,7 @@ class SoalController extends Controller
 
         return view('guru.soal.index', compact('soals', 'guru'));
     }
-    /**
-     * Tampilkan halaman input soal bulk.
-     * Kirim daftar mata pelajaran untuk dropdown.
-     */
+    
     public function create()
     {
         $mataPelajaranGuru = auth()->user()->load('profileGuru.mataPelajarans')->profileGuru->mataPelajarans;
@@ -57,8 +53,12 @@ class SoalController extends Controller
             ->with('success', count($result) . ' butir soal berhasil disimpan ke bank soal.');
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, Soal $soal)
     {
+        if ($soal->guru_id !== auth()->id()) {
+            abort(403, 'Akses ditolak.');
+        }
+
         $request->validate([
             'pertanyaan'    => 'required|string',
             'opsi_a'        => 'required|string',
@@ -68,15 +68,10 @@ class SoalController extends Controller
             'jawaban_benar' => 'required|string|in:A,B,C,D',
         ]);
 
-        // 1. Cari data soal beserta relasi jawabannya
-        $soal = Soal::with('pilihanJawaban')->findOrFail($id);
-
-        // 2. Update tabel 'soals' terlebih dahulu
         $soal->update([
             'konten' => $request->pertanyaan,
         ]);
 
-        // 3. Mapping input form menjadi struktur tabel jawaban terpisah
         $opsiData = [
             'A' => $request->opsi_a,
             'B' => $request->opsi_b,
@@ -84,15 +79,10 @@ class SoalController extends Controller
             'D' => $request->opsi_d,
         ];
 
-        // 4. Update data di tabel 'jawabans' satu per satu
         foreach ($soal->pilihanJawaban as $jawaban) {
-            // Ambil konten baru berdasarkan label jawaban saat ini (A/B/C/D)
             $kontenBaru = $opsiData[$jawaban->label];
-            
-            // Cek apakah label ini diset sebagai jawaban benar di form
             $apakahBenar = ($jawaban->label === $request->jawaban_benar) ? 1 : 0;
 
-            // Eksekusi update baris tersebut
             $jawaban->update([
                 'konten' => $kontenBaru,
                 'is_correct' => $apakahBenar
@@ -104,7 +94,6 @@ class SoalController extends Controller
 
     public function destroy(Soal $soal)
     {
-        // Pastikan hanya guru pemilik yang bisa hapus
         if ($soal->guru_id !== auth()->id()) {
             abort(403, 'Anda tidak berhak menghapus soal ini.');
         }

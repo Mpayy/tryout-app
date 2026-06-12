@@ -19,15 +19,12 @@
                     <td>
                         <div class="flex items-center gap-3">
                             <div class="avatar">
-                                @if ($guru->foto)
+                                @if ($guru->profileGuru->foto)
                                     <div class="w-10 rounded-full">
-                                        <img src="{{ asset('storage/' . $guru->foto) }}" alt="{{ $guru->name }}" />
+                                        <img src="{{ asset('storage/' . $guru->profileGuru->foto) }}" alt="{{ $guru->name }}" />
                                     </div>
                                 @else
-                                    <div
-                                        class="bg-primary text-primary-content w-10 rounded-full font-bold text-sm uppercase">
-                                        {{ substr($guru->name, 0, 2) }}
-                                    </div>
+                                    <div class="skeleton h-10 w-10 shrink-0 rounded-full"></div>
                                 @endif
                             </div>
                             <div>
@@ -288,5 +285,9 @@
                 }
             });
         });
+
+        function closeModal() {
+            modal.close()
+        }
     </script>
 </x-app-layout>

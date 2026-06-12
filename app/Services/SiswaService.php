@@ -20,8 +20,7 @@ class SiswaService
             $siswa->assignRole($data['role']);
             $siswa->profileSiswa()->create([
                 'nis'      => $data['nis'],
-                'kelas_id' => $data['kelas'],
-                'jurusan'  => $data['jurusan'] ?? null,
+                'kelas_id' => $data['kelas']
             ]);
 
             return $siswa;
@@ -49,7 +48,6 @@ class SiswaService
                 [
                     'nis'      => $data['nis'],
                     'kelas_id' => $data['kelas'],
-                    'jurusan'  => $data['jurusan'] ?? null,
                 ]
             );
 
