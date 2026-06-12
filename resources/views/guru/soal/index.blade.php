@@ -1,17 +1,8 @@
 <x-app-layout>
     <div class="space-y-6">
-        <x-data-tabel>
-            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-5">
-                <div>
-                    <h1 class="text-2xl font-bold tracking-tight text-slate-800">Manajemen Soal</h1>
-                </div>
-                <div>
-                    <a href="{{ route('guru.soal.create') }}"
-                        class="btn btn-primary shadow-sm font-semibold normal-case">
-                        Tambah Soal
-                    </a>
-                </div>
-            </div>
+        <x-data-tabel :route="route('guru.soal.create')">
+            <x-slot name="page">Soal</x-slot>
+
             <x-slot name="header">
                 <th class="w-12 text-center">No</th>
                 <th class="w-36">Mata Pelajaran</th>
@@ -24,7 +15,8 @@
             @forelse($soals as $index => $soal)
                 <tr class="hover align-top">
                     <td class="text-center font-medium">
-                        {{ ($soals->currentPage() - 1) * $soals->perPage() + $loop->iteration }}</td>
+                        {{ ($soals->currentPage() - 1) * $soals->perPage() + $loop->iteration }}
+                    </td>
 
                     <td>
                         <div class="badge badge-neutral badge-sm font-semibold whitespace-nowrap">
@@ -48,21 +40,21 @@
                                 </svg>
                                 Lihat Opsi
                             </div>
-                            <ul tabindex="0"
-                                class="dropdown-content menu p-3 shadow-xl bg-base-100 rounded-box w-64 z-[1] border border-base-200">
+                            <ul tabindex="-1"
+                                class="dropdown-content menu p-3 shadow-xl bg-base-100 rounded-box w-64 z-1 border border-base-200">
                                 @foreach($soal->pilihanJawaban as $pilihan)
-                                    <li class="text-xs py-0.5 border-b border-base-100 last:border-none">
-                                        <span class="p-1 block">
-                                            <b class="text-primary">{{ $pilihan->label }}.</b> {{ $pilihan->konten }}
-                                        </span>
-                                    </li>
+                                <li class="text-xs py-0.5 border-b border-base-100 last:border-none">
+                                    <span class="p-1 block">
+                                        <b class="text-primary">{{ $pilihan->label }}.</b> {{ Str::limit($pilihan->konten, 20) }}
+                                    </span>
+                                </li>
                                 @endforeach
                             </ul>
                         </div>
                     </td>
 
                     <td class="text-center">
-                        <div class="tooltip tooltip-primary" data-tip="{{ $soal->jawabanBenar->konten }}">
+                        <div class="tooltip tooltip-primary" data-tip="{{ Str::limit($soal->jawabanBenar->konten, 20) }}">
                             <span class="badge badge-success text-success-content font-bold px-2.5">
                                 {{ $soal->jawabanBenar->label }}
                             </span>
@@ -183,6 +175,10 @@
             });
 
             modal.showModal()
+        }
+
+        function closeModal() {
+            modal.close()
         }
     </script>
 </x-app-layout>

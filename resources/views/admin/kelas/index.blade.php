@@ -129,8 +129,8 @@
                 @endif
         });
 
-            function closeModal() {
-                modal.close();
-            }
+        function closeModal() {
+            modal.close();
+        }
         </script>
 </x-app-layout>

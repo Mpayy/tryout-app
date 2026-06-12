@@ -15,13 +15,15 @@ use App\Http\Controllers\Admin\SiswaController;
 use App\Http\Controllers\Guru\GuruDashboardController;
 use App\Http\Controllers\Guru\PaketUjianController;
 use App\Http\Controllers\Guru\SoalController;
+use App\Http\Controllers\Guru\RekapController as GuruRekapController;
 use App\Http\Controllers\Siswa\SiswaDashboardController;
 use App\Http\Controllers\Siswa\UjianController;
+use App\Http\Controllers\Admin\RekapController as AdminRekapController;
 
 // ── Halaman welcome ──────────────────────────────────────────
-// Route::get('/', function () {
-//     return view('welcome');
-// });
+Route::get('/', function () {
+    return redirect()->route('login');
+});
 
 // ── Profile (bawaan Breeze, semua role bisa akses) ───────────
 Route::middleware('auth')->group(function () {
@@ -70,6 +72,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::put('siswa/{user}', [SiswaController::class, 'update'])->name('siswa.update');
     Route::delete('siswa/{user}', [SiswaController::class, 'destroy'])->name('siswa.destroy');
 
+    // ── Rekap ──────────────────────────────────────────────
+    Route::get('rekap', [AdminRekapController::class, 'index'])->name('rekap.index');
+    Route::get('rekap/{paket}', [AdminRekapController::class, 'show'])->name('rekap.show');
+
     // ── Monitoring & Rekap (aktifkan saat controller sudah dibuat) ──
     // Route::get('monitoring', [MonitoringController::class, 'index'])->name('monitoring');
     // Route::get('rekap/{paket}', [RekapController::class, 'show'])->name('rekap.show');
@@ -95,15 +101,19 @@ Route::prefix('guru')->name('guru.')->middleware(['auth', 'role:guru'])->group(f
 
     // ── Paket Ujian ──
     // Route::resource('paket-ujian', \App\Http\Controllers\Guru\PaketUjianController::class);
-    Route::get('paket-ujian', [PaketUjianController::class,'index'])->name('paket-ujian.index');
-    Route::post('paket-ujian', [PaketUjianController::class,'store'])->name('paket-ujian.store');
-    Route::get('paket-ujian/{paket_ujian}/show', [PaketUjianController::class,'show'])->name('paket-ujian.show');
-    Route::put('paket-ujian/{paket_ujian}', [PaketUjianController::class,'update'])->name('paket-ujian.update');
-    Route::delete('paket-ujian/{paket_ujian}', [PaketUjianController::class,'destroy'])->name('paket-ujian.destroy');
+    Route::get('paket-ujian', [PaketUjianController::class, 'index'])->name('paket-ujian.index');
+    Route::post('paket-ujian', [PaketUjianController::class, 'store'])->name('paket-ujian.store');
+    Route::get('paket-ujian/{paket_ujian}/show', [PaketUjianController::class, 'show'])->name('paket-ujian.show');
+    Route::put('paket-ujian/{paket_ujian}', [PaketUjianController::class, 'update'])->name('paket-ujian.update');
+    Route::delete('paket-ujian/{paket_ujian}', [PaketUjianController::class, 'destroy'])->name('paket-ujian.destroy');
 
     Route::post('paket-ujian/{paket_ujian}/soal', [PaketUjianController::class, 'tambahSoal'])->name('paket-ujian.tambah-soal');
     Route::delete('paket-ujian/{paket_ujian}/soal/{soal}', [PaketUjianController::class, 'hapusSoal'])->name('paket-ujian.hapus-soal');
     Route::patch('paket-ujian/{paket_ujian}/status', [PaketUjianController::class, 'updateStatus'])->name('paket-ujian.status');
+
+    // ── Rekap ──────────────────────────────────────────────
+    Route::get('rekap', [GuruRekapController::class, 'index'])->name('rekap.index');
+    Route::get('rekap/{paket}', [GuruRekapController::class, 'show'])->name('rekap.show');
 });
 
 // ════════════════════════════════════════════════════════

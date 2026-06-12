@@ -19,10 +19,13 @@
                     <td>
                         <div class="flex items-center gap-3">
                             <div class="avatar placeholder">
-                                <div
-                                    class="bg-secondary text-secondary-content w-9 rounded-full font-bold text-sm uppercase">
-                                    {{ substr($siswa->name, 0, 2) }}
-                                </div>
+                                @if($siswa->profileSiswa?->foto)
+                                    <div class="w-9 rounded-full">
+                                        <img src="{{ asset('storage/' . $siswa->profileSiswa->foto) }}" alt="{{ $siswa->name }}" />
+                                    </div>
+                                @else
+                                    <div class="skeleton h-9 w-9 shrink-0 rounded-full"></div>
+                                @endif
                             </div>
                             <div>
                                 <div class="font-bold text-base-content">{{ $siswa->name }}</div>
@@ -188,7 +191,7 @@
             @endif
         });
 
-        function closeUserModal() {
+        function closeModal() {
             modal.close();
         }
     </script>
