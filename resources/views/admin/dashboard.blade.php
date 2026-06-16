@@ -209,7 +209,7 @@
     <div class="grid grid-cols-1 xl:grid-cols-3 gap-5">
 
         {{-- Ujian terbaru (2/3) --}}
-        <div class="xl:col-span-2 card bg-base-100 border border-base-200 shadow-sm">
+        <div class="xl:col-span-3 card bg-base-100 border border-base-200 shadow-sm">
             <div class="card-body p-0">
                 <div class="flex items-center justify-between px-5 py-4 border-b border-base-200">
                     <div>
@@ -266,7 +266,7 @@
         </div>
 
         {{-- Siswa belum profil (1/3) --}}
-        <div class="card bg-base-100 border border-base-200 shadow-sm">
+        {{-- <div class="card bg-base-100 border border-base-200 shadow-sm">
             <div class="card-body p-0">
                 <div class="flex items-center justify-between px-5 py-4 border-b border-base-200">
                     <div>
@@ -303,7 +303,7 @@
                     </div>
                 @endif
             </div>
-        </div>
+        </div> --}}
     </div>
 
 </div>
