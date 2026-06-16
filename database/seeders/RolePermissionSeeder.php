@@ -45,25 +45,25 @@ class RolePermissionSeeder extends Seeder
             'manage-profil',
         ]);
 
-        $guru = Role::firstOrCreate(['name' => 'guru']);
-        $guru->syncPermissions([
-            'manage-soal',
-            'manage-paket-ujian',
-            'manage-profil',
-        ]);
+        // $guru = Role::firstOrCreate(['name' => 'guru']);
+        // $guru->syncPermissions([
+        //     'manage-soal',
+        //     'manage-paket-ujian',
+        //     'manage-profil',
+        // ]);
 
-        $siswa = Role::firstOrCreate(['name' => 'siswa']);
-        $siswa->syncPermissions([
-            'manage-profil',
-        ]);
+        // $siswa = Role::firstOrCreate(['name' => 'siswa']);
+        // $siswa->syncPermissions([
+        //     'manage-profil',
+        // ]);
         
-        $adminUser = User::firstOrCreate(
-            ['email' => 'admin@tryout.com'],
-            [
-                'name'     => 'Admin Utama',
-                'password' => bcrypt('password'),
-            ]
-        );
-        $adminUser->syncRoles('admin');
+        // $adminUser = User::firstOrCreate(
+        //     ['email' => 'admin@tryout.com'],
+        //     [
+        //         'name'     => 'Admin Utama',
+        //         'password' => bcrypt('password'),
+        //     ]
+        // );
+        // $adminUser->syncRoles('admin');
     }
 }
