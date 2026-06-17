@@ -52,9 +52,9 @@ class AdminDashboardController extends Controller
                 ->with('mataPelajaran')
                 ->withCount([
                     'sesiUjian as sedang_mengerjakan' => fn($q) =>
-                        $q->where('status', 'berlangsung'),
+                    $q->where('status', 'berlangsung'),
                     'sesiUjian as sudah_submit' => fn($q) =>
-                        $q->whereIn('status', ['selesai', 'timeout']),
+                    $q->whereIn('status', ['selesai', 'timeout']),
                     'sesiUjian as total_peserta',
                 ])
                 ->orderByDesc('sedang_mengerjakan')
@@ -67,24 +67,24 @@ class AdminDashboardController extends Controller
             // 5 paket terbaru yang sudah punya hasil
             'ujianTerbaru' => PaketUjian::with('mataPelajaran')
                 ->whereHas('sesiUjian', fn($q) =>
-                    $q->whereIn('status', ['selesai', 'timeout']))
+                $q->whereIn('status', ['selesai', 'timeout']))
                 ->withCount([
                     'sesiUjian as jumlah_peserta' => fn($q) =>
-                        $q->whereIn('status', ['selesai', 'timeout']),
+                    $q->whereIn('status', ['selesai', 'timeout']),
                 ])
                 ->withAvg(
                     ['sesiUjian as rata_nilai' => fn($q) =>
-                        $q->whereIn('status', ['selesai', 'timeout'])],
+                    $q->whereIn('status', ['selesai', 'timeout'])],
                     'nilai'
                 )
                 ->withMax(
                     ['sesiUjian as nilai_tertinggi' => fn($q) =>
-                        $q->whereIn('status', ['selesai', 'timeout'])],
+                    $q->whereIn('status', ['selesai', 'timeout'])],
                     'nilai'
                 )
                 ->withMin(
                     ['sesiUjian as nilai_terendah' => fn($q) =>
-                        $q->whereIn('status', ['selesai', 'timeout'])],
+                    $q->whereIn('status', ['selesai', 'timeout'])],
                     'nilai'
                 )
                 ->orderByDesc('tanggal_selesai')

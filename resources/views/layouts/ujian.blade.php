@@ -93,19 +93,19 @@
 
     {{-- Script keamanan dasar --}}
     <script>
-        document.addEventListener('contextmenu', e => e.preventDefault());
+        // document.addEventListener('contextmenu', e => e.preventDefault());
 
-        document.addEventListener('keydown', function (e) {
-            if (e.key === 'F12' || e.keyCode === 123) {
-                e.preventDefault(); return;
-            }
-            if (e.ctrlKey && e.shiftKey && ['I','J','C'].includes(e.key.toUpperCase())) {
-                e.preventDefault(); return;
-            }
-            if (e.ctrlKey && e.key.toUpperCase() === 'U') {
-                e.preventDefault(); return;
-            }
-        });
+        // document.addEventListener('keydown', function (e) {
+        //     if (e.key === 'F12' || e.keyCode === 123) {
+        //         e.preventDefault(); return;
+        //     }
+        //     if (e.ctrlKey && e.shiftKey && ['I','J','C'].includes(e.key.toUpperCase())) {
+        //         e.preventDefault(); return;
+        //     }
+        //     if (e.ctrlKey && e.key.toUpperCase() === 'U') {
+        //         e.preventDefault(); return;
+        //     }
+        // });
     </script>
 </body>
 </html>
