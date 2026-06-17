@@ -3,6 +3,13 @@
   "build": {
     "builder": "NIXPACKS"
   },
+  "nixpacksConfig": {
+    "providers": [
+      "php",
+      "node"
+    ],
+    "nodeVersion": "22"
+  },
   "deploy": {
     "runtime": "V2",
     "numReplicas": 1,
