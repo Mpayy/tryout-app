@@ -1,12 +1,3 @@
-{{--
-    PERUBAHAN DARI VERSI LAMA:
-    1. Ganti `text-slate-700` hardcoded di label → sekarang form-modal tidak hardcode warna,
-       label styling diserahkan ke masing-masing halaman (sudah `floating-label`)
-    2. Tambah border-t di modal-action agar tombol Simpan terpisah jelas
-    3. Tombol Simpan pakai gap + icon untuk tampilan lebih polished
-    4. Tambah tombol "Batal" di samping Simpan (sebelumnya tidak ada)
-    5. Modal title lebih besar dan ada border-b pemisah
---}}
 <dialog id="modal" class="modal modal-bottom sm:modal-middle">
     <div class="modal-box w-full sm:max-w-lg">
 

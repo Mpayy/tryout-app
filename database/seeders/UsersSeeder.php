@@ -18,7 +18,7 @@ class UsersSeeder extends Seeder
         for ($i = 0; $i < 10; $i++) {
             $guruUser = User::create([
                 'name' => 'Guru ' . $i,
-                'email' => 'guru' . $i . '@example.com',
+                'email' => 'guru' . $i . '@tryout.com',
                 'password' => bcrypt('password'),
             ]);
 
@@ -30,10 +30,10 @@ class UsersSeeder extends Seeder
             ]);
         }
 
-        for ($i = 0; $i < 100; $i++) {
+        for ($i = 0; $i < 10; $i++) {
             $siswaUser = User::create([
                 'name' => 'Siswa ' . $i,
-                'email' => 'siswa' . $i . '@example.com',
+                'email' => 'siswa' . $i . '@tryout.com',
                 'password' => bcrypt('password'),
             ]);
 

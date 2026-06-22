@@ -30,7 +30,8 @@
 
             {{-- Kiri: Logo + nama app --}}
             <div class="flex items-center gap-3">
-                <div class="w-9 h-9 bg-primary text-primary-content rounded-xl flex items-center justify-center shrink-0">
+                <div
+                    class="w-9 h-9 bg-primary text-primary-content rounded-xl flex items-center justify-center shrink-0">
                     {{-- Icon laptop / monitor (inline SVG, konsisten dengan layout app) --}}
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
                         stroke="currentColor" class="size-5">
@@ -39,7 +40,7 @@
                     </svg>
                 </div>
                 <span class="text-base font-bold text-base-content tracking-tight hidden sm:block">
-                    {{ config('app.name', 'Tryout App') }}
+                    Tryout App
                 </span>
             </div>
 
@@ -49,7 +50,8 @@
                 {{-- Badge mode ujian (animasi ping = real-time feel) --}}
                 <div class="badge badge-error badge-outline font-bold gap-2 py-3 px-3 hidden sm:flex items-center">
                     <span class="relative flex h-2 w-2 shrink-0">
-                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-error opacity-75"></span>
+                        <span
+                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-error opacity-75"></span>
                         <span class="relative inline-flex rounded-full h-2 w-2 bg-error"></span>
                     </span>
                     Mode Ujian
@@ -70,10 +72,21 @@
 
                     {{-- Avatar inisial — fix: pakai struktur DaisyUI placeholder yang benar --}}
                     <div class="avatar placeholder">
-                        <div class="bg-neutral text-neutral-content rounded-full w-9 ring-2 ring-offset-1 ring-base-300">
+                        {{-- <div
+                            class="bg-neutral text-neutral-content rounded-full w-9 ring-2 ring-offset-1 ring-base-300">
                             <span class="text-sm font-bold uppercase">
                                 {{ substr(auth()->user()->name ?? 'U', 0, 1) }}
                             </span>
+                        </div> --}}
+                        <div class="avatar placeholder">
+                            @if(auth()->user()->profileSiswa?->foto)
+                                <div class="w-9 rounded-full">
+                                    <img src="{{ asset('storage/' . auth()->user()->profileSiswa->foto) }}"
+                                        alt="{{ auth()->user()->name }}" />
+                                </div>
+                            @else
+                                <div class="skeleton h-9 w-9 shrink-0 rounded-full"></div>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -108,4 +121,5 @@
         // });
     </script>
 </body>
+
 </html>

@@ -10,7 +10,7 @@
                 <th class="w-28 text-center">Aksi</th>
             </x-slot>
 
-            @foreach ($mapels as $mapel)
+            @forelse ($mapels as $mapel)
                 <tr class="hover align-middle">
                     <td class="text-center font-medium text-base-content/60">
                         {{ $loop->iteration }}
@@ -57,7 +57,27 @@
                         </div>
                     </td>
                 </tr>
-            @endforeach
+            @empty
+                <tr>
+                    <td colspan="5">
+                        <div class="flex flex-col items-center gap-3 py-16 text-center">
+                            <div
+                                class="w-16 h-16 rounded-full bg-base-200 border border-base-300 flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor" class="w-7 h-7 text-base-content/30">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="font-bold text-base-content/70">Belum ada Mapel</p>
+                                <p class="text-sm text-base-content/40 mt-0.5">Klik "Tambah Mapel" untuk menambahkan
+                                    Mapel</p>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            @endforelse
         </x-data-tabel>
 
         {{ $mapels->links() }}
@@ -107,7 +127,7 @@
 
         function openEditModal(mapel) {
             modalTitle.innerText = 'Edit Mapel'
-            form.action = `{{ route('admin.mapels.update', $mapel->id) }}`
+            form.action = `{{ url('admin/mapels') }}/${mapel.id}`
             method.innerHTML = `@method('PUT')`
 
             document.getElementById('input_name').value = mapel.nama
@@ -137,8 +157,8 @@
             @endif
         });
 
-        function closeModal() { 
-            modal.close(); 
+        function closeModal() {
+            modal.close();
         }
     </script>
 </x-app-layout>

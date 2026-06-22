@@ -56,8 +56,7 @@
                                             ? auth()->user()->profileGuru?->foto
                                             : auth()->user()->profileSiswa?->foto;
                                     @endphp
-                                    <img id="avatar_preview"
-                                        src="{{ $fotoPath
+                                    <img id="avatar_preview" src="{{ $fotoPath
     ? asset('storage/' . $fotoPath)
     : 'https://ui-avatars.com/api/?name=' . urlencode(auth()->user()->name) . '&background=EEF2FF&color=4F46E5' }}"
                                         alt="Foto Profil" class="object-cover w-full h-full" />
@@ -160,7 +159,7 @@
                                     <input type="email" name="email" value="{{ old('email', auth()->user()->email) }}"
                                         placeholder="nama@email.com"
                                         class="input input-primary w-full @error('email') input-error @enderror"
-                                        required />
+                                        readonly />
                                 </label>
                             </div>
 
@@ -172,7 +171,7 @@
                                         <span class="label-text font-semibold text-base-content/70 text-sm">NIP</span>
                                         <input type="text" name="nip"
                                             value="{{ old('nip', auth()->user()->profileGuru?->nip) }}"
-                                            placeholder="Nomor Induk Pegawai" class="input input-primary w-full" />
+                                            placeholder="Nomor Induk Pegawai" class="input input-primary w-full" readonly />
                                     </label>
                                 </div>
 
@@ -203,7 +202,7 @@
                                         <span class="label-text font-semibold text-base-content/70 text-sm">NIS</span>
                                         <input type="text" name="nis"
                                             value="{{ old('nis', auth()->user()->profileSiswa?->nis) }}"
-                                            placeholder="Nomor Induk Siswa" class="input input-primary w-full" />
+                                            placeholder="Nomor Induk Siswa" class="input input-primary w-full" readonly />
                                     </label>
                                 </div>
 

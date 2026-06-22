@@ -1,14 +1,4 @@
 <x-app-layout>
-    {{--
-        PERUBAHAN DARI VERSI LAMA:
-        1. Ganti `bg-white` → `bg-base-100` agar ikut tema DaisyUI
-        2. Ganti `text-slate-800` di heading → `text-base-content`
-        3. Tombol Kembali: ganti `btn-primary` → `btn-ghost bg-base-200` (konsisten dengan show.blade.php)
-        4. Thead table: ganti `bg-primary text-primary-content` → `bg-base-200/60 text-base-content/70`
-           karena di dalam body konten sudah ada tombol dan input berwarma primary — thead berwarna primary
-           terlalu "rebutan perhatian" dengan input-nya sendiri
-        5. Tambah breadcrumb/kembali info kecil di bawah judul
-    --}}
     <div class="card bg-base-100 border border-base-200 shadow-sm">
         <div class="card-body p-5 lg:p-6">
 

@@ -8,7 +8,7 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\AdminDashboardController;
-use App\Http\Controllers\Admin\AdminUserController;
+use App\Http\Controllers\Admin\GuruController;
 use App\Http\Controllers\Admin\KelasController;
 use App\Http\Controllers\Admin\MataPelajaranController;
 use App\Http\Controllers\Admin\SiswaController;
@@ -43,11 +43,11 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     // Dashboard
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
-    // ── Manajemen User ────────────────────────────────────
-    Route::get('users', [AdminUserController::class, 'index'])->name('users.index');
-    Route::post('users', [AdminUserController::class, 'store'])->name('users.store');
-    Route::put('users/{user}', [AdminUserController::class, 'update'])->name('users.update');
-    Route::delete('users/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
+    // ── Manajemen Guru ────────────────────────────────────
+    Route::get('guru', [GuruController::class, 'index'])->name('guru.index');
+    Route::post('guru', [GuruController::class, 'store'])->name('guru.store');
+    Route::put('guru/{user}', [GuruController::class, 'update'])->name('guru.update');
+    Route::delete('guru/{user}', [GuruController::class, 'destroy'])->name('guru.destroy');
 
     // ── Mata Pelajaran ───────────────────────────────────
     Route::get('mapels', [MataPelajaranController::class, 'index'])->name('mapels.index');

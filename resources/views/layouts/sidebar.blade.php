@@ -1,12 +1,3 @@
-{{--
-PERUBAHAN DARI VERSI LAMA:
-1. Tambah area logo/brand di atas sidebar (sebelumnya langsung menu)
-2. FIX BUG: semua menu item pakai icon "home" yang sama — sekarang tiap menu punya icon yang sesuai
-3. Tambah divider + label section untuk grup menu
-4. Logout dipindah ke navbar dropdown, tapi tetap ada di sidebar sebagai fallback
-5. Active state lebih jelas: pakai bg-primary-content/10 + teks warning
-6. Hover state lebih halus: hover:bg-primary-content/10
---}}
 <div class="drawer-side z-40">
     <label for="my-drawer-4" aria-label="close sidebar" class="drawer-overlay"></label>
 
@@ -81,8 +72,8 @@ PERUBAHAN DARI VERSI LAMA:
             </li>
 
             <li>
-                <a href="{{ route('admin.users.index') }}"
-                    class="{{ request()->routeIs('admin.users.index') ? 'bg-primary-content/15 text-warning font-semibold' : 'text-primary-content/80 hover:bg-primary-content/10 hover:text-primary-content font-medium' }} rounded-lg is-drawer-close:tooltip is-drawer-close:tooltip-right"
+                <a href="{{ route('admin.guru.index') }}"
+                    class="{{ request()->routeIs('admin.guru.index') ? 'bg-primary-content/15 text-warning font-semibold' : 'text-primary-content/80 hover:bg-primary-content/10 hover:text-primary-content font-medium' }} rounded-lg is-drawer-close:tooltip is-drawer-close:tooltip-right"
                     data-tip="Guru">
                     {{-- Icon: orang dengan topi mortarboard = guru --}}
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"

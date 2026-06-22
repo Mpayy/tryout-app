@@ -46,6 +46,11 @@ class PaketUjian extends Model
         return $this->hasMany(SesiUjian::class, 'paket_ujian_id', 'id');
     }
 
+    public function sesiSiswa()
+    {
+        return $this->hasOne(SesiUjian::class, 'paket_ujian_id', 'id')->where('siswa_id', auth()->id());
+    }
+
     public function kelas()
     {
         return $this->belongsToMany(Kelas::class, 'kelas_paket_ujian', 'paket_ujian_id', 'kelas_id');

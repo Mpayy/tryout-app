@@ -1,4 +1,3 @@
-{{-- resources/views/siswa/ujian/show.blade.php --}}
 @extends('layouts.ujian')
 
 @section('title', $paketUjian->nama ?? 'Ujian Berlangsung')
@@ -512,8 +511,6 @@
         // 3. PROTEKSI SPLIT SCREEN (RESIZE WINDOW)
         let resizeTimeout;
         window.addEventListener('resize', () => {
-            // Debounce: Tunggu 1 detik setelah siswa SELESAI me-resize window.
-            // Mencegah browser nge-hang akibat ratusan kali panggil fungsi saat window digeser.
             clearTimeout(resizeTimeout);
             resizeTimeout = setTimeout(() => {
                 const batasMinimalLebar = window.screen.width * 0.7;

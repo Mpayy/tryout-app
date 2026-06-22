@@ -9,8 +9,13 @@ use App\Http\Requests\GuruRequest;
 use App\Services\GuruService;
 use App\Models\MataPelajaran;
 
-class AdminUserController extends Controller
+class GuruController extends Controller
 {
+
+    public function __construct(
+        protected GuruService $guruService
+    ){}
+
     /**
      * Display a listing of the resource.
      */
@@ -24,18 +29,10 @@ class AdminUserController extends Controller
             'roles:id,name'
         ])->select('id', 'name', 'email')->paginate(5);
 
-        // dd($daftarGuru);
-
-        return view('admin.users.index', compact('daftarGuru', 'roles', 'mapels'));
+        return view('admin.guru.index', compact('daftarGuru', 'roles', 'mapels'));
     }
 
 
-    protected $guruService;
-
-    public function __construct(GuruService $guruService)
-    {
-        $this->guruService = $guruService;
-    }
     /**
      * Store a newly created resource in storage.
      */
@@ -45,7 +42,7 @@ class AdminUserController extends Controller
 
         $this->guruService->createGuru($validatedData);
 
-        return redirect()->route('admin.users.index');
+        return redirect()->route('admin.guru.index');
     }
 
 
@@ -58,7 +55,7 @@ class AdminUserController extends Controller
 
         $this->guruService->updateGuru($user, $validatedData);
 
-        return redirect()->route('admin.users.index');
+        return redirect()->route('admin.guru.index');
     }
 
     /**
@@ -68,6 +65,6 @@ class AdminUserController extends Controller
     {
         $user->delete();
         
-        return redirect()->route('admin.users.index');
+        return redirect()->route('admin.guru.index');
     }
 }

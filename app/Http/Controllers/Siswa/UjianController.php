@@ -19,16 +19,10 @@ class UjianController extends Controller
         $user = auth()->user();
         $kelasId = $user->profileSiswa?->kelas_id;
 
-        // if (!$kelasId) {
-        //     return view('siswa.ujian.index', [
-        //         'paketUjian' => collect() // Kirim koleksi kosong agar blade tidak error
-        //     ])->with('error', 'Akun Anda belum terdaftar di kelas manapun. Silahkan hubungi admin.');
-        // }
 
         $now = Carbon::today()->toDateString();
-        // dd($now);
 
-        $paketUjian = PaketUjian::with(['mataPelajaran'])
+        $paketUjian = PaketUjian::with(['mataPelajaran', 'guru', 'sesiSiswa'])
             ->withCount('soal')
             ->whereHas('kelas', function ($query) use ($kelasId) {
                 $query->where('kelas_id', $kelasId);

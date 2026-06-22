@@ -10,7 +10,7 @@
                 <th class="w-28 text-center">Aksi</th>
             </x-slot>
 
-            @foreach ($daftarGuru as $guru)
+            @forelse ($daftarGuru as $guru)
                 <tr class="hover align-middle">
                     <td class="text-center font-medium text-base-content/60">
                         {{ ($daftarGuru->currentPage() - 1) * $daftarGuru->perPage() + $loop->iteration }}
@@ -73,7 +73,27 @@
                         </div>
                     </td>
                 </tr>
-            @endforeach
+            @empty
+                <tr>
+                    <td colspan="5">
+                        <div class="flex flex-col items-center gap-3 py-16 text-center">
+                            <div
+                                class="w-16 h-16 rounded-full bg-base-200 border border-base-300 flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor" class="w-7 h-7 text-base-content/30">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 3.741-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="font-bold text-base-content/70">Belum ada Guru</p>
+                                <p class="text-sm text-base-content/40 mt-0.5">Klik "Tambah Guru" untuk menambahkan Guru
+                                </p>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            @endforelse
         </x-data-tabel>
 
         {{ $daftarGuru->links() }}
@@ -165,7 +185,7 @@
 
         function openCreateModal() {
             modalTitle.innerText = 'Tambah Guru'
-            form.action = `{{ route('admin.users.store') }}`
+            form.action = `{{ route('admin.guru.store') }}`
             method.innerHTML = ''
             form.reset()
             document.getElementById('password_hint').classList.add('hidden');
@@ -176,7 +196,7 @@
 
         function openEditModal(guru) {
             modalTitle.innerText = 'Edit Guru (' + guru.name + ')'
-            form.action = `/admin/users/` + guru.id;
+            form.action = `{{ url('admin/guru') }}/${guru.id}`
             method.innerHTML = `@method('PUT')`
 
             document.getElementById('input_name').value = guru.name
@@ -225,12 +245,12 @@
                 const methodField = document.getElementById('method');
 
                 @if (old('_method') == 'PUT')
-                    modalTitle.innerText = "Modal Form: Edit User";
-                    form.action = "{{ url('admin/users') }}/" + "{{ old('id') }}";
+                    modalTitle.innerText = "Modal Form: Edit Guru";
+                    form.action = "{{ url('admin/guru') }}/" + "{{ old('id') }}";
                     methodField.innerHTML = `@method('PUT')`;
                 @else
-                    modalTitle.innerText = "Modal Form: Tambah User Baru";
-                    form.action = "{{ route('admin.users.store') }}";
+                    modalTitle.innerText = "Modal Form: Tambah Guru Baru";
+                    form.action = "{{ route('admin.guru.store') }}";
                     methodField.innerHTML = "";
                 @endif
 

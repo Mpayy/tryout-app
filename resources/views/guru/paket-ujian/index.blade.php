@@ -182,7 +182,6 @@
                             class="toggle toggle-primary toggle-sm" {{ old('acak_soal') ? 'checked' : '' }} />
                         <div>
                             <span class="text-sm font-bold text-base-content block">Acak Soal</span>
-                            <span class="text-xs text-base-content/50">Urutan soal berbeda tiap siswa</span>
                         </div>
                     </label>
                     <label class="cursor-pointer flex items-center gap-4 p-3.5 bg-base-200/40 border border-base-200 rounded-xl hover:bg-base-200/80 transition duration-150 group">
@@ -190,7 +189,6 @@
                             class="toggle toggle-primary toggle-sm" {{ old('acak_jawaban') ? 'checked' : '' }} />
                         <div>
                             <span class="text-sm font-bold text-base-content block">Acak Jawaban</span>
-                            <span class="text-xs text-base-content/50">Opsi A/B/C/D diacak tiap siswa</span>
                         </div>
                     </label>
                 </div>
