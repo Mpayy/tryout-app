@@ -24,7 +24,7 @@ class KelasController extends Controller
 
         Kelas::create($validated);
 
-        return redirect()->route('admin.kelas.index');
+        return redirect()->route('admin.kelas.index')->with('success', 'Kelas berhasil ditambahkan!');
     }
 
     public function update(KelasRequest $request, Kelas $kelas)
@@ -33,14 +33,14 @@ class KelasController extends Controller
 
         $kelas->update($validated);
 
-        return redirect()->route('admin.kelas.index');
+        return redirect()->route('admin.kelas.index')->with('success', 'Kelas berhasil diupdate!');
     }
 
     public function destroy(Kelas $kelas)
     {
-        $kelas->delete();
+        $kelas->delete($kelas->id);
 
-        return redirect()->route('admin.kelas.index');
+        return redirect()->route('admin.kelas.index')->with('success', 'Kelas berhasil dihapus!');
     }
 
     public function anggota(Kelas $kelas)

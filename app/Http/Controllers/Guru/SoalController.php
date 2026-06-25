@@ -10,6 +10,7 @@ use App\Models\Soal;
 use App\Models\PilihanJawaban;
 use App\Http\Requests\SoalRequest;
 use App\Services\SoalService;
+use Illuminate\Support\Facades\Auth;
 
 class SoalController extends Controller
 {
@@ -19,23 +20,24 @@ class SoalController extends Controller
 
     public function index()
     {
-        $soals = Soal::where('guru_id', auth()->id())->with('mataPelajaran')->paginate(5);
-        $guru = auth()->user()->load('profileGuru.mataPelajarans');
-
-        return view('guru.soal.index', compact('soals', 'guru'));
+        $guru = Auth::user();
+        $soals = Soal::where('guru_id', $guru->id)->with('mataPelajaran')->paginate(5);
+        return view('guru.soal.index', compact('soals'));
     }
-    
+
     public function create()
     {
-        $mataPelajaranGuru = auth()->user()->load('profileGuru.mataPelajarans')->profileGuru->mataPelajarans;
+        $guru = Auth::user();
+        $mataPelajaranGuru = $guru->load('profileGuru.mataPelajarans')->profileGuru->mataPelajarans;
         return view('guru.soal.create', compact('mataPelajaranGuru'));
     }
 
     public function store(SoalRequest $request)
     {
+        $guru = Auth::user();
         $validated = $request->validated();
 
-        $allowedMapelIds = auth()->user()->profileGuru->mataPelajarans->pluck('id')->toArray();
+        $allowedMapelIds = $guru->profileGuru->mataPelajarans->pluck('id')->toArray();
 
         if (!in_array($validated['mapel_id'], $allowedMapelIds)) {
             return redirect()->back()
@@ -45,7 +47,8 @@ class SoalController extends Controller
 
         $result = $this->soalService->createSoal(
             $validated['mapel_id'],
-            $validated['soal']
+            $validated['soal'],
+            $guru->id
         );
 
         return redirect()
@@ -55,11 +58,12 @@ class SoalController extends Controller
 
     public function update(Request $request, Soal $soal)
     {
-        if ($soal->guru_id !== auth()->id()) {
+        $guruId = Auth::id();
+        if ($soal->guru_id !== $guruId) {
             abort(403, 'Akses ditolak.');
         }
 
-        $request->validate([
+        $validate = $request->validate([
             'pertanyaan'    => 'required|string',
             'opsi_a'        => 'required|string',
             'opsi_b'        => 'required|string',
@@ -68,37 +72,19 @@ class SoalController extends Controller
             'jawaban_benar' => 'required|string|in:A,B,C,D',
         ]);
 
-        $soal->update([
-            'konten' => $request->pertanyaan,
-        ]);
-
-        $opsiData = [
-            'A' => $request->opsi_a,
-            'B' => $request->opsi_b,
-            'C' => $request->opsi_c,
-            'D' => $request->opsi_d,
-        ];
-
-        foreach ($soal->pilihanJawaban as $jawaban) {
-            $kontenBaru = $opsiData[$jawaban->label];
-            $apakahBenar = ($jawaban->label === $request->jawaban_benar) ? 1 : 0;
-
-            $jawaban->update([
-                'konten' => $kontenBaru,
-                'is_correct' => $apakahBenar
-            ]);
-        }
+        $this->soalService->updateSoal($soal, $validate);
 
         return redirect()->back()->with('success', 'Soal berhasil diperbarui!');
     }
 
     public function destroy(Soal $soal)
     {
-        if ($soal->guru_id !== auth()->id()) {
+        $guruId = Auth::id();
+        if ($soal->guru_id !== $guruId) {
             abort(403, 'Anda tidak berhak menghapus soal ini.');
         }
 
-        $soal->delete();
+        $soal->delete($soal->id);
 
         return redirect()->route('guru.soal.index')
             ->with('success', 'Soal berhasil dihapus.');

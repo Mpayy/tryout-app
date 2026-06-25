@@ -24,7 +24,7 @@ class MataPelajaranController extends Controller
     {
         $validateData = $request->validated();
         MataPelajaran::create($validateData);
-        return redirect()->route('admin.mapels.index');
+        return redirect()->route('admin.mapels.index')->with('success', 'Mata pelajaran berhasil ditambahkan');
     }
 
     /**
@@ -34,7 +34,7 @@ class MataPelajaranController extends Controller
     {
         $validateData = $request->validated();
         $mapel->update($validateData);
-        return redirect()->route('admin.mapels.index');
+        return redirect()->route('admin.mapels.index')->with('success', 'Mata pelajaran berhasil diupdate');
     }
 
     /**
@@ -42,7 +42,7 @@ class MataPelajaranController extends Controller
      */
     public function destroy(MataPelajaran $mapel)
     {
-        $mapel->delete();
-        return redirect()->route('admin.mapels.index');
+        $mapel->delete($mapel->id);
+        return redirect()->route('admin.mapels.index')->with('success', 'Mata pelajaran berhasil dihapus');
     }
 }

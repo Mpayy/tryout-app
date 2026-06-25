@@ -101,24 +101,51 @@
             @yield('content')
         </div>
     </main>
-
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     @stack('scripts')
 
     {{-- Script keamanan dasar --}}
     <script>
-        // document.addEventListener('contextmenu', e => e.preventDefault());
+        document.addEventListener('contextmenu', e => e.preventDefault());
 
-        // document.addEventListener('keydown', function (e) {
-        //     if (e.key === 'F12' || e.keyCode === 123) {
-        //         e.preventDefault(); return;
-        //     }
-        //     if (e.ctrlKey && e.shiftKey && ['I','J','C'].includes(e.key.toUpperCase())) {
-        //         e.preventDefault(); return;
-        //     }
-        //     if (e.ctrlKey && e.key.toUpperCase() === 'U') {
-        //         e.preventDefault(); return;
-        //     }
-        // });
+        document.addEventListener('keydown', function (e) {
+            // F12 — buka DevTools
+            if (e.key === 'F12') {
+                e.preventDefault();
+                return;
+            }
+
+            // Ctrl+Shift+I / J / C — Inspect, Console, Element selector
+            if (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key.toUpperCase())) {
+                e.preventDefault();
+                return;
+            }
+
+            // Ctrl+U — View source
+            if (e.ctrlKey && e.key.toUpperCase() === 'U') {
+                e.preventDefault();
+                return;
+            }
+
+            // F5 dan Ctrl+R — Refresh halaman
+            // PERBAIKAN: ditambahkan karena reload bisa dipakai siswa untuk
+            // menghindari deteksi pindah tab / kondisi anti-curang lainnya
+            if (e.key === 'F5' || (e.ctrlKey && e.key.toUpperCase() === 'R')) {
+                e.preventDefault();
+                return;
+            }
+        });
+
+        // PERBAIKAN: lapis kedua jika reload/tutup tab tetap lolos dari blokir keyboard
+        // (misalnya lewat menu browser, bukan keyboard shortcut)
+        let bolehKeluar = false;
+        window.addEventListener('beforeunload', function (e) {
+            if (bolehKeluar) {
+                return;
+            }
+            e.preventDefault();
+            e.returnValue = '';
+        });
     </script>
 </body>
 

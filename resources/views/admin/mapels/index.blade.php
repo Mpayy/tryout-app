@@ -44,12 +44,10 @@
                                 Edit
                             </button>
 
-                            <form action="{{ route('admin.mapels.destroy', $mapel) }}" method="POST"
-                                onsubmit="return confirm('Apakah Anda yakin ingin menghapus mata pelajaran ini?')"
-                                class="inline">
+                            <form action="{{ route('admin.mapels.destroy', $mapel) }}" method="POST" class="inline form-delete">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit"
+                                <button type="submit" data-name="{{ $mapel->nama }}"
                                     class="btn btn-xs btn-outline btn-error shadow-none font-medium px-2.5">
                                     Hapus
                                 </button>
@@ -160,5 +158,29 @@
         function closeModal() {
             modal.close();
         }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.form-delete').forEach(form => {
+                form.addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    const namaMapel = this.querySelector('button[data-name]').getAttribute('data-name');
+                    Swal.fire({
+                        title: "Apakah anda yakin?",
+                        text: `Data mapel "${namaMapel}" akan dihapus permanen dari sistem!`,
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6',
+                        confirmButtonText: "Ya, Hapus",
+                        cancelButtonText: "Tidak",
+                        reverseButtons: true
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            this.submit();
+                        }
+                    });
+                });
+            });
+        });
     </script>
 </x-app-layout>

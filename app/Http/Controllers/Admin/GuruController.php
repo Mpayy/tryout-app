@@ -14,7 +14,7 @@ class GuruController extends Controller
 
     public function __construct(
         protected GuruService $guruService
-    ){}
+    ) {}
 
     /**
      * Display a listing of the resource.
@@ -42,7 +42,7 @@ class GuruController extends Controller
 
         $this->guruService->createGuru($validatedData);
 
-        return redirect()->route('admin.guru.index');
+        return redirect()->route('admin.guru.index')->with('success', 'Data berhasil ditambahkan!');
     }
 
 
@@ -55,7 +55,7 @@ class GuruController extends Controller
 
         $this->guruService->updateGuru($user, $validatedData);
 
-        return redirect()->route('admin.guru.index');
+        return redirect()->route('admin.guru.index')->with('success', 'Data berhasil diupdate!');
     }
 
     /**
@@ -64,7 +64,7 @@ class GuruController extends Controller
     public function destroy(User $user)
     {
         $user->delete();
-        
-        return redirect()->route('admin.guru.index');
+
+        return redirect()->route('admin.guru.index')->with('success', 'Data berhasil dihapus!');
     }
 }

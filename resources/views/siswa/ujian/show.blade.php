@@ -200,11 +200,11 @@
         async function loadSoal(nomor) {
             // Loading state
             document.getElementById('soal-container').innerHTML = `
-                        <div class="card bg-base-100 border border-base-200 shadow-sm">
-                            <div class="card-body flex items-center justify-center py-24">
-                                <span class="loading loading-spinner loading-lg text-primary"></span>
-                            </div>
-                        </div>`;
+                                                        <div class="card bg-base-100 border border-base-200 shadow-sm">
+                                                            <div class="card-body flex items-center justify-center py-24">
+                                                                <span class="loading loading-spinner loading-lg text-primary"></span>
+                                                            </div>
+                                                        </div>`;
 
             try {
                 const res = await fetch(`/siswa/ujian/${TOKEN}/soal/${nomor}`);
@@ -218,42 +218,42 @@
 
                 // ─── Bangun HTML soal ───────────────────────────────────
                 let html = `
-                        <div class="card bg-base-100 border border-base-200 shadow-sm">
-                            <div class="card-body p-5 lg:p-7">
+                                                        <div class="card bg-base-100 border border-base-200 shadow-sm">
+                                                            <div class="card-body p-5 lg:p-7">
 
-                                {{-- Header soal: nomor + tombol ragu --}}
-                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 pb-4 border-b border-base-200">
-                                    <div>
-                                        <span class="text-xs font-bold text-base-content/40 uppercase tracking-wider">Soal</span>
-                                        <h2 class="text-lg font-bold text-base-content leading-tight">
-                                            ${nomor}
-                                            <span class="text-sm text-base-content/40 font-medium">/ ${TOTAL_SOAL}</span>
-                                        </h2>
-                                    </div>
-                                    <button class="btn btn-sm ${btnRaguClass} gap-2 self-start sm:self-auto"
-                                        id="btn-ragu" onclick="toggleRagu(${data.soal.id})">
-                                        {{-- Icon flag --}}
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                            stroke-width="2" stroke="currentColor" class="size-4">
-                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                d="M3 3v1.5M3 21v-6m0 0 2.77-.693a9 9 0 0 1 6.208.682l.108.054a9 9 0 0 0 6.086.71l3.114-.732a48.524 48.524 0 0 1-.005-10.499l-3.11.732a9 9 0 0 1-6.085-.711l-.108-.054a9 9 0 0 0-6.208-.682L3 4.5M3 15V4.5" />
-                                        </svg>
-                                        Ragu-ragu
-                                    </button>
-                                </div>
+                                                                {{-- Header soal: nomor + tombol ragu --}}
+                                                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 pb-4 border-b border-base-200">
+                                                                    <div>
+                                                                        <span class="text-xs font-bold text-base-content/40 uppercase tracking-wider">Soal</span>
+                                                                        <h2 class="text-lg font-bold text-base-content leading-tight">
+                                                                            ${nomor}
+                                                                            <span class="text-sm text-base-content/40 font-medium">/ ${TOTAL_SOAL}</span>
+                                                                        </h2>
+                                                                    </div>
+                                                                    <button class="btn btn-sm ${btnRaguClass} gap-2 self-start sm:self-auto"
+                                                                        id="btn-ragu" onclick="toggleRagu(${data.soal.id})">
+                                                                        {{-- Icon flag --}}
+                                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                                            stroke-width="2" stroke="currentColor" class="size-4">
+                                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                                d="M3 3v1.5M3 21v-6m0 0 2.77-.693a9 9 0 0 1 6.208.682l.108.054a9 9 0 0 0 6.086.71l3.114-.732a48.524 48.524 0 0 1-.005-10.499l-3.11.732a9 9 0 0 1-6.085-.711l-.108-.054a9 9 0 0 0-6.208-.682L3 4.5M3 15V4.5" />
+                                                                        </svg>
+                                                                        Ragu-ragu
+                                                                    </button>
+                                                                </div>
 
-                                {{-- Konten soal --}}
-                                <div class="mb-6">
-                                    <p class="text-base leading-relaxed text-base-content">
-                                        ${data.soal.konten}
-                                    </p>
-                                    ${data.soal.gambar
+                                                                {{-- Konten soal --}}
+                                                                <div class="mb-6">
+                                                                    <p class="text-base leading-relaxed text-base-content">
+                                                                        ${data.soal.konten}
+                                                                    </p>
+                                                                    ${data.soal.gambar
                         ? `<img src="${data.soal.gambar}" class="rounded-xl border border-base-200 shadow-sm max-h-72 object-contain mt-4">`
                         : ''}
-                                </div>
+                                                                </div>
 
-                                {{-- Pilihan jawaban --}}
-                                <div class="flex flex-col gap-2.5" id="pilihan-container">`;
+                                                                {{-- Pilihan jawaban --}}
+                                                                <div class="flex flex-col gap-2.5" id="pilihan-container">`;
 
                 data.pilihan.forEach((p, index) => {
                     const isActive = data.jawaban && data.jawaban.pilihan_id === p.id;
@@ -263,53 +263,53 @@
                         : 'border-base-200 hover:border-primary/40 hover:bg-base-200/50';
 
                     html += `
-                            <div class="flex items-start gap-3 p-4 border-2 rounded-xl cursor-pointer
-                                        transition-all duration-150 ${activeClass} pilihan-item group"
-                                 onclick="pilihJawaban(${data.soal.id}, ${p.id}, this)">
+                                                            <div class="flex items-start gap-3 p-4 border-2 rounded-xl cursor-pointer
+                                                                        transition-all duration-150 ${activeClass} pilihan-item group"
+                                                                 onclick="pilihJawaban(${data.soal.id}, ${p.id}, this)">
 
-                                {{-- Label abjad --}}
-                                <div class="w-7 h-7 shrink-0 rounded-lg bg-primary/10 text-primary
-                                            flex items-center justify-center font-bold text-sm mt-0.5
-                                            group-hover:bg-primary group-hover:text-primary-content transition-colors
-                                            ${isActive ? '!bg-primary !text-primary-content' : ''}">
-                                    ${abjad}
-                                </div>
+                                                                {{-- Label abjad --}}
+                                                                <div class="w-7 h-7 shrink-0 rounded-lg bg-primary/10 text-primary
+                                                                            flex items-center justify-center font-bold text-sm mt-0.5
+                                                                            group-hover:bg-primary group-hover:text-primary-content transition-colors
+                                                                            ${isActive ? '!bg-primary !text-primary-content' : ''}">
+                                                                    ${abjad}
+                                                                </div>
 
-                                {{-- Teks opsi --}}
-                                <div class="text-sm font-medium text-base-content leading-relaxed pt-1">
-                                    ${p.konten}
-                                </div>
-                            </div>`;
+                                                                {{-- Teks opsi --}}
+                                                                <div class="text-sm font-medium text-base-content leading-relaxed pt-1">
+                                                                    ${p.konten}
+                                                                </div>
+                                                            </div>`;
                 });
 
                 html += `
-                                </div>
+                                                                </div>
 
-                                {{-- Navigasi bawah --}}
-                                <div class="flex justify-between items-center mt-6 pt-5 border-t border-base-200">
-                                    <button class="btn btn-ghost bg-base-200 hover:bg-base-300 btn-sm gap-2 font-medium"
-                                        onclick="navigasi(${nomor - 1})" ${nomor === 1 ? 'disabled' : ''}>
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                            stroke-width="2.5" stroke="currentColor" class="size-4">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
-                                        </svg>
-                                        Sebelumnya
-                                    </button>
-                                    <span class="text-xs text-base-content/40 font-medium hidden sm:block">
-                                        ${nomor} dari ${TOTAL_SOAL}
-                                    </span>
-                                    <button class="btn btn-primary btn-sm gap-2 font-medium"
-                                        onclick="navigasi(${nomor + 1})" ${nomor === TOTAL_SOAL ? 'disabled' : ''}>
-                                        Selanjutnya
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                            stroke-width="2.5" stroke="currentColor" class="size-4">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
-                                        </svg>
-                                    </button>
-                                </div>
+                                                                {{-- Navigasi bawah --}}
+                                                                <div class="flex justify-between items-center mt-6 pt-5 border-t border-base-200">
+                                                                    <button class="btn btn-ghost bg-base-200 hover:bg-base-300 btn-sm gap-2 font-medium"
+                                                                        onclick="navigasi(${nomor - 1})" ${nomor === 1 ? 'disabled' : ''}>
+                                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                                            stroke-width="2.5" stroke="currentColor" class="size-4">
+                                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+                                                                        </svg>
+                                                                        Sebelumnya
+                                                                    </button>
+                                                                    <span class="text-xs text-base-content/40 font-medium hidden sm:block">
+                                                                        ${nomor} dari ${TOTAL_SOAL}
+                                                                    </span>
+                                                                    <button class="btn btn-primary btn-sm gap-2 font-medium"
+                                                                        onclick="navigasi(${nomor + 1})" ${nomor === TOTAL_SOAL ? 'disabled' : ''}>
+                                                                        Selanjutnya
+                                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                                            stroke-width="2.5" stroke="currentColor" class="size-4">
+                                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+                                                                        </svg>
+                                                                    </button>
+                                                                </div>
 
-                            </div>
-                        </div>`;
+                                                            </div>
+                                                        </div>`;
                 // ─── End HTML ────────────────────────────────────────────
 
                 document.getElementById('soal-container').innerHTML = html;
@@ -326,14 +326,14 @@
 
             } catch (err) {
                 document.getElementById('soal-container').innerHTML = `
-                            <div class="alert alert-error shadow-sm">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
-                                    stroke="currentColor" class="size-5 shrink-0">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                        d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
-                                </svg>
-                                Gagal memuat soal. Periksa koneksi internet dan <strong>refresh halaman</strong>.
-                            </div>`;
+                                                            <div class="alert alert-error shadow-sm">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                                                                    stroke="currentColor" class="size-5 shrink-0">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                                        d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+                                                                </svg>
+                                                                Gagal memuat soal. Periksa koneksi internet dan <strong>refresh halaman</strong>.
+                                                            </div>`;
             }
         }
 
@@ -386,12 +386,12 @@
 
             // Rebuild ikon flag agar tetap muncul setelah className diganti
             btn.innerHTML = `
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                            stroke-width="2" stroke="currentColor" class="size-4">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M3 3v1.5M3 21v-6m0 0 2.77-.693a9 9 0 0 1 6.208.682l.108.054a9 9 0 0 0 6.086.71l3.114-.732a48.524 48.524 0 0 1-.005-10.499l-3.11.732a9 9 0 0 1-6.085-.711l-.108-.054a9 9 0 0 0-6.208-.682L3 4.5M3 15V4.5" />
-                        </svg>
-                        Ragu-ragu`;
+                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                            stroke-width="2" stroke="currentColor" class="size-4">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                d="M3 3v1.5M3 21v-6m0 0 2.77-.693a9 9 0 0 1 6.208.682l.108.054a9 9 0 0 0 6.086.71l3.114-.732a48.524 48.524 0 0 1-.005-10.499l-3.11.732a9 9 0 0 1-6.085-.711l-.108-.054a9 9 0 0 0-6.208-.682L3 4.5M3 15V4.5" />
+                                                        </svg>
+                                                        Ragu-ragu`;
 
             const navBtn = document.querySelector(`.soal-nav-btn[data-nomor="${soalSekarang}"]`);
             const isDijawab = navBtn && navBtn.dataset.dijawab === 'true';
@@ -427,16 +427,45 @@
         document.getElementById('btn-submit').addEventListener('click', function () {
             const dijawab = document.querySelectorAll('.soal-nav-btn[data-dijawab="true"]').length;
             const belum = TOTAL_SOAL - dijawab;
+
+            // Menentukan teks, ikon, dan warna tombol berdasarkan status soal
+            const title = belum > 0 ? 'Perhatian!' : 'Konfirmasi Selesai';
             const pesan = belum > 0
                 ? `Masih ada ${belum} soal yang belum dijawab. Yakin ingin menyelesaikan ujian?`
                 : 'Semua soal sudah dijawab. Yakin ingin menyelesaikan ujian?';
+            const iconType = belum > 0 ? 'warning' : 'question';
+            const confirmButtonColor = belum > 0 ? '#d33' : '#3085d6'; // Merah jika belum lengkap, biru jika sudah semua
 
-            if (confirm(pesan)) {
-                clearInterval(timerInterval);
-                this.innerHTML = '<span class="loading loading-spinner loading-sm"></span> Memproses...';
-                this.disabled = true;
-                autoSubmit();
-            }
+            // Jalankan SweetAlert2
+            Swal.fire({
+                title: title,
+                text: pesan,
+                icon: iconType,
+                showCancelButton: true,
+                confirmButtonColor: confirmButtonColor,
+                cancelButtonColor: '#aaa',
+                confirmButtonText: 'Ya, Selesai',
+                cancelButtonText: 'Batal',
+                reverseButtons: true,
+                allowOutsideClick: false, // Mencegah klik luar sengaja menutup modal
+                allowEscapeKey: false
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Hentikan timer ujian
+                    clearInterval(timerInterval);
+
+                    // Nyalakan sakelar bolehKeluar agar browser tidak mencegat proses redirect/submit
+                    bolehKeluar = true;
+
+                    // Efek loading pada tombol submit
+                    const btnSubmit = document.getElementById('btn-submit');
+                    btnSubmit.innerHTML = '<span class="loading loading-spinner loading-sm"></span> Memproses...';
+                    btnSubmit.disabled = true;
+
+                    // Jalankan fungsi submit bawaan kamu
+                    autoSubmit();
+                }
+            });
         });
 
         // Klik nomor navigasi
@@ -454,20 +483,54 @@
         // ============================================================
         // 6. ANTI-CURANG: Pelanggaran
         // ============================================================
-        // Ambil nilai awal dari elemen, beri nilai default 0 jika gagal
         let jumlahPelanggaran = parseInt(document.getElementById('db-pelanggaran')?.value || 0);
         const MAKS_PELANGGARAN = 3;
         let lastPelanggaranTime = 0;
 
-        // Flag penting untuk mencegah 'salah tuduh' pindah tab saat browser memunculkan popup izin
+        // Flag penting: true selagi browser menampilkan popup izin layar,
+        // supaya event 'blur' yang muncul akibat popup itu TIDAK dihitung
+        // sebagai pelanggaran "pindah tab".
         let isRequestingPermission = false;
 
+        // Flag tambahan: true setelah status 'blocked' diterima, untuk
+        // mengunci semua interaksi lain selagi menunggu redirect selesai.
+        let sedangDiblokir = false;
+
+        // ─────────────────────────────────────────────
+        // TOAST NON-BLOCKING
+        // PERBAIKAN: pengganti alert() yang dulunya menghentikan timer
+        // karena alert() itu blocking dan menahan event loop browser.
+        // ─────────────────────────────────────────────
+        function tampilkanToast(pesan, jenis = 'warning') {
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 5000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                }
+            });
+
+            Toast.fire({
+                icon: jenis, // 'warning' atau 'error'
+                title: pesan
+            });
+        }
+
+        // ─────────────────────────────────────────────
         // 1. FUNGSI UTAMA PENCATAT PELANGGARAN
+        // ─────────────────────────────────────────────
         async function catatPelanggaran(alasan) {
+            if (sedangDiblokir) return; // sudah dalam proses blokir, jangan lapor lagi
+
             const now = Date.now();
-            if (now - lastPelanggaranTime < 2000) return; // Debounce 2 detik agar tidak spam request
+            if (now - lastPelanggaranTime < 2000) return; // debounce 2 detik
             lastPelanggaranTime = now;
-            jumlahPelanggaran++;
+
+            jumlahPelanggaran++; // optimistic increment, akan disinkron/rollback di bawah
 
             try {
                 const res = await fetch(`/siswa/ujian/${TOKEN}/pelanggaran`, {
@@ -478,95 +541,149 @@
                     },
                     body: JSON.stringify({ alasan, pelanggaran_ke: jumlahPelanggaran })
                 });
+
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
                 const data = await res.json();
 
-                if (data.status === 'blocked') {
-                    alert('Ujian dihentikan otomatis karena terlalu sering meninggalkan halaman ujian.');
-                    // Gunakan replace agar siswa tidak bisa menekan tombol "Back" di browser
-                    window.location.replace(`/siswa/hasil/${TOKEN}`);
-                } else if (data.status === 'warned') {
-                    alert(`Peringatan! Terdeteksi: ${alasan} (${data.jumlah_pelanggaran}/${MAKS_PELANGGARAN}).\nJika mencapai batas, ujian otomatis selesai.`);
+                // PERBAIKAN [Critical #2]: selalu sinkronkan counter lokal
+                // dengan angka resmi dari server, bukan percaya hitungan client.
+                if (typeof data.jumlah_pelanggaran === 'number') {
+                    jumlahPelanggaran = data.jumlah_pelanggaran;
                 }
+
+                if (data.status === 'blocked') {
+                    sedangDiblokir = true;
+
+                    // PERBAIKAN [Major #6]: kunci interaksi dulu sebelum redirect,
+                    // supaya tidak ada jendela waktu untuk navigasi manual.
+                    document.body.style.pointerEvents = 'none';
+                    document.body.style.opacity = '0.6';
+                    Swal.fire({
+                        title: 'Ujian Dihentikan!',
+                        text: 'Ujian dihentikan otomatis karena terlalu sering meninggalkan halaman ujian.',
+                        icon: 'error',
+                        allowOutsideClick: false, // Siswa tidak bisa klik luar untuk menutup
+                        allowEscapeKey: false,    // Siswa tidak bisa tekan tombol Esc
+                        showConfirmButton: true,
+                        confirmButtonText: 'Lihat Hasil Ujian',
+                        timer: 5000,              // Otomatis redirect dalam 5 detik jika didiamkan
+                        timerProgressBar: true
+                    }).then(() => {
+                        // Berjalan setelah tombol diklik ATAU timer habis
+                        bolehKeluar = true;
+                        window.location.replace(`/siswa/hasil/${TOKEN}`);
+                    });
+
+                } else if (data.status === 'warned') {
+                    tampilkanToast(
+                        `Peringatan! Terdeteksi: ${alasan} (${data.jumlah_pelanggaran}/${MAKS_PELANGGARAN}). Jika mencapai batas, ujian otomatis selesai.`,
+                        'warning'
+                    );
+                }
+
             } catch (err) {
-                console.error('Gagal mencatat pelanggaran', err);
+                // PERBAIKAN [Major #5]: rollback counter lokal jika request gagal,
+                // supaya tidak terus naik padahal server tidak tahu apa-apa.
+                jumlahPelanggaran--;
+                console.error('Gagal mencatat pelanggaran, counter di-rollback:', err);
             }
         }
 
+        // ─────────────────────────────────────────────
         // 2. PROTEKSI PINDAH TAB & MINIMIZE
-        // window.addEventListener('blur', () => {
-        //     // Abaikan event blur jika itu disebabkan oleh pop-up izin layar bawaan browser
-        //     if (isRequestingPermission) return;
+        // PERBAIKAN [Critical #1]: diaktifkan kembali (sebelumnya di-comment,
+        // yang berarti fitur anti-curang utama benar-benar mati).
+        // Dijaga oleh isRequestingPermission agar popup izin layar
+        // tidak ikut terhitung sebagai "pindah tab".
+        // ─────────────────────────────────────────────
+        window.addEventListener('blur', () => {
+            if (isRequestingPermission) return; // abaikan blur akibat popup izin browser
 
-        //     setTimeout(() => {
-        //         if (!document.hasFocus()) catatPelanggaran('Meninggalkan halaman (Alt+Tab / Aplikasi Lain)');
-        //     }, 200);
-        // });
-
-        // document.addEventListener('visibilitychange', () => {
-        //     if (document.visibilityState === 'hidden') {
-        //         catatPelanggaran('Pindah tab atau minimize browser');
-        //     }
-        // });
-
-        // 3. PROTEKSI SPLIT SCREEN (RESIZE WINDOW)
-        let resizeTimeout;
-        window.addEventListener('resize', () => {
-            clearTimeout(resizeTimeout);
-            resizeTimeout = setTimeout(() => {
-                const batasMinimalLebar = window.screen.width * 0.7;
-                if (window.innerWidth < batasMinimalLebar) {
-                    catatPelanggaran('Mengecilkan Ukuran Browser (Diduga Split Screen)');
+            setTimeout(() => {
+                if (!document.hasFocus() && !isRequestingPermission) {
+                    catatPelanggaran('Meninggalkan halaman (Alt+Tab / Aplikasi Lain)');
                 }
-            }, 1000);
+            }, 200);
         });
 
-        // 4. PROTEKSI DUAL MONITOR (HARDWARE)
-        async function inisialisasiMultiLayar() {
-            if (!('getScreenDetails' in window)) return; // Abaikan jika browser jadul
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'hidden' && !isRequestingPermission) {
+                catatPelanggaran('Pindah tab atau minimize browser');
+            }
+        });
 
-            isRequestingPermission = true; // Tandai bahwa popup izin sedang/akan muncul
+        // ─────────────────────────────────────────────
+        // 3. PROTEKSI SPLIT SCREEN (RESIZE WINDOW)
+        // PERBAIKAN [Minor #8]: threshold dinaikkan 70% → 60%, dan ditambah
+        // syarat innerWidth < 800px agar laptop kecil / tablet tidak
+        // false-positive ter-deteksi sebagai split screen.
+        // ─────────────────────────────────────────────
+        let resizeTimeout;
+        function cekUkuranSplitScreen() {
+            const batasMinimalLebar = window.screen.width * 0.6;
+            if (window.innerWidth < batasMinimalLebar && window.innerWidth < 800) {
+                catatPelanggaran('Mengecilkan Ukuran Browser (Diduga Split Screen)');
+            }
+        }
+
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(cekUkuranSplitScreen, 1000);
+        });
+
+        // ─────────────────────────────────────────────
+        // 4. PROTEKSI DUAL MONITOR (HARDWARE)
+        // PERBAIKAN [Minor #7]: guard HTTPS, karena getScreenDetails() hanya
+        // berjalan di secure context. Tanpa guard, di localhost (HTTP biasa)
+        // fungsi ini gagal diam-diam tanpa pesan yang jelas ke developer.
+        // ─────────────────────────────────────────────
+        async function inisialisasiMultiLayar() {
+            if (!('getScreenDetails' in window)) return; // browser tidak mendukung
+
+            if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
+                console.warn('Deteksi dual monitor membutuhkan koneksi HTTPS. Fitur ini dilewati.');
+                return;
+            }
+
+            isRequestingPermission = true; // tandai popup izin akan/sedang muncul
 
             try {
                 const sd = await window.getScreenDetails();
-                isRequestingPermission = false; // Popup izin selesai dijawab
+                isRequestingPermission = false;
 
-                // A. Cek seketika saat izin diberikan
                 if (sd.screens.length > 1) {
                     catatPelanggaran('Menggunakan Dual Monitor / HDMI Aktif');
                 }
 
-                // B. Pasang pengawas jika HDMI dicolok di pertengahan jalan
                 sd.addEventListener('screenschange', () => {
                     if (sd.screens.length > 1) {
                         catatPelanggaran('Menggunakan Dual Monitor / HDMI Aktif');
                     }
                 });
             } catch (err) {
-                isRequestingPermission = false; // Reset flag jika ditolak
-                console.warn("Izin deteksi layar ditolak oleh siswa.");
+                isRequestingPermission = false;
+                console.warn('Izin deteksi layar ditolak oleh siswa.');
             }
         }
 
+        // ─────────────────────────────────────────────
         // 5. JEMBATAN UTAMA SAAT HALAMAN DIMUAT
+        // ─────────────────────────────────────────────
         window.addEventListener('DOMContentLoaded', () => {
-            // Inisiasi ujian bawaanmu
             const inputWaktu = document.getElementById('sisa-waktu-awal');
             if (inputWaktu && typeof startTimer === 'function') startTimer(parseInt(inputWaktu.value));
             if (typeof loadSoal === 'function') loadSoal(1);
 
-            // Cek langsung (sekali) saat halaman awal dimuat, apakah window sedang mode split
-            const batasMinimalLebar = window.screen.width * 0.7;
-            if (window.innerWidth < batasMinimalLebar) {
-                catatPelanggaran('Mengecilkan Ukuran Browser (Diduga Split Screen)');
-            }
+            // Cek sekali di awal apakah window sudah dalam mode split saat halaman dibuka
+            cekUkuranSplitScreen();
 
-            // Taktik Jebakan Klik: Memancing pop-up izin monitor pada interaksi pertama
+            // Taktik "jebakan klik": memancing pop-up izin layar pada interaksi pertama,
+            // karena getScreenDetails() butuh user gesture untuk bisa dipanggil.
             const pancingIzinLayar = async () => {
                 await inisialisasiMultiLayar();
-                // Hapus event click agar fungsi ini tidak dipanggil berulang-ulang
                 document.removeEventListener('click', pancingIzinLayar);
             };
-
             document.addEventListener('click', pancingIzinLayar);
         });
     </script>
