@@ -31,7 +31,7 @@ class SiswaController extends Controller
 
         $this->siswaService->createSiswa($validated);
 
-        return redirect()->route('admin.siswa.index');
+        return redirect()->route('admin.siswa.index')->with('success', 'Siswa berhasil ditambahkan');
     }
 
     public function update(SiswaRequest $request, User $user)
@@ -40,14 +40,14 @@ class SiswaController extends Controller
 
         $this->siswaService->updateSiswa($user, $validated);
 
-        return redirect()->route('admin.siswa.index');
+        return redirect()->route('admin.siswa.index')->with('success', 'Siswa berhasil diupdate');
     }
 
     public function destroy(User $user)
     {
-        $user->delete();
+        $user->delete($user->id);
         
-        return redirect()->route('admin.siswa.index');
+        return redirect()->route('admin.siswa.index')->with('success', 'Siswa berhasil dihapus');
     }
 
 }

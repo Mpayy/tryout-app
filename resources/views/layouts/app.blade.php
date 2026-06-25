@@ -16,16 +16,13 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-{{-- PERUBAHAN: Tambah min-h-screen agar konten pendek tidak kelihatan menggantung --}}
 <body class="font-sans antialiased bg-base-200 min-h-screen">
     <div class="drawer lg:drawer-open">
         <input id="my-drawer-4" type="checkbox" class="drawer-toggle" />
-
-        {{-- Drawer Content (main area) --}}
         <div class="drawer-content flex flex-col min-h-screen">
+
             @include('layouts.navigation')
 
-            {{-- PERUBAHAN: Tambah max-w dan mx-auto agar konten tidak terlalu lebar di layar besar --}}
             <main class="flex-1 p-5 lg:p-7 overflow-y-auto">
                 <div class="animate-fade-in">
                     {{ $slot }}
@@ -35,6 +32,21 @@
 
         @include('layouts.sidebar')
     </div>
+
+    @include('sweetalert2::index')
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    @if (session('success'))
+        <script>
+            Swal.fire({
+                title: 'Success',
+                text: "{{ session('success') }}",
+                icon: 'success',
+                timer: 1000,
+                showConfirmButton: false
+            });
+        </script>
+    @endif
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
@@ -50,6 +62,7 @@
             });
         });
     </script>
+
 </body>
 
 </html>

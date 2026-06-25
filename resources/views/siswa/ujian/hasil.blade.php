@@ -201,7 +201,8 @@
 
                 {{-- ─── Tombol kembali ──────────────────────── --}}
                 <div class="flex justify-center pt-2">
-                    <a href="{{ route('siswa.ujian.index') }}" class="btn btn-primary btn-wide font-bold gap-2">
+                    <a href="{{ route('siswa.ujian.index') }}" class="btn btn-primary btn-wide font-bold gap-2"
+                    onclick="bolehKeluar = true;">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
                             stroke="currentColor" class="size-4">
                             <path stroke-linecap="round" stroke-linejoin="round"
@@ -210,7 +211,6 @@
                         Kembali ke Dashboard
                     </a>
                 </div>
-
             </div>
         </div>
     </div>

@@ -65,10 +65,10 @@
                             </button>
 
                             <form action="{{ route('admin.siswa.destroy', $siswa) }}" method="POST"
-                                onsubmit="return confirm('Apakah Anda yakin ingin menghapus siswa ini?')" class="inline">
+                                class="inline form-delete">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit"
+                                <button type="submit" data-name="{{ $siswa->name }}"
                                     class="btn btn-xs btn-outline btn-error shadow-none font-medium px-2.5">
                                     Hapus
                                 </button>
@@ -199,11 +199,11 @@
                 const methodField = document.getElementById('method');
 
                 @if (old('_method') == 'PUT')
-                    modalTitle.innerText = "Modal Form: Edit User";
+                    modalTitle.innerText = "Modal Form: Edit Siswa";
                     form.action = "{{ url('admin/siswa') }}/" + "{{ old('id') }}";
                     methodField.innerHTML = `@method('PUT')`;
                 @else
-                    modalTitle.innerText = "Modal Form: Tambah User Baru";
+                    modalTitle.innerText = "Modal Form: Tambah Siswa";
                     form.action = "{{ route('admin.siswa.store') }}";
                     methodField.innerHTML = "";
                 @endif
@@ -215,5 +215,29 @@
         function closeModal() {
             modal.close();
         }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.form-delete').forEach(form => {
+                form.addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    const namaSiswa = this.querySelector('button[data-name]').getAttribute('data-name');
+                    Swal.fire({
+                        title: "Apakah anda yakin?",
+                        text: `Data siswa "${namaSiswa}" akan dihapus permanen dari sistem!`,
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6',
+                        confirmButtonText: "Ya, Hapus",
+                        cancelButtonText: "Tidak",
+                        reverseButtons: true
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            this.submit();
+                        }
+                    });
+                });
+            });
+        });
     </script>
 </x-app-layout>

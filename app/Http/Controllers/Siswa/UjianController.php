@@ -10,13 +10,14 @@ use App\Models\PaketUjian;
 use App\Models\SesiUjian;
 use App\Models\JawabanSiswa;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class UjianController extends Controller
 {
     public function index()
     {
 
-        $user = auth()->user();
+        $user = Auth::user();
         $kelasId = $user->profileSiswa?->kelas_id;
 
 
@@ -36,24 +37,24 @@ class UjianController extends Controller
         return view('siswa.ujian.index', compact('paketUjian'));
     }
 
-    public function mulai(Request $request, PaketUjian $paket)
+    public function mulai(PaketUjian $paket)
     {
-        if ($paket->status !== 'aktif') {
-            abort(403, 'Ujian ini sedang tidak aktif.');
-        }
-
-        // Cek apakah siswa sudah punya sesi aktif
-        $sesiAktif = SesiUjian::where('siswa_id', auth()->id())
+        $siswaId = Auth::id();
+        $sesiAktif = SesiUjian::where('siswa_id', $siswaId)
             ->where('paket_ujian_id', $paket->id)
             ->whereIn('status', ['menunggu', 'berlangsung'])
             ->first();
+
+        if ($paket->status !== 'aktif') {
+            abort(403, 'Ujian ini sedang tidak aktif.');
+        }
 
         if ($sesiAktif) {
             return redirect()->route('siswa.ujian.show', $sesiAktif->token);
         }
 
         // Cek apakah sudah pernah selesai
-        $sesiSelesai = SesiUjian::where('siswa_id', auth()->id())
+        $sesiSelesai = SesiUjian::where('siswa_id', $siswaId)
             ->where('paket_ujian_id', $paket->id)
             ->where('status', 'selesai')
             ->first();
@@ -63,41 +64,50 @@ class UjianController extends Controller
                 ->with('info', 'Anda sudah menyelesaikan ujian ini.');
         }
 
-        $sesi = SesiUjian::create([
-            'siswa_id'       => auth()->id(),
-            'paket_ujian_id' => $paket->id,
-            'token'          => Str::uuid(),
-            'waktu_mulai'    => now(),
-            'status'         => 'berlangsung',
-        ]);
+        $sesi = DB::transaction(function () use ($siswaId, $paket) {
 
-        // Inisialisasi jawaban kosong untuk semua soal
-        $soalQuery = $paket->soal();
-        if ($paket->acak_soal) {
-            $soalQuery->inRandomOrder();
-        } else {
-            $soalQuery->orderBy('paket_ujian_soal.nomor_urut');
-        }
+            // 1. Buat sesi
+            $sesi = SesiUjian::create([
+                'siswa_id'       => $siswaId,
+                'paket_ujian_id' => $paket->id,
+                'token'          => Str::uuid(),
+                'waktu_mulai'    => now(),
+                'status'         => 'berlangsung',
+            ]);
 
-        $soalIds = $soalQuery->pluck('soal.id');
-        $jawaban = $soalIds->map(fn($id) => [
-            'sesi_ujian_id'     => $sesi->id,
-            'soal_id'           => $id,
-            'pilihan_jawaban_id' => null,
-            'is_ragu'           => false,
-            'created_at'        => now(),
-            'updated_at'        => now(),
-        ])->toArray();
+            // 2. Ambil & susun soal
+            $soalQuery = $paket->soal();
+            if ($paket->acak_soal) {
+                $soalQuery->inRandomOrder();
+            } else {
+                $soalQuery->orderBy('paket_ujian_soal.nomor_urut');
+            }
 
-        JawabanSiswa::insert($jawaban);
+            $soalIds = $soalQuery->pluck('soal.id');
+            $jawaban = $soalIds->map(fn($id) => [
+                'sesi_ujian_id'      => $sesi->id,
+                'soal_id'            => $id,
+                'pilihan_jawaban_id' => null,
+                'is_ragu'            => false,
+                'created_at'         => now(),
+                'updated_at'         => now(),
+            ])->toArray();
+
+            // 3. Insert jawaban (Request lain tidak akan bisa mengintip sebelum baris ini selesai)
+            JawabanSiswa::insert($jawaban);
+
+            return $sesi;
+        });
 
         return redirect()->route('siswa.ujian.show', $sesi->token);
     }
 
     public function show(string $token)
     {
+        $siswaId = Auth::id();
+
         $sesi = SesiUjian::where('token', $token)
-            ->where('siswa_id', auth()->id())
+            ->where('siswa_id', $siswaId)
             ->with('paketUjian')
             ->firstOrFail();
 
@@ -105,35 +115,22 @@ class UjianController extends Controller
             return redirect()->route('siswa.ujian.hasil', $token);
         }
 
-        // =========================================================================
-        // PERBAIKAN TIMER: Menggunakan Hitungan Waktu Selesai yang Akurat
-        // =========================================================================
-
-        // 1. Pastikan waktu_mulai dibaca sebagai objek Carbon secara eksplisit
         $waktuMulai = \Carbon\Carbon::parse($sesi->waktu_mulai);
 
-        // 2. Tentukan jam berapa ujian ini HARUS selesai (Waktu Mulai + Durasi Paket)
         $waktuSelesai = $waktuMulai->copy()->addMinutes($sesi->paketUjian->durasi);
 
-        // 3. Hitung sisa waktu murni dalam detik dari SEKARANG menuju WAKTU SELESAI
-        // Parameter false memastikan jika waktu lewat, hasilnya akan negatif
         $sisaWaktu = now()->diffInSeconds($waktuSelesai, false);
 
-        // 4. Jika waktu habis (0 atau negatif), otomatis jalankan submit
         if ($sisaWaktu <= 0) {
             $this->prosesAutoSubmit($sesi);
             return redirect()->route('siswa.ujian.hasil', $token);
         }
 
-        // =========================================================================
-
-        // Ambil jawaban siswa (diurutkan berdasarkan id = urutan saat insert di mulai())
         $jawabList = JawabanSiswa::where('sesi_ujian_id', $sesi->id)
             ->orderBy('id')
             ->get()
             ->keyBy('soal_id');
 
-        // Ambil daftar soal sesuai urutan jawaban
         $soalIds  = $jawabList->keys();
         $soalMap  = $sesi->paketUjian->soal()->whereIn('soal.id', $soalIds)->with('pilihanJawaban')->get()->keyBy('id');
         $soalList = $soalIds->map(fn($id) => $soalMap->get($id))->filter();
@@ -143,18 +140,17 @@ class UjianController extends Controller
 
     public function soal(string $token, int $nomor)
     {
+        $siswaId = Auth::id();
+
         $sesi = SesiUjian::where('token', $token)
-            ->where('siswa_id', auth()->id())
+            ->where('siswa_id', $siswaId)
             ->with('paketUjian')
             ->firstOrFail();
 
-        // Ambil daftar soal sesuai urutan yang sudah ditentukan saat mulai() (insert ke jawaban_siswa).
-        // Urutan berdasarkan id jawaban_siswa menjamin konsistensi: sama antara show() dan soal().
         $soalIds = JawabanSiswa::where('sesi_ujian_id', $sesi->id)
             ->orderBy('id')
             ->pluck('soal_id');
 
-        // Ambil soal ke-$nomor berdasarkan posisi di urutan tersebut
         $soalId = $soalIds->get($nomor - 1);
         if (!$soalId) abort(404);
 
@@ -165,11 +161,9 @@ class UjianController extends Controller
             ->where('soal_id', $soal->id)
             ->first();
 
-        // ACAK JAWABAN: Jika paket mengaktifkan acak_jawaban, kocok urutan pilihan
-        // menggunakan seed dari soal_id + sesi_id agar konsisten tiap reload halaman
         $pilihan = $soal->pilihanJawaban;
+
         if ($sesi->paketUjian->acak_jawaban) {
-            // Seed deterministik agar urutan pilihan tidak berubah tiap refresh
             $seed = crc32($sesi->id . '-' . $soal->id);
             mt_srand($seed);
             $pilihan = $pilihan->shuffle();
@@ -196,13 +190,15 @@ class UjianController extends Controller
 
     public function jawab(Request $request, string $token)
     {
+        $siswaId = Auth::id();
+
         $request->validate([
             'soal_id'            => 'required|integer|exists:soal,id',
             'pilihan_jawaban_id' => 'nullable|integer|exists:pilihan_jawaban,id',
         ]);
 
         $sesi = SesiUjian::where('token', $token)
-            ->where('siswa_id', auth()->id())
+            ->where('siswa_id', $siswaId)
             ->where('status', 'berlangsung')
             ->firstOrFail();
 
@@ -216,13 +212,15 @@ class UjianController extends Controller
 
     public function tandaiRagu(Request $request, string $token)
     {
+        $siswaId = Auth::id();
+
         $request->validate([
             'soal_id' => 'required|integer|exists:soal,id',
             'is_ragu' => 'required|boolean',
         ]);
 
         $sesi = SesiUjian::where('token', $token)
-            ->where('siswa_id', auth()->id())
+            ->where('siswa_id', $siswaId)
             ->where('status', 'berlangsung')
             ->firstOrFail();
 
@@ -235,8 +233,10 @@ class UjianController extends Controller
 
     public function submit(string $token)
     {
+        $siswaId = Auth::id();
+
         $sesi = SesiUjian::where('token', $token)
-            ->where('siswa_id', auth()->id())
+            ->where('siswa_id', $siswaId)
             ->firstOrFail();
 
         if ($sesi->status === 'berlangsung') {
@@ -284,10 +284,11 @@ class UjianController extends Controller
 
     public function hasil(string $token)
     {
-        // 1. Cari sesi ujian yang sudah selesai berdasarkan token dan ID siswa
+        $siswaId = Auth::id();
+
         $sesi = SesiUjian::where('token', $token)
-            ->where('siswa_id', auth()->id())
-            ->where('status', 'selesai') // Pastikan statusnya sudah selesai
+            ->where('siswa_id', $siswaId)
+            ->where('status', 'selesai')
             ->with(['paketUjian.mataPelajaran'])
             ->firstOrFail();
 
@@ -295,18 +296,17 @@ class UjianController extends Controller
         return view('siswa.ujian.hasil', compact('sesi'));
     }
 
-    public function catatPelanggaran(Request $request, $token)
+    public function catatPelanggaran(Request $request, string $token)
     {
+        $siswaId = Auth::id();
+
         $sesi = SesiUjian::where('token', $token)
-            ->where('siswa_id', auth()->id())
+            ->where('siswa_id', $siswaId)
             ->firstOrFail();
 
-        // Pastikan ujian masih berlangsung
         if ($sesi->status === 'berlangsung') {
-            // Increment (tambah 1) jumlah pelanggaran di database          
             $sesi->increment('jumlah_pelanggaran');
 
-            // Cek apakah sudah melewati batas (misal maksimal 3x toleransi, ke-3 diblokir)
             if ($sesi->jumlah_pelanggaran >= 3) {
                 $this->prosesAutoSubmit($sesi);
 

@@ -46,10 +46,10 @@
                             </button>
 
                             <form action="{{ route('admin.kelas.destroy', $kelas) }}" method="POST"
-                                onsubmit="return confirm('Apakah Anda yakin ingin menghapus kelas ini?')" class="inline">
+                                class="inline form-delete">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit"
+                                <button type="submit" data-name="{{ $kelas->nama }}"
                                     class="btn btn-xs btn-outline btn-error shadow-none font-medium px-2.5">
                                     Hapus
                                 </button>
@@ -79,78 +79,103 @@
                 </tr>
             @endforelse
         </x-data-tabel>
+    </div>
 
-        <x-form-modal>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <x-form-modal>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
-                <div class="form-control w-full col-span-1 sm:col-span-2">
-                    <label class="floating-label">
-                        <span class="label-text font-semibold text-slate-700 text-sm">Nama
-                            Kelas</span>
-                        <input type="text" id="input_name" name="nama" value="{{ old('nama') }}"
-                            placeholder="Masukkan nama kelas..." class="input input-primary w-full" required />
-                    </label>
-                </div>
-
-                <div class="form-control w-full col-span-2">
-                    <label class="floating-label">
-                        <span class="label-text font-semibold text-slate-700 text-sm">Kode
-                            Kelas</span>
-                        <input type="text" id="input_kode" name="kode" value="{{ old('kode') }}"
-                            placeholder="Contoh: X MIPA 1" class="input input-primary w-full" required />
-                    </label>
-                </div>
+            <div class="form-control w-full col-span-1 sm:col-span-2">
+                <label class="floating-label">
+                    <span class="label-text font-semibold text-slate-700 text-sm">Nama
+                        Kelas</span>
+                    <input type="text" id="input_name" name="nama" value="{{ old('nama') }}"
+                        placeholder="Masukkan nama kelas..." class="input input-primary w-full" required />
+                </label>
             </div>
-        </x-form-modal>
 
-        <script>
-            const modal = document.getElementById('modal')
-            const form = document.getElementById('form')
-            const modalTitle = document.getElementById('modal_title')
-            const method = document.getElementById('method')
+            <div class="form-control w-full col-span-2">
+                <label class="floating-label">
+                    <span class="label-text font-semibold text-slate-700 text-sm">Kode
+                        Kelas</span>
+                    <input type="text" id="input_kode" name="kode" value="{{ old('kode') }}"
+                        placeholder="Contoh: X MIPA 1" class="input input-primary w-full" required />
+                </label>
+            </div>
+        </div>
+    </x-form-modal>
+
+    <script>
+        const modal = document.getElementById('modal')
+        const form = document.getElementById('form')
+        const modalTitle = document.getElementById('modal_title')
+        const method = document.getElementById('method')
 
 
-            function openCreateModal() {
-                modalTitle.innerText = 'Tambah Kelas'
-                form.action = `{{ route('admin.kelas.store') }}`
-                method.innerHTML = ''
-                form.reset()
-                modal.showModal()
-            }
+        function openCreateModal() {
+            modalTitle.innerText = 'Tambah Kelas'
+            form.action = `{{ route('admin.kelas.store') }}`
+            method.innerHTML = ''
+            form.reset()
+            modal.showModal()
+        }
 
-            function openEditModal(kelas) {
-                modalTitle.innerText = 'Edit Kelas'
-                form.action = `{{ url('admin/kelas') }}/${kelas.id}`
-                method.innerHTML = `@method('PUT')`
+        function openEditModal(kelas) {
+            modalTitle.innerText = 'Edit Kelas'
+            form.action = `{{ url('admin/kelas') }}/${kelas.id}`
+            method.innerHTML = `@method('PUT')`
 
-                document.getElementById('input_name').value = kelas.nama
-                document.getElementById('input_kode').value = kelas.kode
-                modal.showModal()
-            }
+            document.getElementById('input_name').value = kelas.nama
+            document.getElementById('input_kode').value = kelas.kode
+            modal.showModal()
+        }
 
-            document.addEventListener("DOMContentLoaded", function () {
-                @if ($errors->any())
-                    const modal = document.getElementById('modal');
-                    const modalTitle = document.getElementById('modal_title');
-                    const form = document.getElementById('form');
-                    const methodField = document.getElementById('method');
+        document.addEventListener('DOMContentLoaded', function () {
+            @if ($errors->any())
+                const modal = document.getElementById('modal');
+                const modalTitle = document.getElementById('modal_title');
+                const form = document.getElementById('form');
+                const methodField = document.getElementById('method');
 
-                    @if (old('_method') == 'PUT')
-                        modalTitle.innerText = 'Edit Kelas';
-                        form.action = `{{ route('admin.kelas.update', old('id')) }}`;
-                        methodField.innerHTML = `@method('PUT')`;
-                    @else
-                        modalTitle.innerText = 'Tambah Kelas';
-                        form.action = `{{ route('admin.kelas.store') }}`;
-                        methodField.innerHTML = "";
-                    @endif
-
-                    modal.showModal();
+                @if (old('_method') == 'PUT')
+                    modalTitle.innerText = 'Edit Kelas';
+                    form.action = `{{ route('admin.kelas.update', old('id')) }}`;
+                    methodField.innerHTML = `@method('PUT')`;
+                @else
+                    modalTitle.innerText = 'Tambah Kelas';
+                    form.action = `{{ route('admin.kelas.store') }}`;
+                    methodField.innerHTML = "";
                 @endif
-        });
 
-            function closeModal() {
-                modal.close();
-            }
-        </script>
+                modal.showModal();
+            @endif
+                        });
+
+        function closeModal() {
+            modal.close();
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.form-delete').forEach(form => {
+                form.addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    const namaKelas = this.querySelector('button[data-name]').getAttribute('data-name');
+                    Swal.fire({
+                        title: "Apakah anda yakin?",
+                        text: `Data kelas "${namaKelas}" akan dihapus permanen dari sistem!`,
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6',
+                        confirmButtonText: "Ya, Hapus",
+                        cancelButtonText: "Tidak",
+                        reverseButtons: true
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            this.submit();
+                        }
+                    });
+                });
+            });
+        });
+    </script>
 </x-app-layout>

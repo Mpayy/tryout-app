@@ -66,10 +66,16 @@
                                 onclick="openEditModal({{ $guru }})">
                                 Edit
                             </button>
-                            <button type="button" class="btn btn-xs btn-outline btn-error shadow-none font-medium px-2.5"
-                                onclick="deleteModal({{ $guru }})">
-                                Hapus
-                            </button>
+                            <form action="{{ route('admin.guru.destroy', $guru) }}" method="POST"
+                                class="inline form-delete">
+                                @csrf
+                                @method('DELETE')
+
+                                <button type="submit" data-name="{{ $guru->name }}"
+                                    class="btn btn-xs btn-outline btn-error shadow-none font-medium px-2.5">
+                                    Hapus
+                                </button>
+                            </form>
                         </div>
                     </td>
                 </tr>
@@ -221,14 +227,14 @@
                     itemRow.setAttribute('data-id', mapel.id);
 
                     itemRow.innerHTML = `
-                <span>${mapel.nama}</span>
-                
-                <input type="hidden" name="mapel[]" value="${mapel.id}">
-                
-                <button type="button" class="btn-hapus-mapel text-rose-500 hover:text-rose-700 font-medium text-xs transition">
-                    Hapus
-                </button>
-            `;
+                    <span>${mapel.nama}</span>
+
+                    <input type="hidden" name="mapel[]" value="${mapel.id}">
+
+                    <button type="button" class="btn-hapus-mapel text-rose-500 hover:text-rose-700 font-medium text-xs transition">
+                        Hapus
+                    </button>
+                `;
 
                     wrapperMapel.appendChild(itemRow);
                 });
@@ -256,7 +262,7 @@
 
                 modal.showModal();
             @endif
-        });
+            });
 
         document.addEventListener('DOMContentLoaded', function () {
             const selectMapel = document.getElementById('select_mapel');
@@ -282,14 +288,14 @@
                 itemRow.setAttribute('data-id', id);
 
                 itemRow.innerHTML = `
-            <span>${nama}</span>
-            
-            <input type="hidden" name="mapel[]" value="${id}">
-            
-            <button type="button" class="btn-hapus-mapel text-rose-500 hover:text-rose-700 font-medium text-xs transition">
-                Hapus
-            </button>
-        `;
+                <span>${nama}</span>
+
+                <input type="hidden" name="mapel[]" value="${id}">
+
+                <button type="button" class="btn-hapus-mapel text-rose-500 hover:text-rose-700 font-medium text-xs transition">
+                    Hapus
+                </button>
+            `;
 
                 wrapperMapel.appendChild(itemRow);
                 selectMapel.value = "";
@@ -309,5 +315,36 @@
         function closeModal() {
             modal.close()
         }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // Tangkap semua form yang memiliki class .form-delete
+            document.querySelectorAll('.form-delete').forEach(form => {
+                form.addEventListener('submit', function (e) {
+                    // 1. Tahan form agar tidak langsung mengirim data ke server
+                    e.preventDefault();
+
+                    // 2. Ambil nama guru dari atribut data-name tombol yang diklik
+                    const namaGuru = this.querySelector('button[data-name]').getAttribute('data-name');
+
+                    // 3. Munculkan SweetAlert2
+                    Swal.fire({
+                        title: "Apakah anda yakin?",
+                        text: `Data guru "${namaGuru}" akan dihapus permanen dari sistem!`,
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6',
+                        confirmButtonText: "Ya, Hapus",
+                        cancelButtonText: "Tidak",
+                        reverseButtons: true // Tombol 'Tidak' di kiri, 'Ya' di kanan
+                    }).then((result) => {
+                        // 4. Jika diklik "Ya, Hapus", jalankan submit form aslinya
+                        if (result.isConfirmed) {
+                            this.submit();
+                        }
+                    });
+                });
+            });
+        });
     </script>
 </x-app-layout>

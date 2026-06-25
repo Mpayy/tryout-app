@@ -137,11 +137,10 @@
                             <div class="shrink-0">
                                 <form
                                     action="{{ route('admin.kelas.hapus-siswa', [$kelas->id, $anggota->profileSiswa->id]) }}"
-                                    method="POST"
-                                    onsubmit="return confirm('Yakin ingin mengeluarkan {{ $anggota->name }} dari kelas ini?')">
+                                    method="POST" class="form-delete">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit"
+                                    <button type="submit" data-name="{{ $anggota->name }}"
                                         class="btn btn-ghost btn-xs text-base-content/30 hover:text-error hover:bg-error/10 p-1 rounded-md h-auto min-h-0 transition">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                             stroke-width="2" stroke="currentColor" class="size-4">
@@ -190,5 +189,29 @@
                 });
             });
         }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.form-delete').forEach(form => {
+                form.addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    const namaKelas = this.querySelector('button[data-name]').getAttribute('data-name');
+                    Swal.fire({
+                        title: "Apakah anda yakin?",
+                        text: `Data siswa "${namaKelas}" akan dikeluarkan dari kelas ini!`,
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6',
+                        confirmButtonText: "Ya, Hapus",
+                        cancelButtonText: "Tidak",
+                        reverseButtons: true
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            this.submit();
+                        }
+                    });
+                });
+            });
+        });
     </script>
 </x-app-layout>

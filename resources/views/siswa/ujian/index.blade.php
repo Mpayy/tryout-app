@@ -36,8 +36,8 @@
             @endphp
 
             <div class="card bg-base-100 border border-base-200 shadow-sm hover:shadow-md hover:border-primary/20
-                        transition-all duration-200 flex flex-col
-                        {{ $sudahSelesai ? 'opacity-80' : '' }}">
+                                                transition-all duration-200 flex flex-col
+                                                {{ $sudahSelesai ? 'opacity-80' : '' }}">
                 <div class="card-body p-5 flex flex-col gap-0">
 
                     {{-- Baris atas: icon + badge status --}}
@@ -147,7 +147,10 @@
                         @elseif($sedangBerlangsungSiswa)
                             {{-- Sedang berlangsung: tombol lanjutkan --}}
                             <a href="{{ route('siswa.ujian.show', $sudahMulai->token) }}"
-                                class="btn btn-warning w-full font-bold gap-2">
+                                class="btn btn-warning w-full font-bold gap-2 btn-confirm" data-title="Lanjutkan Ujian?"
+                                data-message="Anda akan diarahkan kembali ke halaman soal terakhir."
+                                data-confirm-text="Ya, Lanjutkan" data-cancel-text="Kembali" data-icon="info"
+                                data-confirm-color="#fbbd23">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
                                     stroke="currentColor" class="size-4">
                                     <path stroke-linecap="round" stroke-linejoin="round"
@@ -157,10 +160,13 @@
                             </a>
                         @else
                             {{-- Belum mulai: tombol mulai --}}
-                            <form action="{{ route('siswa.ujian.mulai', $paket->id) }}" method="POST">
+                            <form action="{{ route('siswa.ujian.mulai', $paket->id) }}" method="POST" class="form-confirm">
                                 @csrf
-                                <button type="submit" class="btn btn-primary w-full font-bold gap-2"
-                                    onclick="return confirm('Mulai ujian sekarang? Waktu akan langsung berjalan sejak lembar soal dimuat.')">
+                                <button type="submit" class="btn btn-primary w-full font-bold gap-2 btn-confirm"
+                                    data-title="Mulai Ujian?"
+                                    data-message="Waktu akan mulai berjalan setelah Anda menekan tombol mulai."
+                                    data-confirm-text="Ya, Mulai" data-cancel-text="Batal" data-icon="question"
+                                    data-confirm-color="#28a745">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
                                         stroke="currentColor" class="size-4">
                                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -198,4 +204,47 @@
 
     </div>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Ubah selector menjadi mendeteksi class pada tombol/link (.btn-confirm)
+            document.querySelectorAll('.btn-confirm').forEach(button => {
+                button.addEventListener('click', function (e) {
+                    e.preventDefault(); // Menghentikan redirect link atau submit form langsung
+
+                    // Ambil data dari atribut element yang diklik
+                    const title = this.getAttribute('data-title') || 'Konfirmasi';
+                    const message = this.getAttribute('data-message') || 'Apakah Anda yakin?';
+                    const confirmText = this.getAttribute('data-confirm-text') || 'Ya';
+                    const cancelText = this.getAttribute('data-cancel-text') || 'Tidak';
+                    const iconType = this.getAttribute('data-icon') || 'warning';
+                    const confirmColor = this.getAttribute('data-confirm-color') || '#3085d6';
+
+                    Swal.fire({
+                        title: title,
+                        text: message,
+                        icon: iconType,
+                        showCancelButton: true,
+                        confirmButtonColor: confirmColor,
+                        cancelButtonColor: '#aaa',
+                        confirmButtonText: confirmText,
+                        cancelButtonText: cancelText,
+                        reverseButtons: true
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // JIKA YANG DIKLIK ADALAH LINK (tag <a>)
+                            if (this.tagName === 'A') {
+                                window.location.href = this.getAttribute('href');
+                            }
+                            // JIKA YANG DIKLIK ADALAH TOMBOL DI DALAM FORM
+                            else {
+                                this.disabled = true;
+                                this.innerHTML = '<span class="loading loading-spinner loading-sm"></span> Memproses...';
+                                this.closest('form').submit();
+                            }
+                        }
+                    });
+                });
+            });
+        });
+    </script>
 </x-app-layout>
