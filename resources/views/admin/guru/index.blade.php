@@ -113,6 +113,7 @@
                     <input type="text" id="input_name" name="name" value="{{ old('name') }}" placeholder="Masukkan nama"
                         class="input input-primary w-full" required />
                 </label>
+                <x-input-error :messages="$errors->get('name')" />
             </div>
 
             <div class="form-control">
@@ -121,6 +122,7 @@
                     <input type="email" id="input_email" name="email" value="{{ old('email') }}"
                         placeholder="mail@site.com" class="input input-primary w-full" required />
                 </label>
+                <x-input-error :messages="$errors->get('email')" />
             </div>
 
             <div class="form-control">
@@ -129,6 +131,7 @@
                     <input type="number" id="input_nip" name="nip" value="{{ old('nip') }}"
                         placeholder="NIP / Nomor Induk" class="input input-primary w-full" />
                 </label>
+                <x-input-error :messages="$errors->get('nip')" />
             </div>
 
             <div class="form-control">
@@ -141,6 +144,7 @@
                         @endforeach
                     </select>
                 </label>
+                <x-input-error :messages="$errors->get('role')" />
             </div>
 
             <div class="form-control">
@@ -160,6 +164,7 @@
                 </div>
                 <div id="wrapper_mapel_terpilih" class="mt-2 flex flex-wrap gap-1">
                 </div>
+                <x-input-error :messages="$errors->get('mapel')" />
             </div>
 
             <div class="form-control col-span-1 sm:col-span-2">
@@ -178,6 +183,7 @@
                         *Kosongkan jika tidak ingin mengubah sandi
                     </span>
                 </div>
+                <x-input-error :messages="$errors->get('password')" />
             </div>
         </div>
     </x-form-modal>

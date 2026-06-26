@@ -1,9 +1,18 @@
 @props(['messages'])
 
 @if ($messages)
-    <ul {{ $attributes->merge(['class' => 'text-sm text-red-600 space-y-1']) }}>
-        @foreach ((array) $messages as $message)
-            <li>{{ $message }}</li>
-        @endforeach
-    </ul>
+    {{-- Kita lakukan perulangan jika pesan berbentuk array atau string tunggal --}}
+    @foreach ((array) $messages as $message)
+        <div {{ $attributes->merge(['class' => 'label py-1']) }}>
+            <span class="label-text-alt text-error text-xs flex items-center gap-1">
+                {{-- Icon SVG bawaan kamu --}}
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                    class="size-3.5 shrink-0">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+                </svg>
+                {{ $message }}
+            </span>
+        </div>
+    @endforeach
 @endif

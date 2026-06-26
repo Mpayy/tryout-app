@@ -88,6 +88,7 @@
                     <input type="text" id="input_name" name="nama" value="{{ old('nama') }}"
                         placeholder="Mata Pelajaran" class="input input-primary w-full" />
                 </label>
+                <x-input-error :messages="$errors->get('nama')" />
             </div>
 
             <div class="form-control w-full col-span-1 sm:col-span-2">
@@ -96,6 +97,7 @@
                     <input type="text" id="input_kode" name="kode" value="{{ old('kode') }}" placeholder="Kode"
                         class="input input-primary w-full" required />
                 </label>
+                <x-input-error :messages="$errors->get('kode')" />
             </div>
 
             <div class="form-control w-full col-span-1 sm:col-span-2">
@@ -104,6 +106,7 @@
                     <input type="text" id="input_deskripsi" name="deskripsi" value="{{ old('deskripsi') }}"
                         placeholder="Deskripsi" class="input input-primary w-full" />
                 </label>
+                <x-input-error :messages="$errors->get('deskripsi')" />
             </div>
         </div>
     </x-form-modal>

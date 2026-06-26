@@ -313,10 +313,15 @@
                             {{-- Siswa --}}
                             <td>
                                 <div class="flex items-center gap-2.5">
-                                    <div class="avatar placeholder shrink-0">
-                                        <div class="bg-base-200 text-base-content/60 rounded-full w-8 text-xs font-bold uppercase">
-                                            {{ substr($sesi->siswa->name ?? 'U', 0, 2) }}
-                                        </div>
+                                    <div class="avatar placeholder">
+                                        @if($sesi->siswa->profileSiswa?->foto)
+                                            <div class="w-9 rounded-full">
+                                                <img src="{{ asset('storage/' . $sesi->siswa->profileSiswa->foto) }}"
+                                                    alt="{{ $sesi->siswa->name }}" />
+                                            </div>
+                                        @else
+                                            <div class="skeleton h-9 w-9 shrink-0 rounded-full"></div>
+                                        @endif
                                     </div>
                                     <div>
                                         <div class="text-sm font-bold text-base-content">{{ $sesi->siswa->name ?? '-' }}</div>

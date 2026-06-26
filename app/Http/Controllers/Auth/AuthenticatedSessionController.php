@@ -36,19 +36,17 @@ class AuthenticatedSessionController extends Controller
 
         // Redirect sesuai role via Spatie hasRole()
         if ($user->hasRole('admin')) {
-            return redirect()->route('admin.dashboard');
+            return redirect()->route('admin.dashboard')->with('success', 'Login berhasil!');
         }
 
         if ($user->hasRole('guru')) {
-            return redirect()->route('guru.dashboard');
+            return redirect()->route('guru.dashboard')->with('success', 'Login berhasil!');
         }
 
         if ($user->hasRole('siswa')) {
-            return redirect()->route('siswa.dashboard');
+            return redirect()->route('siswa.dashboard')->with('success', 'Login berhasil!');
         }
 
-        // FIX #5: Fallback — user login tapi tidak punya role yang dikenal.
-        // Log out dan kembalikan ke login dengan pesan error yang jelas.
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
