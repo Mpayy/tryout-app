@@ -7,6 +7,8 @@ use App\Models\User;
 use App\Models\Soal;
 use App\Models\PaketUjian;
 use App\Models\SesiUjian;
+use App\Support\CacheKey;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
@@ -20,17 +22,13 @@ class AdminDashboardController extends Controller
             // 1. STAT CARDS
             // ══════════════════════════════════════════════
 
-            'totalSiswa' => User::role('siswa')
-                // ->where('is_active', true)
-                ->count(),
+            'totalSiswa' => Cache::remember(CacheKey::STAT_TOTAL_SISWA, now()->addMinutes(CacheKey::TTL_MEDIUM), fn() => User::role('siswa')->count()),
 
-            'totalGuru' => User::role('guru')
-                // ->where('is_active', true)
-                ->count(),
+            'totalGuru' => Cache::remember(CacheKey::STAT_TOTAL_GURU, now()->addMinutes(CacheKey::TTL_MEDIUM), fn() => User::role('guru')->count()),
 
-            'totalSoal' => Soal::count(),
+            'totalSoal' => Cache::remember(CacheKey::STAT_TOTAL_SOAL, now()->addMinutes(CacheKey::TTL_MEDIUM), fn() => Soal::count()),
 
-            'totalPaket' => PaketUjian::count(),
+            'totalPaket' => Cache::remember(CacheKey::STAT_TOTAL_PAKET, now()->addMinutes(CacheKey::TTL_MEDIUM), fn() => PaketUjian::count()),
 
             // Paket yang sedang aktif dalam rentang waktu sekarang
             'ujianAktifHariIni' => PaketUjian::where('status', 'aktif')
@@ -65,7 +63,10 @@ class AdminDashboardController extends Controller
             // ══════════════════════════════════════════════
 
             // 5 paket terbaru yang sudah punya hasil
-            'ujianTerbaru' => PaketUjian::with('mataPelajaran')
+            'ujianTerbaru' => Cache::remember(
+                CacheKey::DASHBOARD_UJIAN_TERBARU,
+                now()->addMinutes(CacheKey::TTL_MEDIUM),
+                fn() => PaketUjian::with('mataPelajaran')
                 ->whereHas('sesiUjian', fn($q) =>
                 $q->whereIn('status', ['selesai', 'timeout']))
                 ->withCount([
@@ -89,21 +90,19 @@ class AdminDashboardController extends Controller
                 )
                 ->orderByDesc('tanggal_selesai')
                 ->limit(5)
-                ->get(),
-
-            // Siswa yang belum punya profil (cek via doesntHave karena
-            // kolom is_profile_complete belum ada di migration saat ini)
-            'siswaBelumLengkap' => User::role('siswa')
-                ->doesntHave('profileSiswa')
-                ->orderByDesc('created_at')
-                ->limit(8)
-                ->get(),
+                ->get()
+            ),
 
             // ══════════════════════════════════════════════
             // 4. CHART — Partisipasi ujian 8 minggu terakhir
             // ══════════════════════════════════════════════
 
-            'chartData' => self::getChartPartisipasi(),
+            'chartData' => Cache::remember(
+                CacheKey::CHART_PARTISIPASI,
+                now()->addMinutes(CacheKey::TTL_LONG),
+                fn() => self::getChartPartisipasi()
+            ),
+
         ]);
     }
 

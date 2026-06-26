@@ -77,8 +77,6 @@
                 </tr>
             @endforelse
         </x-data-tabel>
-
-        {{ $mapels->links() }}
     </div>
     <x-form-modal>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">

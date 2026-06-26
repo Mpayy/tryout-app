@@ -3,14 +3,16 @@
 namespace App\Http\Controllers\Siswa;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\DB;
+use App\Models\JawabanSiswa;
 use App\Models\PaketUjian;
 use App\Models\SesiUjian;
-use App\Models\JawabanSiswa;
+use App\Support\CacheKey;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class UjianController extends Controller
 {
@@ -278,6 +280,9 @@ class UjianController extends Controller
                 'total_ragu'    => $totalRagu,
             ]);
         });
+        Cache::forget(CacheKey::DASHBOARD_UJIAN_TERBARU);
+        Cache::forget(CacheKey::rekapPaket($sesi->paket_ujian_id));
+        Cache::forget("rekap_belum_ikut_{$sesi->paket_ujian_id}");
     }
 
     // Tambahkan ini di dalam class UjianController kamu
