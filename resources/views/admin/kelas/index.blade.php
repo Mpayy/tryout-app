@@ -91,6 +91,7 @@
                     <input type="text" id="input_name" name="nama" value="{{ old('nama') }}"
                         placeholder="Masukkan nama kelas..." class="input input-primary w-full" required />
                 </label>
+                <x-input-error :messages="$errors->get('nama')" />
             </div>
 
             <div class="form-control w-full col-span-2">
@@ -100,6 +101,7 @@
                     <input type="text" id="input_kode" name="kode" value="{{ old('kode') }}"
                         placeholder="Contoh: X MIPA 1" class="input input-primary w-full" required />
                 </label>
+                <x-input-error :messages="$errors->get('kode')" />
             </div>
         </div>
     </x-form-modal>

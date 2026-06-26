@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\ProfileSiswa;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
@@ -36,27 +37,33 @@ class RegisteredUserController extends Controller
             'name'     => ['required', 'string', 'max:255'],
             'email'    => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'nis'      => ['required', 'string', 'max:255', 'unique:' . ProfileSiswa::class . ',nis'],
+            'foto'     => ['nullable', 'image', 'max:2048'],
         ]);
 
         $user = User::create([
             'name'                => $request->name,
             'email'               => $request->email,
             'password'            => Hash::make($request->password),
-            'is_active'           => true,
-            'is_profile_complete' => false,
-            'is_approved'         => true,
         ]);
 
-        // FIX #3a: Assign role siswa via Spatie Permission
-        // Tanpa ini, siswa tidak bisa akses route manapun yang diproteksi middleware role:siswa
         $user->assignRole('siswa');
+
+        $path = null;
+        if ($request->hasFile('foto')) {
+            $path = $request->file('foto')->store('foto-profil', 'public');
+        }
+
+        ProfileSiswa::create([
+            'user_id' => $user->id,
+            'nis' => $request->nis,
+            'foto' => $path,
+        ]);
 
         event(new Registered($user));
 
         Auth::login($user);
 
-        // FIX #3b: Redirect ke dashboard siswa, bukan route('dashboard') yang sudah dihapus
-        return redirect()->route('siswa.dashboard')
-            ->with('info', 'Selamat datang! Silakan lengkapi profil Anda.');
+        return redirect()->route('siswa.dashboard')->with('success', 'Pendaftaran berhasil!');
     }
 }

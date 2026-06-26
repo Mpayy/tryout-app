@@ -118,6 +118,7 @@
                         placeholder="Contoh: Penilaian Tengah Semester Ganjil"
                         class="input input-primary w-full" required />
                 </label>
+                <x-input-error :messages="$errors->get('nama')" />
             </div>
 
             <div class="form-control">
@@ -132,6 +133,7 @@
                         @endforeach
                     </select>
                 </label>
+                <x-input-error :messages="$errors->get('mata_pelajaran_id')" />
             </div>
 
             <div class="form-control">
@@ -140,6 +142,7 @@
                     <input type="number" min="10" id="input_durasi" name="durasi" value="{{ old('durasi') }}"
                         placeholder="Contoh: 90" class="input input-primary w-full" required />
                 </label>
+                <x-input-error :messages="$errors->get('durasi')" />
             </div>
 
             <div class="form-control">
@@ -148,6 +151,7 @@
                     <input type="date" id="input_tanggal_mulai" name="tanggal_mulai"
                         value="{{ old('tanggal_mulai') }}" class="input input-primary w-full" required />
                 </label>
+                <x-input-error :messages="$errors->get('tanggal_mulai')" />
             </div>
 
             <div class="form-control">
@@ -156,6 +160,7 @@
                     <input type="date" id="input_tanggal_selesai" name="tanggal_selesai"
                         value="{{ old('tanggal_selesai') }}" class="input input-primary w-full" required />
                 </label>
+                <x-input-error :messages="$errors->get('tanggal_selesai')" />
             </div>
 
             <div class="form-control col-span-1 sm:col-span-2">
@@ -172,6 +177,7 @@
                         </label>
                     @endforeach
                 </div>
+                <x-input-error :messages="$errors->get('kelas_ids')" />
             </div>
 
             <div class="form-control col-span-1 sm:col-span-2 border-t border-base-200 pt-4">
@@ -192,6 +198,8 @@
                         </div>
                     </label>
                 </div>
+                <x-input-error :messages="$errors->get('acak_soal')" />
+                <x-input-error :messages="$errors->get('acak_jawaban')" />
             </div>
         </div>
     </x-form-modal>
