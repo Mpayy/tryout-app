@@ -8,6 +8,8 @@ use Spatie\Permission\Models\Role;
 use App\Http\Requests\GuruRequest;
 use App\Services\GuruService;
 use App\Models\MataPelajaran;
+use App\Support\CacheKey;
+use Illuminate\Support\Facades\Cache;
 
 class GuruController extends Controller
 {
@@ -21,13 +23,13 @@ class GuruController extends Controller
      */
     public function index()
     {
-        $roles = Role::all();
-        $mapels = MataPelajaran::all();
+        $roles = Cache::remember(CacheKey::ALL_ROLES, now()->addMinutes(CacheKey::TTL_LONG), fn() => Role::all());
+        $mapels = Cache::remember(CacheKey::ALL_MATA_PELAJARAN, now()->addMinutes(CacheKey::TTL_LONG), fn() => MataPelajaran::all());
 
-        $daftarGuru = User::role('guru')->with([
-            'profileGuru.mataPelajarans:id,nama',
-            'roles:id,name'
-        ])->select('id', 'name', 'email')->paginate(5);
+        $daftarGuru = User::role('guru')
+            ->with(['profileGuru.mataPelajarans:id,nama', 'roles:id,name'])
+            ->select('id', 'name', 'email')
+            ->paginate(5);
 
         return view('admin.guru.index', compact('daftarGuru', 'roles', 'mapels'));
     }
@@ -42,6 +44,9 @@ class GuruController extends Controller
 
         $this->guruService->createGuru($validatedData);
 
+        Cache::forget(CacheKey::STAT_TOTAL_GURU);
+        Cache::forget(CacheKey::ALL_GURU_DROPDOWN);
+
         return redirect()->route('admin.guru.index')->with('success', 'Data berhasil ditambahkan!');
     }
 
@@ -55,6 +60,9 @@ class GuruController extends Controller
 
         $this->guruService->updateGuru($user, $validatedData);
 
+        Cache::forget(CacheKey::STAT_TOTAL_GURU);
+        Cache::forget(CacheKey::ALL_GURU_DROPDOWN);
+
         return redirect()->route('admin.guru.index')->with('success', 'Data berhasil diupdate!');
     }
 
@@ -64,6 +72,9 @@ class GuruController extends Controller
     public function destroy(User $user)
     {
         $user->delete();
+
+        Cache::forget(CacheKey::STAT_TOTAL_GURU);
+        Cache::forget(CacheKey::ALL_GURU_DROPDOWN);
 
         return redirect()->route('admin.guru.index')->with('success', 'Data berhasil dihapus!');
     }
