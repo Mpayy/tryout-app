@@ -79,9 +79,9 @@ class RekapController extends Controller
 
         // ── Ambil semua sesi dari cache (TANPA filter kelas) ──
         // Key unik per paket agar paket lain tidak saling timpa
-        $semuaSesiLengkap = Cache::remember(
+        $semuaSesiLengkap = $this->rememberWithLock(
             CacheKey::rekapPaket($paket->id),
-            now()->addMinutes(CacheKey::TTL_LONG),
+            CacheKey::TTL_LONG,
             fn() => SesiUjian::where('paket_ujian_id', $paket->id)
                 ->whereIn('status', ['selesai', 'timeout'])
                 ->with([
@@ -168,9 +168,9 @@ class RekapController extends Controller
         // ── Juga sertakan data siswa yang BELUM ikut (jika paket punya kelas tertentu) ──
         $belumIkut = collect();
         if ($paket->kelas->isNotEmpty()) {
-            $belumIkut = Cache::remember(
+            $belumIkut = $this->rememberWithLock(
                 "rekap_belum_ikut_{$paket->id}",
-                now()->addMinutes(CacheKey::TTL_LONG),
+                CacheKey::TTL_LONG,
                 function () use ($paket, $semuaSesiLengkap) {
                     // Pakai $semuaSesiLengkap (bukan $semuaSesi) agar
                     // siswa yang ada di kelas lain tidak ikut dianggap "belum ikut"

@@ -25,10 +25,58 @@ class CacheKey
     const ALL_GURU_DROPDOWN  = 'all_guru_dropdown';
     const KELAS_WITH_COUNT   = 'kelas_with_count';
 
+    // ── Guru dashboard ───────────────────────────
+    public static function guruStatSoal(int $guruId): string
+    {
+        return "guru_stat_soal_{$guruId}";
+    }
+
+    public static function guruStatPaket(int $guruId): string
+    {
+        return "guru_stat_paket_{$guruId}";
+    }
+
+    public static function guruStatSiswaIkut(int $guruId): string
+    {
+        return "guru_stat_siswa_ikut_{$guruId}";
+    }
+
+    public static function guruHasilTerbaru(int $guruId): string
+    {
+        return "guru_hasil_terbaru_{$guruId}";
+    }
+
+    public static function guruDraftPaket(int $guruId): string
+    {
+        return "guru_draft_paket_{$guruId}";
+    }
+
+    public static function soalLengkap(int $soalId): string
+    {
+        return "soal_lengkap_{$soalId}";
+    }
+
+    public static function paketSoal(int $paketId): string
+    {
+        return "paket_soal_{$paketId}";
+    }
+
+    public static function ujianTersediaKelas(int $kelasId, string $tanggalAwal): string
+    {
+        return "ujian_tersedia_kelas_{$kelasId}_{$tanggalAwal}";
+    }   
+
+
+
     // ── Rekap per paket (1 jam, dynamic key) ──────────
     public static function rekapPaket(int $paketId): string
     {
         return "rekap_paket_{$paketId}";
+    }
+
+    public static function mataPelajaranGuru(int $guruId): string
+    {
+        return "mata_pelajaran_guru_{$guruId}" ;
     }
 
     // Durasi dalam menit

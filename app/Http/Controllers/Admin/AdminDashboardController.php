@@ -63,9 +63,9 @@ class AdminDashboardController extends Controller
             // ══════════════════════════════════════════════
 
             // 5 paket terbaru yang sudah punya hasil
-            'ujianTerbaru' => Cache::remember(
+            'ujianTerbaru' => $this->rememberWithLock(
                 CacheKey::DASHBOARD_UJIAN_TERBARU,
-                now()->addMinutes(CacheKey::TTL_MEDIUM),
+                CacheKey::TTL_MEDIUM,
                 fn() => PaketUjian::with('mataPelajaran')
                 ->whereHas('sesiUjian', fn($q) =>
                 $q->whereIn('status', ['selesai', 'timeout']))
@@ -97,9 +97,9 @@ class AdminDashboardController extends Controller
             // 4. CHART — Partisipasi ujian 8 minggu terakhir
             // ══════════════════════════════════════════════
 
-            'chartData' => Cache::remember(
+            'chartData' => $this->rememberWithLock(
                 CacheKey::CHART_PARTISIPASI,
-                now()->addMinutes(CacheKey::TTL_LONG),
+                CacheKey::TTL_LONG,
                 fn() => self::getChartPartisipasi()
             ),
 

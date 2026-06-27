@@ -62,6 +62,7 @@ class GuruController extends Controller
 
         Cache::forget(CacheKey::STAT_TOTAL_GURU);
         Cache::forget(CacheKey::ALL_GURU_DROPDOWN);
+        Cache::forget(CacheKey::mataPelajaranGuru($user->id));
 
         return redirect()->route('admin.guru.index')->with('success', 'Data berhasil diupdate!');
     }
@@ -75,6 +76,7 @@ class GuruController extends Controller
 
         Cache::forget(CacheKey::STAT_TOTAL_GURU);
         Cache::forget(CacheKey::ALL_GURU_DROPDOWN);
+        Cache::forget(CacheKey::mataPelajaranGuru($user->id));
 
         return redirect()->route('admin.guru.index')->with('success', 'Data berhasil dihapus!');
     }

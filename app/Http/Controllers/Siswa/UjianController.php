@@ -23,18 +23,34 @@ class UjianController extends Controller
         $kelasId = $user->profileSiswa?->kelas_id;
 
 
-        $now = Carbon::today()->toDateString();
+        // $now = Carbon::today()->toDateString();
 
-        $paketUjian = PaketUjian::with(['mataPelajaran', 'guru', 'sesiSiswa'])
-            ->withCount('soal')
-            ->whereHas('kelas', function ($query) use ($kelasId) {
-                $query->where('kelas_id', $kelasId);
-            })
-            ->where('status', 'aktif')
-            ->whereDate('tanggal_mulai', '<=', $now)
-            ->whereDate('tanggal_selesai', '>=', $now)
-            ->latest()
-            ->get();
+        // $paketUjian = PaketUjian::with(['mataPelajaran', 'guru', 'sesiSiswa'])
+        //     ->withCount('soal')
+        //     ->whereHas('kelas', function ($query) use ($kelasId) {
+        //         $query->where('kelas_id', $kelasId);
+        //     })
+        //     ->where('status', 'aktif')
+        //     ->whereDate('tanggal_mulai', '<=', $now)
+        //     ->whereDate('tanggal_selesai', '>=', $now)
+        //     ->latest()
+        //     ->get();
+
+        $tanggalAwal = Carbon::today()->toDateString();
+        $paketUjian = $this->rememberWithLock(
+            CacheKey::ujianTersediaKelas($kelasId, $tanggalAwal),
+            CacheKey::TTL_MEDIUM,
+            fn() => PaketUjian::with(['mataPelajaran', 'guru', 'sesiSiswa'])
+                ->withCount('soal')
+                ->whereHas('kelas', function ($query) use ($kelasId) {
+                    $query->where('kelas_id', $kelasId);
+                })
+                ->where('status', 'aktif')
+                ->whereDate('tanggal_mulai', '<=', $tanggalAwal)
+                ->whereDate('tanggal_selesai', '>=', $tanggalAwal)
+                ->latest()
+                ->get()
+        );
 
         return view('siswa.ujian.index', compact('paketUjian'));
     }
@@ -47,8 +63,8 @@ class UjianController extends Controller
             ->whereIn('status', ['menunggu', 'berlangsung'])
             ->first();
 
-        if ($paket->status !== 'aktif') {
-            abort(403, 'Ujian ini sedang tidak aktif.');
+        if ($paket->status !== 'aktif' || now()->lt($paket->tanggal_mulai) || now()->gt($paket->tanggal_selesai)) {
+            return redirect()->route('siswa.ujian.index')->with('error', 'Ujian ini sedang tidak aktif atau sudah selesai.');
         }
 
         if ($sesiAktif) {
@@ -98,6 +114,12 @@ class UjianController extends Controller
             // 3. Insert jawaban (Request lain tidak akan bisa mengintip sebelum baris ini selesai)
             JawabanSiswa::insert($jawaban);
 
+            $berhasil = true;
+
+            if ($berhasil) {
+                Cache::forget(CacheKey::guruStatSiswaIkut($paket->guru_id));
+            }
+
             return $sesi;
         });
 
@@ -134,7 +156,14 @@ class UjianController extends Controller
             ->keyBy('soal_id');
 
         $soalIds  = $jawabList->keys();
-        $soalMap  = $sesi->paketUjian->soal()->whereIn('soal.id', $soalIds)->with('pilihanJawaban')->get()->keyBy('id');
+        // $soalMap  = $sesi->paketUjian->soal()->whereIn('soal.id', $soalIds)->with('pilihanJawaban')->get()->keyBy('id');
+        $paketId = $sesi->paket_ujian_id;
+        $soalMap = $this->rememberWithLock(
+            CacheKey::paketSoal($paketId),
+            CacheKey::TTL_LONG,
+            fn() => $sesi->paketUjian->soal()->with('pilihanJawaban')->get()->keyBy('id')
+        );
+
         $soalList = $soalIds->map(fn($id) => $soalMap->get($id))->filter();
 
         return view('siswa.ujian.show', compact('sesi', 'soalList', 'jawabList', 'sisaWaktu'));
@@ -156,7 +185,12 @@ class UjianController extends Controller
         $soalId = $soalIds->get($nomor - 1);
         if (!$soalId) abort(404);
 
-        $soal = $sesi->paketUjian->soal()->with('pilihanJawaban')->find($soalId);
+        // $soal = $sesi->paketUjian->soal()->with('pilihanJawaban')->find($soalId);
+        $soal = $this->rememberWithLock(
+            CacheKey::soalLengkap($soalId),
+            CacheKey::TTL_LONG,
+            fn() => $sesi->paketUjian->soal()->with('pilihanJawaban')->find($soalId)
+        );
         if (!$soal) abort(404);
 
         $jawaban = JawabanSiswa::where('sesi_ujian_id', $sesi->id)
@@ -279,10 +313,17 @@ class UjianController extends Controller
                 'total_salah'   => $totalSalah,
                 'total_ragu'    => $totalRagu,
             ]);
+
+            $berhasil = true;
+
+            if ($berhasil) {
+                Cache::forget(CacheKey::DASHBOARD_UJIAN_TERBARU);
+                Cache::forget(CacheKey::rekapPaket($sesi->paket_ujian_id));
+                Cache::forget("rekap_belum_ikut_{$sesi->paket_ujian_id}");
+                Cache::forget(CacheKey::guruHasilTerbaru($sesi->paketUjian->guru_id));
+                Cache::forget(CacheKey::guruStatSiswaIkut($sesi->paketUjian->guru_id));
+            }
         });
-        Cache::forget(CacheKey::DASHBOARD_UJIAN_TERBARU);
-        Cache::forget(CacheKey::rekapPaket($sesi->paket_ujian_id));
-        Cache::forget("rekap_belum_ikut_{$sesi->paket_ujian_id}");
     }
 
     // Tambahkan ini di dalam class UjianController kamu
