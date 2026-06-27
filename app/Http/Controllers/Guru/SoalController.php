@@ -11,6 +11,8 @@ use App\Models\PilihanJawaban;
 use App\Http\Requests\SoalRequest;
 use App\Services\SoalService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use App\Support\CacheKey;
 
 class SoalController extends Controller
 {
@@ -28,7 +30,8 @@ class SoalController extends Controller
     public function create()
     {
         $guru = Auth::user();
-        $mataPelajaranGuru = $guru->load('profileGuru.mataPelajarans')->profileGuru->mataPelajarans;
+        $mataPelajaranGuru = Cache::remember(CacheKey::mataPelajaranGuru($guru->id), now()->addMinutes(CacheKey::TTL_LONG), fn() => $guru->load('profileGuru.mataPelajarans')->profileGuru->mataPelajarans);
+
         return view('guru.soal.create', compact('mataPelajaranGuru'));
     }
 
@@ -50,6 +53,10 @@ class SoalController extends Controller
             $validated['soal'],
             $guru->id
         );
+
+        Cache::forget(CacheKey::STAT_TOTAL_SOAL);
+        Cache::forget(CacheKey::guruStatSoal($guru->id));
+
 
         return redirect()
             ->route('guru.soal.index')
@@ -74,6 +81,9 @@ class SoalController extends Controller
 
         $this->soalService->updateSoal($soal, $validate);
 
+        Cache::forget(CacheKey::soalLengkap($soal->id));
+
+
         return redirect()->back()->with('success', 'Soal berhasil diperbarui!');
     }
 
@@ -85,6 +95,9 @@ class SoalController extends Controller
         }
 
         $soal->delete($soal->id);
+
+        Cache::forget(CacheKey::STAT_TOTAL_SOAL);
+        Cache::forget(CacheKey::guruStatSoal($guruId));
 
         return redirect()->route('guru.soal.index')
             ->with('success', 'Soal berhasil dihapus.');
