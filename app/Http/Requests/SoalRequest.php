@@ -31,7 +31,6 @@ class SoalRequest extends FormRequest
             'soal.*.opsi.C' => 'required|string',
             'soal.*.opsi.D' => 'required|string',
             'soal.*.jawaban_benar' => 'required|string|in:A,B,C,D',
-            'tingkat_kesulitan' => 'nullable|in:mudah,sedang,sulit',
         ];
     }
 

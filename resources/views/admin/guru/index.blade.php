@@ -116,7 +116,7 @@
                 <x-input-error :messages="$errors->get('name')" />
             </div>
 
-            <div class="form-control">
+            <div class="form-control col-span-1 sm:col-span-2">
                 <label class="floating-label">
                     <span>Email (mail@site.com)</span>
                     <input type="email" id="input_email" name="email" value="{{ old('email') }}"
@@ -134,7 +134,7 @@
                 <x-input-error :messages="$errors->get('nip')" />
             </div>
 
-            <div class="form-control">
+            {{-- <div class="form-control">
                 <label class="floating-label">
                     <span>Pilih Role</span>
                     <select id="input_role" name="role" class="select select-primary w-full" required>
@@ -145,7 +145,9 @@
                     </select>
                 </label>
                 <x-input-error :messages="$errors->get('role')" />
-            </div>
+            </div> --}}
+
+            <input type="hidden" name="role" value="guru">
 
             <div class="form-control">
                 <div class="join join-horizontal w-full gap-2">
@@ -214,7 +216,6 @@
             document.getElementById('input_name').value = guru.name
             document.getElementById('input_email').value = guru.email
             document.getElementById('input_nip').value = guru.profile_guru?.nip || ''
-            document.getElementById('input_role').value = guru.roles[0].name || ''
             document.getElementById('input_password').required = false
             document.getElementById('password_hint').classList.remove('hidden');
 

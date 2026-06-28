@@ -48,6 +48,43 @@
         </script>
     @endif
 
+    @if (session('error'))
+        <script>
+            Swal.fire({
+                title: 'Error',
+                text: "{{ session('error') }}",
+                icon: 'error',
+                timer: 1000,
+                showConfirmButton: false
+            });
+        </script>
+    @endif
+
+    @if ($errors->any())
+        <script>
+            // 1. Buat cetakan (mixin) Toast-nya dulu satu kali
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 4000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                }
+            });
+
+            // 2. Lakukan perulangan di sini. Setiap ada error, tembak satu Toast!
+            @foreach ($errors->all() as $error)
+                Toast.fire({
+                    icon: 'error',
+                    title: "{{ $error }}" // Mengambil teks error individu dari Laravel
+                });
+            @endforeach
+        </script>
+    @endif
+
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const drawerToggle = document.getElementById("my-drawer-4");

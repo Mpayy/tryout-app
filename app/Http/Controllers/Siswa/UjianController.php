@@ -21,23 +21,10 @@ class UjianController extends Controller
 
         $user = Auth::user();
         $kelasId = $user->profileSiswa?->kelas_id;
-
-
-        // $now = Carbon::today()->toDateString();
-
-        // $paketUjian = PaketUjian::with(['mataPelajaran', 'guru', 'sesiSiswa'])
-        //     ->withCount('soal')
-        //     ->whereHas('kelas', function ($query) use ($kelasId) {
-        //         $query->where('kelas_id', $kelasId);
-        //     })
-        //     ->where('status', 'aktif')
-        //     ->whereDate('tanggal_mulai', '<=', $now)
-        //     ->whereDate('tanggal_selesai', '>=', $now)
-        //     ->latest()
-        //     ->get();
+        $siswaId = $user->id;
 
         $tanggalAwal = Carbon::today()->toDateString();
-        $paketUjian = $this->rememberWithLock(
+        $paketUjian = Cache::remember(
             CacheKey::ujianTersediaKelas($kelasId, $tanggalAwal),
             CacheKey::TTL_MEDIUM,
             fn() => PaketUjian::with(['mataPelajaran', 'guru', 'sesiSiswa'])
@@ -51,6 +38,19 @@ class UjianController extends Controller
                 ->latest()
                 ->get()
         );
+
+        $paketIds = $paketUjian->pluck('id');
+
+        $sesiMap = SesiUjian::where('siswa_id', $siswaId)
+            ->whereIn('paket_ujian_id', $paketIds)
+            ->get()
+            ->keyBy('paket_ujian_id'); // O(1) lookup di bawah
+
+        // ── Gabungkan: tempel sesi ke paket di PHP, tanpa query tambahan ─
+        $paketUjian = $paketUjian->map(function ($paket) use ($sesiMap) {
+            $paket->sesiSiswa = $sesiMap->get($paket->id); // null kalau belum punya sesi
+            return $paket;
+        });
 
         return view('siswa.ujian.index', compact('paketUjian'));
     }
@@ -317,11 +317,20 @@ class UjianController extends Controller
             $berhasil = true;
 
             if ($berhasil) {
+                $sesi->loadMissing('paketUjian');
+                $tanggalAwal = Carbon::today()->toDateString();
+
                 Cache::forget(CacheKey::DASHBOARD_UJIAN_TERBARU);
                 Cache::forget(CacheKey::rekapPaket($sesi->paket_ujian_id));
                 Cache::forget("rekap_belum_ikut_{$sesi->paket_ujian_id}");
                 Cache::forget(CacheKey::guruHasilTerbaru($sesi->paketUjian->guru_id));
                 Cache::forget(CacheKey::guruStatSiswaIkut($sesi->paketUjian->guru_id));
+
+                Cache::forget(CacheKey::siswaStats($sesi->siswa_id));
+                Cache::forget(CacheKey::siswaRiwayat($sesi->siswa_id));
+                Cache::forget(CacheKey::siswaChart($sesi->siswa_id));
+
+                Cache::forget(CacheKey::ujianTersediaKelas($sesi->siswa_id, $tanggalAwal));
             }
         });
     }

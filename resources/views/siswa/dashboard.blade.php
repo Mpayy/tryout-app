@@ -37,7 +37,7 @@
                         </svg>
                     </div>
                     <div>
-                        <div class="text-2xl font-bold text-base-content">{{ $totalUjianSelesai }}</div>
+                        <div class="text-2xl font-bold text-base-content">{{ $statPribadi['totalUjianSelesai'] }}</div>
                         <div class="text-xs text-base-content/50 mt-0.5">Ujian Diselesaikan</div>
                     </div>
                 </div>
@@ -46,7 +46,7 @@
             <div class="card bg-base-100 border border-base-200 shadow-sm">
                 <div class="card-body p-5 flex flex-row items-center gap-4">
                     <div
-                        class="p-3 {{ $rataNilai >= 75 ? 'bg-success/10 text-success' : 'bg-warning/10 text-warning' }} rounded-xl shrink-0">
+                        class="p-3 {{ $statPribadi['rataNilai'] >= 75 ? 'bg-success/10 text-success' : 'bg-warning/10 text-warning' }} rounded-xl shrink-0">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                             stroke="currentColor" class="size-6">
                             <path stroke-linecap="round" stroke-linejoin="round"
@@ -54,8 +54,9 @@
                         </svg>
                     </div>
                     <div>
-                        <div class="text-2xl font-bold {{ $rataNilai >= 75 ? 'text-success' : 'text-warning' }}">
-                            {{ $rataNilai }}
+                        <div
+                            class="text-2xl font-bold {{ $statPribadi['rataNilai'] >= 75 ? 'text-success' : 'text-warning' }}">
+                            {{ $statPribadi['rataNilai'] }}
                         </div>
                         <div class="text-xs text-base-content/50 mt-0.5">Rata-rata Nilai</div>
                     </div>
@@ -72,7 +73,7 @@
                         </svg>
                     </div>
                     <div>
-                        <div class="text-2xl font-bold text-success">{{ $nilaiTerbaik }}</div>
+                        <div class="text-2xl font-bold text-success">{{ $statPribadi['nilaiTerbaik'] }}</div>
                         <div class="text-xs text-base-content/50 mt-0.5">Nilai Terbaik</div>
                     </div>
                 </div>
@@ -119,7 +120,8 @@
                                 <div class="flex items-start justify-between gap-2">
                                     <div class="flex-1 min-w-0">
                                         <h3 class="text-sm font-bold text-base-content leading-snug line-clamp-2">
-                                            {{ $paket->nama }}</h3>
+                                            {{ $paket->nama }}
+                                        </h3>
                                         <p class="text-xs font-semibold text-primary mt-0.5">{{ $paket->mataPelajaran->nama }}
                                         </p>
                                     </div>
@@ -307,7 +309,8 @@
                                         <div class="flex-1 min-w-0">
                                             <div class="text-sm font-bold text-base-content truncate">{{ $paket->nama }}</div>
                                             <div class="text-xs text-primary font-medium mt-0.5">
-                                                {{ $paket->mataPelajaran->nama ?? '-' }}</div>
+                                                {{ $paket->mataPelajaran->nama ?? '-' }}
+                                            </div>
                                             <div class="text-[10px] text-base-content/40 mt-1">
                                                 {{ \Carbon\Carbon::parse($paket->tanggal_mulai)->translatedFormat('d M Y, H:i') }}
                                             </div>

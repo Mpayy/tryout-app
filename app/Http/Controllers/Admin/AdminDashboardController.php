@@ -17,32 +17,37 @@ class AdminDashboardController extends Controller
     public function index()
     {
         return view('admin.dashboard', [
+            'totalSiswa' => Cache::remember(
+                CacheKey::STAT_TOTAL_SISWA,
+                now()->addMinutes(CacheKey::TTL_MEDIUM),
+                fn() => User::role('siswa')->count()
+            ),
 
-            // ══════════════════════════════════════════════
-            // 1. STAT CARDS
-            // ══════════════════════════════════════════════
+            'totalGuru' => Cache::remember(
+                CacheKey::STAT_TOTAL_GURU,
+                now()->addMinutes(CacheKey::TTL_MEDIUM),
+                fn() => User::role('guru')->count()
+            ),
 
-            'totalSiswa' => Cache::remember(CacheKey::STAT_TOTAL_SISWA, now()->addMinutes(CacheKey::TTL_MEDIUM), fn() => User::role('siswa')->count()),
+            'totalSoal' => Cache::remember(
+                CacheKey::STAT_TOTAL_SOAL,
+                now()->addMinutes(CacheKey::TTL_MEDIUM),
+                fn() => Soal::count()
+            ),
 
-            'totalGuru' => Cache::remember(CacheKey::STAT_TOTAL_GURU, now()->addMinutes(CacheKey::TTL_MEDIUM), fn() => User::role('guru')->count()),
+            'totalPaket' => Cache::remember(
+                CacheKey::STAT_TOTAL_PAKET,
+                now()->addMinutes(CacheKey::TTL_MEDIUM),
+                fn() => PaketUjian::count()
+            ),
 
-            'totalSoal' => Cache::remember(CacheKey::STAT_TOTAL_SOAL, now()->addMinutes(CacheKey::TTL_MEDIUM), fn() => Soal::count()),
-
-            'totalPaket' => Cache::remember(CacheKey::STAT_TOTAL_PAKET, now()->addMinutes(CacheKey::TTL_MEDIUM), fn() => PaketUjian::count()),
-
-            // Paket yang sedang aktif dalam rentang waktu sekarang
             'ujianAktifHariIni' => PaketUjian::where('status', 'aktif')
                 ->where('tanggal_mulai', '<=', now())
                 ->where('tanggal_selesai', '>=', now())
                 ->count(),
-
-            // Siswa yang SEDANG mengerjakan ujian saat ini
+            
             'siswaSedangUjian' => SesiUjian::where('status', 'berlangsung')
                 ->count(),
-
-            // ══════════════════════════════════════════════
-            // 2. MONITORING REAL-TIME
-            // ══════════════════════════════════════════════
 
             'monitoringUjian' => PaketUjian::where('status', 'aktif')
                 ->where('tanggal_mulai', '<=', now())
@@ -58,11 +63,6 @@ class AdminDashboardController extends Controller
                 ->orderByDesc('sedang_mengerjakan')
                 ->get(),
 
-            // ══════════════════════════════════════════════
-            // 3. REKAP CEPAT
-            // ══════════════════════════════════════════════
-
-            // 5 paket terbaru yang sudah punya hasil
             'ujianTerbaru' => $this->rememberWithLock(
                 CacheKey::DASHBOARD_UJIAN_TERBARU,
                 CacheKey::TTL_MEDIUM,
@@ -93,10 +93,6 @@ class AdminDashboardController extends Controller
                 ->get()
             ),
 
-            // ══════════════════════════════════════════════
-            // 4. CHART — Partisipasi ujian 8 minggu terakhir
-            // ══════════════════════════════════════════════
-
             'chartData' => $this->rememberWithLock(
                 CacheKey::CHART_PARTISIPASI,
                 CacheKey::TTL_LONG,
@@ -106,7 +102,6 @@ class AdminDashboardController extends Controller
         ]);
     }
 
-    // Bangun data chart: jumlah sesi per minggu (8 minggu terakhir)
     private static function getChartPartisipasi(): array
     {
         $mulaiDari = Carbon::now()->subWeeks(7)->startOfWeek();

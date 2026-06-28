@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use App\Models\Kelas;
 
 class KelasRequest extends FormRequest
 {
@@ -24,7 +25,7 @@ class KelasRequest extends FormRequest
     public function rules(): array
     {
         $kelas = $this->route('kelas');
-        $kelasId = $kelas instanceof \App\Models\Kelas ? $kelas->id : $kelas;
+        $kelasId = $kelas instanceof Kelas ? $kelas->id : $kelas;
         return [
             'nama' => ['required', 'string', 'max:255'],
             'kode' => ['required', 'string', 'max:255', Rule::unique('kelas', 'kode')->ignore($kelasId, 'id')],
