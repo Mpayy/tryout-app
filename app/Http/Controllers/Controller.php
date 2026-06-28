@@ -23,54 +23,6 @@ abstract class Controller
      * @param callable $query    Closure yang query DB
      * @param int      $lockTtl  Berapa detik lock bertahan (default: 10 detik)
      */
-    // protected function rememberWithLock(
-    //     string $key,
-    //     int $ttlMenit,
-    //     callable $query,
-    //     int $lockTtl = 10
-    // ): mixed {
-    //     // ── Cek dulu sebelum berebut lock ──────────────────
-    //     // 99% request masuk sini dan langsung return — tidak perlu lock
-    //     $cached = Cache::get($key);
-    //     if ($cached !== null) {
-    //         return $cached;
-    //     }
-
-    //     // ── Cache kosong — mulai rebutan lock ───────────────
-    //     // Nama lock = key + suffix agar tidak bentrok dengan cache key
-    //     $lock = Cache::lock("lock_{$key}", $lockTtl);
-
-    //     try {
-    //         // block(detik): tunggu maksimal N detik sampai dapat lock
-    //         // Kalau dalam 5 detik tidak dapat lock → lempar exception
-    //         $lock->block(5);
-
-    //         // ── Dapat lock — cek lagi (double-check) ────────
-    //         // Mungkin request sebelumnya sudah isi cache
-    //         // saat kita menunggu lock tadi
-    //         $cached = Cache::get($key);
-    //         if ($cached !== null) {
-    //             return $cached; // sudah diisi orang lain, tidak perlu query DB
-    //         }
-
-    //         // ── Benar-benar kosong — kita yang query DB ─────
-    //         $result = $query();
-    //         Cache::put($key, $result, now()->addMinutes($ttlMenit));
-
-    //         return $result;
-
-    //     } catch (LockTimeoutException $e) {
-    //         // Tidak dapat lock dalam 5 detik
-    //         // Kemungkinan: ada request lain yang sedang isi cache
-    //         // Fallback: query DB langsung tanpa cache (daripada error)
-    //         Log::warning("Cache lock timeout untuk key: {$key}");
-    //         return $query();
-
-    //     } finally {
-    //         // Selalu lepas lock — bahkan kalau ada exception
-    //         $lock->forceRelease();
-    //     }
-    // }
     protected function rememberWithLock(
         string $key,
         int $ttlMenit,

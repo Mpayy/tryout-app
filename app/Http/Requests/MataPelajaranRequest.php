@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use App\Models\MataPelajaran;
 
 class MataPelajaranRequest extends FormRequest
 {
@@ -24,7 +25,7 @@ class MataPelajaranRequest extends FormRequest
     public function rules(): array
     {
         $mapel = $this->route('mapel');
-        $mapelId = $mapel instanceof \App\Models\MataPelajaran ? $mapel->id : $mapel;
+        $mapelId = $mapel instanceof MataPelajaran ? $mapel->id : $mapel;
         return [
             'nama' => ['required', 'string', 'max:100'],
             'kode' => ['required', 'string', 'max:10', Rule::unique('mata_pelajaran', 'kode')->ignore($mapelId, 'id')],

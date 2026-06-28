@@ -19,8 +19,16 @@ class SiswaController extends Controller
 
     public function index()
     {
-        $roles = Cache::remember(CacheKey::ALL_ROLES, now()->addMinutes(CacheKey::TTL_LONG), fn() => Role::all());
-        $daftarKelas = Cache::remember(CacheKey::ALL_KELAS, now()->addMinutes(CacheKey::TTL_LONG), fn() => Kelas::all());
+        $roles = Cache::remember(
+            CacheKey::ALL_ROLES,
+            now()->addMinutes(CacheKey::TTL_LONG),
+            fn() => Role::all()
+        );
+        $daftarKelas = Cache::remember(
+            CacheKey::ALL_KELAS,
+            now()->addMinutes(CacheKey::TTL_LONG),
+            fn() => Kelas::all()
+        );
 
         $daftarSiswa = User::role('siswa')
             ->with(['profileSiswa.kelas', 'roles:id,name'])
@@ -38,7 +46,7 @@ class SiswaController extends Controller
 
         Cache::forget(CacheKey::STAT_TOTAL_SISWA);
         Cache::forget(CacheKey::KELAS_WITH_COUNT);
-        
+
 
         return redirect()->route('admin.siswa.index')->with('success', 'Siswa berhasil ditambahkan');
     }

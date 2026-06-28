@@ -94,7 +94,7 @@ class KelasController extends Controller
         return redirect()->back()->with('success', 'Siswa berhasil ditambahkan ke kelas.');
     }
 
-    public function hapusSiswa(Kelas $kelas, ProfileSiswa $profileSiswa)
+    public function hapusSiswa(ProfileSiswa $profileSiswa)
     {
         $profileSiswa->update([
             'kelas_id' => null

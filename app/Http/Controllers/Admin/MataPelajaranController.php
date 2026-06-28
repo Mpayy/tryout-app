@@ -10,9 +10,6 @@ use App\Support\CacheKey;
 
 class MataPelajaranController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         $mapels = Cache::remember(
@@ -24,9 +21,6 @@ class MataPelajaranController extends Controller
         return view('admin.mapels.index', compact('mapels'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(MataPelajaranRequest $request)
     {
         $validateData = $request->validated();
@@ -36,9 +30,6 @@ class MataPelajaranController extends Controller
         return redirect()->route('admin.mapels.index')->with('success', 'Mata pelajaran berhasil ditambahkan');
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(MataPelajaranRequest $request, MataPelajaran $mapel)
     {
         $validateData = $request->validated();
@@ -48,9 +39,6 @@ class MataPelajaranController extends Controller
         return redirect()->route('admin.mapels.index')->with('success', 'Mata pelajaran berhasil diupdate');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(MataPelajaran $mapel)
     {
         $mapel->delete();

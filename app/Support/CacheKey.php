@@ -79,7 +79,22 @@ class CacheKey
         return "mata_pelajaran_guru_{$guruId}" ;
     }
 
+    public static function siswaStats(int $siswaId): string
+    {
+        return "siswa_stats_{$siswaId}";
+    }
+
+    public static function siswaRiwayat(int $siswaId): string
+    {
+        return "siswa_riwayat_{$siswaId}";
+    }
+
+    public static function siswaChart(int $siswaId): string
+    {
+        return "siswa_chart_{$siswaId}";
+    }
+
     // Durasi dalam menit
-    const TTL_LONG   = 60;   // 1 jam
-    const TTL_MEDIUM = 10;   // 10 menit
+    const TTL_LONG   = 90;
+    const TTL_MEDIUM = 10;
 }

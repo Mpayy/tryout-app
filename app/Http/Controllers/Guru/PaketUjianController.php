@@ -29,9 +29,17 @@ class PaketUjianController extends Controller
             ->withCount('soal')
             ->paginate(5);
 
-        $mataPelajaranGuru = Cache::remember(CacheKey::mataPelajaranGuru($guru->id), now()->addMinutes(CacheKey::TTL_LONG), fn() => $guru->load('profileGuru.mataPelajarans')->profileGuru->mataPelajarans);
+        $mataPelajaranGuru = Cache::remember(
+            CacheKey::mataPelajaranGuru($guru->id),
+            now()->addMinutes(CacheKey::TTL_LONG),
+            fn() => $guru->load('profileGuru.mataPelajarans')->profileGuru->mataPelajarans
+        );
 
-        $daftarKelas = Cache::remember(CacheKey::ALL_KELAS, now()->addMinutes(CacheKey::TTL_LONG), fn() => Kelas::all());
+        $daftarKelas = Cache::remember(
+            CacheKey::ALL_KELAS,
+            now()->addMinutes(CacheKey::TTL_LONG),
+            fn() => Kelas::all()
+        );
 
         return view('guru.paket-ujian.index', compact('paketUjian', 'mataPelajaranGuru', 'daftarKelas'));
     }
@@ -59,7 +67,7 @@ class PaketUjianController extends Controller
     {
         $guruId = Auth::id();
         if ($paketUjian->guru_id !== $guruId) {
-            abort(403, 'Akses ditolak.');
+            abort(403, 'Anda tidak memiliki akses untuk mengedit paket ujian ini.');
         }
 
         $data = $request->validated();
@@ -68,13 +76,14 @@ class PaketUjianController extends Controller
 
         $this->paketUjianService->updatePaketUjian($paketUjian, $data);
 
+        $tanggalAwal = $paketUjian->tanggal_mulai->toDateString();
+
         Cache::forget(CacheKey::STAT_TOTAL_PAKET);
         Cache::forget(CacheKey::DASHBOARD_UJIAN_TERBARU);
-        Cache::forget(CacheKey::rekapPaket($paketUjian->id));
-        Cache::forget("rekap_belum_ikut_{$paketUjian->id}");
         Cache::forget(CacheKey::guruStatPaket($guruId));
         Cache::forget(CacheKey::guruDraftPaket($guruId));
-        $tanggalAwal = $paketUjian->tanggal_mulai->toDateString();
+        Cache::forget(CacheKey::rekapPaket($paketUjian->id));
+        Cache::forget("rekap_belum_ikut_{$paketUjian->id}");
         Cache::forget(CacheKey::ujianTersediaKelas($paketUjian->kelas_id, $tanggalAwal));
 
         return redirect()->route('guru.paket-ujian.index')->with('success', 'Konfigurasi paket ujian berhasil diperbarui.');
@@ -84,19 +93,20 @@ class PaketUjianController extends Controller
     {
         $guruId = Auth::id();
         if ($paketUjian->guru_id !== $guruId) {
-            abort(403, 'Akses ditolak.');
+            abort(403, 'Anda tidak memiliki akses untuk menghapus paket ujian ini.');
         }
 
-        $paketUjian->delete($paketUjian->id);
+        $paketUjian->delete();
 
+        $tanggalAwal = $paketUjian->tanggal_mulai->toDateString();
+
+        Cache::forget(CacheKey::STAT_TOTAL_PAKET);
+        Cache::forget(CacheKey::DASHBOARD_UJIAN_TERBARU);
         Cache::forget(CacheKey::guruStatPaket($guruId));
         Cache::forget(CacheKey::guruDraftPaket($guruId));
         Cache::forget(CacheKey::guruHasilTerbaru($guruId));
-        Cache::forget(CacheKey::STAT_TOTAL_PAKET);
-        Cache::forget(CacheKey::DASHBOARD_UJIAN_TERBARU);
         Cache::forget(CacheKey::rekapPaket($paketUjian->id));
         Cache::forget("rekap_belum_ikut_{$paketUjian->id}");
-        $tanggalAwal = $paketUjian->tanggal_mulai->toDateString();
         Cache::forget(CacheKey::ujianTersediaKelas($paketUjian->kelas_id, $tanggalAwal));
 
         return redirect()->route('guru.paket-ujian.index')->with('success', 'Paket ujian berhasil dihapus.');
@@ -106,8 +116,9 @@ class PaketUjianController extends Controller
     {
         $guruId = Auth::id();
         if ($paketUjian->guru_id !== $guruId) {
-            abort(403, 'Akses ditolak.');
+            abort(403, 'Anda tidak memiliki akses untuk melihat paket ujian ini.');
         }
+
         $paketUjian->load(['soal' => function ($query) {
             $query->with(['mataPelajaran', 'pilihanJawaban'])->orderBy('paket_ujian_soal.nomor_urut', 'asc');
         }]);
@@ -127,7 +138,7 @@ class PaketUjianController extends Controller
     {
         $guruId = Auth::id();
         if ($paketUjian->guru_id !== $guruId) {
-            abort(403, 'Akses ditolak.');
+            abort(403, 'Anda tidak memiliki akses untuk menambahkan soal ke paket ujian ini.');
         }
 
         $data = $request->validate([
@@ -136,6 +147,7 @@ class PaketUjianController extends Controller
         ]);
 
         $this->paketUjianService->addSoalToPaket($paketUjian, $data['soal_id']);
+
         Cache::forget(CacheKey::paketSoal($paketUjian->id));
 
         return redirect()->back()->with('success', 'Berhasil menambahkan soal terpilih ke dalam paket ujian.');
@@ -145,10 +157,11 @@ class PaketUjianController extends Controller
     {
         $guruId = Auth::id();
         if ($paketUjian->guru_id !== $guruId) {
-            abort(403, 'Akses ditolak.');
+            abort(403, 'Anda tidak memiliki akses untuk menghapus soal dari paket ujian ini.');
         }
 
         $this->paketUjianService->deleteSoalFromPaket($paketUjian, $soal);
+
         Cache::forget(CacheKey::paketSoal($paketUjian->id));
 
         return redirect()->back()->with('success', 'Soal berhasil dihapus dari paket ujian ini.');
@@ -158,7 +171,7 @@ class PaketUjianController extends Controller
     {
         $guruId = Auth::id();
         if ($paketUjian->guru_id !== $guruId) {
-            abort(403, 'Akses ditolak.');
+            abort(403, 'Anda tidak memiliki akses untuk mengubah status paket ujian ini.');
         }
 
         $data = $request->validate([
@@ -167,11 +180,18 @@ class PaketUjianController extends Controller
 
         $this->paketUjianService->updateStatusPaket($paketUjian, $data['status']);
 
+        $tanggalAwal = $paketUjian->tanggal_mulai->toDateString();
+
+        Cache::forget(CacheKey::DASHBOARD_UJIAN_TERBARU);
+        Cache::forget(CacheKey::guruStatPaket($guruId));
         Cache::forget(CacheKey::guruDraftPaket($guruId));
         Cache::forget(CacheKey::guruHasilTerbaru($guruId));
-        Cache::forget(CacheKey::DASHBOARD_UJIAN_TERBARU);
-        $tanggalAwal = $paketUjian->tanggal_mulai->toDateString();
         Cache::forget(CacheKey::ujianTersediaKelas($paketUjian->kelas_id, $tanggalAwal));
+
+        $paketUjian->load('kelas');
+        foreach ($paketUjian->kelas as $kelas) {
+            Cache::forget(CacheKey::ujianTersediaKelas($kelas->id, $tanggalAwal));
+        }
 
         return redirect()->back()->with('success', 'Status akses paket ujian berhasil diubah menjadi ' . $data['status'] . '.');
     }

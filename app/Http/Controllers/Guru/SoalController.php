@@ -30,7 +30,11 @@ class SoalController extends Controller
     public function create()
     {
         $guru = Auth::user();
-        $mataPelajaranGuru = Cache::remember(CacheKey::mataPelajaranGuru($guru->id), now()->addMinutes(CacheKey::TTL_LONG), fn() => $guru->load('profileGuru.mataPelajarans')->profileGuru->mataPelajarans);
+        $mataPelajaranGuru = Cache::remember(
+            CacheKey::mataPelajaranGuru($guru->id),
+            now()->addMinutes(CacheKey::TTL_LONG),
+            fn() => $guru->load('profileGuru.mataPelajarans')->profileGuru->mataPelajarans
+        );
 
         return view('guru.soal.create', compact('mataPelajaranGuru'));
     }
@@ -57,17 +61,16 @@ class SoalController extends Controller
         Cache::forget(CacheKey::STAT_TOTAL_SOAL);
         Cache::forget(CacheKey::guruStatSoal($guru->id));
 
-
         return redirect()
             ->route('guru.soal.index')
-            ->with('success', count($result) . ' butir soal berhasil disimpan ke bank soal.');
+            ->with('success', count($result) . ' soal berhasil ditambahkan ke bank soal.');
     }
 
     public function update(Request $request, Soal $soal)
     {
         $guruId = Auth::id();
         if ($soal->guru_id !== $guruId) {
-            abort(403, 'Akses ditolak.');
+            abort(403, 'Anda tidak memiliki akses untuk mengedit soal ini.');
         }
 
         $validate = $request->validate([
@@ -94,12 +97,11 @@ class SoalController extends Controller
             abort(403, 'Anda tidak berhak menghapus soal ini.');
         }
 
-        $soal->delete($soal->id);
+        $soal->delete();
 
         Cache::forget(CacheKey::STAT_TOTAL_SOAL);
         Cache::forget(CacheKey::guruStatSoal($guruId));
 
-        return redirect()->route('guru.soal.index')
-            ->with('success', 'Soal berhasil dihapus.');
+        return redirect()->route('guru.soal.index')->with('success', 'Soal berhasil dihapus.');
     }
 }

@@ -18,13 +18,19 @@ class GuruController extends Controller
         protected GuruService $guruService
     ) {}
 
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        $roles = Cache::remember(CacheKey::ALL_ROLES, now()->addMinutes(CacheKey::TTL_LONG), fn() => Role::all());
-        $mapels = Cache::remember(CacheKey::ALL_MATA_PELAJARAN, now()->addMinutes(CacheKey::TTL_LONG), fn() => MataPelajaran::all());
+        $roles = Cache::remember(
+            CacheKey::ALL_ROLES,
+            now()->addMinutes(CacheKey::TTL_LONG),
+            fn() => Role::all()
+        );
+
+        $mapels = Cache::remember(
+            CacheKey::ALL_MATA_PELAJARAN,
+            now()->addMinutes(CacheKey::TTL_LONG),
+            fn() => MataPelajaran::all()
+        );
 
         $daftarGuru = User::role('guru')
             ->with(['profileGuru.mataPelajarans:id,nama', 'roles:id,name'])
@@ -34,10 +40,6 @@ class GuruController extends Controller
         return view('admin.guru.index', compact('daftarGuru', 'roles', 'mapels'));
     }
 
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(GuruRequest $request)
     {
         $validatedData = $request->validated();
@@ -47,13 +49,9 @@ class GuruController extends Controller
         Cache::forget(CacheKey::STAT_TOTAL_GURU);
         Cache::forget(CacheKey::ALL_GURU_DROPDOWN);
 
-        return redirect()->route('admin.guru.index')->with('success', 'Data berhasil ditambahkan!');
+        return redirect()->route('admin.guru.index')->with('success', 'Guru berhasil ditambahkan!');
     }
 
-
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(GuruRequest $request, User $user)
     {
         $validatedData = $request->validated();
@@ -64,12 +62,9 @@ class GuruController extends Controller
         Cache::forget(CacheKey::ALL_GURU_DROPDOWN);
         Cache::forget(CacheKey::mataPelajaranGuru($user->id));
 
-        return redirect()->route('admin.guru.index')->with('success', 'Data berhasil diupdate!');
+        return redirect()->route('admin.guru.index')->with('success', 'Guru berhasil diupdate!');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(User $user)
     {
         $user->delete();
@@ -78,6 +73,6 @@ class GuruController extends Controller
         Cache::forget(CacheKey::ALL_GURU_DROPDOWN);
         Cache::forget(CacheKey::mataPelajaranGuru($user->id));
 
-        return redirect()->route('admin.guru.index')->with('success', 'Data berhasil dihapus!');
+        return redirect()->route('admin.guru.index')->with('success', 'Guru berhasil dihapus!');
     }
 }

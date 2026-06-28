@@ -33,12 +33,10 @@ class RekapController extends Controller
             )
             ->has('sesiUjian');
 
-        // Filter by status
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
 
-        // Search nama
         if ($request->filled('search')) {
             $query->where('nama', 'like', '%' . $request->search . '%');
         }
@@ -48,22 +46,16 @@ class RekapController extends Controller
         return view('guru.rekap.index', compact('pakets'));
     }
 
-    // ═══════════════════════════════════════════════════════
-    // SHOW — Detail rekap 1 paket ujian milik guru ini
-    // ═══════════════════════════════════════════════════════
     public function show(Request $request, PaketUjian $paket)
     {
         $guruId = Auth::id();
 
         if ($paket->guru_id !== $guruId) {
-            abort(403, 'Akses ditolak.');
+            abort(403, 'Anda tidak memiliki akses untuk melihat rekap paket ujian ini.');
         }
 
-        // Load relasi yang dibutuhkan
         $paket->load(['guru', 'mataPelajaran', 'kelas']);
 
-        // ── Ambil semua sesi dari cache (TANPA filter kelas) ──
-        // Key unik per paket agar paket lain tidak saling timpa
         $semuaSesiLengkap = $this->rememberWithLock(
             CacheKey::rekapPaket($paket->id),
             CacheKey::TTL_LONG,
@@ -79,8 +71,6 @@ class RekapController extends Controller
                 ->get()
         );
 
-        // ── Filter kelas di PHP dari collection (bukan query ulang ke DB) ──
-        // Ini kuncinya: data sudah di-cache, filter hanya memotong collection
         $semuaSesi = $request->filled('kelas')
             ? $semuaSesiLengkap->filter(
                 fn($s) =>
@@ -88,7 +78,6 @@ class RekapController extends Controller
             )->values()
             : $semuaSesiLengkap;
 
-        // ── Ranking (dihitung dari collection yang sudah difilter) ──
         $ranking = $semuaSesi->values()->map(function ($sesi, $index) {
             $sesi->ranking      = $index + 1;
             $sesi->durasi_menit = $sesi->waktu_mulai && $sesi->waktu_selesai
@@ -98,7 +87,6 @@ class RekapController extends Controller
             return $sesi;
         });
 
-        // ── Statistik keseluruhan ──
         $totalPeserta   = $semuaSesi->count();
         $nilaiList      = $semuaSesi->pluck('nilai')->filter();
 
@@ -114,8 +102,6 @@ class RekapController extends Controller
                 : 0,
         ];
 
-        // ── Distribusi nilai (untuk chart/tabel) ──
-        // Kelompokkan ke dalam rentang 10 poin: 0-9, 10-19, ..., 90-100
         $distribusi = collect(range(0, 9))->mapWithKeys(function ($i) use ($semuaSesi) {
             $min   = $i * 10;
             $max   = $i === 9 ? 100 : ($min + 9);
@@ -127,7 +113,6 @@ class RekapController extends Controller
             return [$label => $count];
         });
 
-        // ── Statistik per kelas ──
         $perKelas = $semuaSesi->groupBy(
             fn($s) =>
             $s->siswa->profileSiswa?->kelas?->nama ?? 'Tidak Ada Kelas'
@@ -143,22 +128,18 @@ class RekapController extends Controller
             ];
         })->values();
 
-        // ── Data kelas untuk filter dropdown ──
         $kelasOptions = Cache::remember(
             CacheKey::ALL_KELAS,
             now()->addMinutes(CacheKey::TTL_LONG),
             fn() => Kelas::orderBy('nama')->get()
         );
 
-        // ── Juga sertakan data siswa yang BELUM ikut (jika paket punya kelas tertentu) ──
         $belumIkut = collect();
         if ($paket->kelas->isNotEmpty()) {
             $belumIkut = $this->rememberWithLock(
                 "rekap_belum_ikut_{$paket->id}",
                 CacheKey::TTL_LONG,
                 function () use ($paket, $semuaSesiLengkap) {
-                    // Pakai $semuaSesiLengkap (bukan $semuaSesi) agar
-                    // siswa yang ada di kelas lain tidak ikut dianggap "belum ikut"
                     $sudahIkutIds = $semuaSesiLengkap->pluck('siswa_id');
                     return \App\Models\User::role('siswa')
                         ->whereHas('profileSiswa', fn($q) =>
