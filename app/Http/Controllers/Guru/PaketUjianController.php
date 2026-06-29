@@ -96,6 +96,10 @@ class PaketUjianController extends Controller
             abort(403, 'Anda tidak memiliki akses untuk menghapus paket ujian ini.');
         }
 
+        if ($paketUjian->sesiUjian()->exists()) {
+            return redirect()->back()->with('error', 'Paket ujian tidak dapat dihapus karena sudah ada siswa yang mengerjakan.');
+        }
+
         $paketUjian->delete();
 
         $tanggalAwal = $paketUjian->tanggal_mulai->toDateString();
@@ -141,6 +145,10 @@ class PaketUjianController extends Controller
             abort(403, 'Anda tidak memiliki akses untuk menambahkan soal ke paket ujian ini.');
         }
 
+        if ($paketUjian->sesiUjian()->exists()) {
+            return redirect()->back()->with('error', 'Tidak dapat menambah soal karena ujian sudah mulai dikerjakan.');
+        }
+
         $data = $request->validate([
             'soal_id'   => ['required', 'array', 'min:1'],
             'soal_id.*' => ['required', Rule::exists('soal', 'id')->where('guru_id', $guruId)],
@@ -158,6 +166,10 @@ class PaketUjianController extends Controller
         $guruId = Auth::id();
         if ($paketUjian->guru_id !== $guruId) {
             abort(403, 'Anda tidak memiliki akses untuk menghapus soal dari paket ujian ini.');
+        }
+
+        if ($paketUjian->sesiUjian()->exists()) {
+            return redirect()->back()->with('error', 'Tidak dapat menghapus soal karena ujian sudah mulai dikerjakan.');
         }
 
         $this->paketUjianService->deleteSoalFromPaket($paketUjian, $soal);
@@ -186,7 +198,6 @@ class PaketUjianController extends Controller
         Cache::forget(CacheKey::guruStatPaket($guruId));
         Cache::forget(CacheKey::guruDraftPaket($guruId));
         Cache::forget(CacheKey::guruHasilTerbaru($guruId));
-        Cache::forget(CacheKey::ujianTersediaKelas($paketUjian->kelas_id, $tanggalAwal));
 
         $paketUjian->load('kelas');
         foreach ($paketUjian->kelas as $kelas) {

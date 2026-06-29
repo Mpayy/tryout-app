@@ -58,6 +58,12 @@ class UjianController extends Controller
     public function mulai(PaketUjian $paket)
     {
         $siswaId = Auth::id();
+        $kelasId = Auth::user()->profileSiswa?->kelas_id;
+
+        if (!$paket->kelas()->where('kelas_id', $kelasId)->exists()) {
+            return redirect()->route('siswa.ujian.index')->with('error', 'Akses ditolak. Ujian ini bukan untuk kelas Anda.');
+        }
+
         $sesiAktif = SesiUjian::where('siswa_id', $siswaId)
             ->where('paket_ujian_id', $paket->id)
             ->whereIn('status', ['menunggu', 'berlangsung'])
@@ -238,10 +244,13 @@ class UjianController extends Controller
             ->where('status', 'berlangsung')
             ->firstOrFail();
 
-        JawabanSiswa::updateOrCreate(
-            ['sesi_ujian_id' => $sesi->id, 'soal_id' => $request->soal_id],
-            ['pilihan_jawaban_id' => $request->pilihan_jawaban_id]
-        );
+        $jawaban = JawabanSiswa::where('sesi_ujian_id', $sesi->id)
+            ->where('soal_id', $request->soal_id)
+            ->firstOrFail();
+
+        $jawaban->update([
+            'pilihan_jawaban_id' => $request->pilihan_jawaban_id
+        ]);
 
         return response()->json(['status' => 'ok']);
     }
@@ -260,9 +269,11 @@ class UjianController extends Controller
             ->where('status', 'berlangsung')
             ->firstOrFail();
 
-        JawabanSiswa::where('sesi_ujian_id', $sesi->id)
+        $jawaban = JawabanSiswa::where('sesi_ujian_id', $sesi->id)
             ->where('soal_id', $request->soal_id)
-            ->update(['is_ragu' => $request->is_ragu]);
+            ->firstOrFail();
+
+        $jawaban->update(['is_ragu' => $request->is_ragu]);
 
         return response()->json(['status' => 'ok']);
     }
