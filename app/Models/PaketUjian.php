@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class PaketUjian extends Model
 {
@@ -48,7 +49,7 @@ class PaketUjian extends Model
 
     public function sesiSiswa()
     {
-        return $this->hasOne(SesiUjian::class, 'paket_ujian_id', 'id')->where('siswa_id', auth()->id());
+        return $this->hasOne(SesiUjian::class, 'paket_ujian_id', 'id')->where('siswa_id', Auth::id());
     }
 
     public function kelas()
